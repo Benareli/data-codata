@@ -102,3 +102,13 @@ dist
 
 # TernJS port file
 .tern-port
+
+#base url
+app/config/api.config.js
+app/config/url.config.js
+.DS_Store
+err.log
+package-lock.json
+apigenerator.js
+.DS_Store
+*.xlsx
