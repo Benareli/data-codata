@@ -4,89 +4,46 @@ const User = db.user;
 const Role = db.role;
 const Pref = db.prefs;
 
+const Op = db.Sequelize.Op;
+
 var jwt = require("jsonwebtoken");
 var bcrypt = require("bcryptjs");
 
 exports.signup = (req, res) => {
-  const user = new User({
+  User.create({
     username: req.body.username,
     password: bcrypt.hashSync(req.body.password, 8)
-  });
-
-  user.save((err, user) => {
-    if (err) {
-      res.status(500).send({ message: err });
-      return;
-    }
-
-    if (req.body.roles) {
-      Role.find(
-        {
-          name: { $in: req.body.roles }
-        },
-        (err, roles) => {
-          if (err) {
-            res.status(500).send({ message: err });
-            return;
-          }
-
-          user.roles = roles.map(role => role._id);
-          user.save(err => {
-            if (err) {
-              res.status(500).send({ message: err });
-              return;
+  })
+    .then(user => {
+      if (req.body.roles) {
+        Role.findAll({
+          where: {
+            name: {
+              [Op.or]: req.body.roles
             }
-
-            res.send(user);
-          });
-        }
-      );
-    } else {
-      Role.findOne({ name: "pos_user" }, (err, role) => {
-        if (err) {
-          res.status(500).send({ message: err });
-          return;
-        }
-
-        user.roles = [role._id];
-        user.save(err => {
-          if (err) {
-            res.status(500).send({ message: err });
-            return;
-          }else{
-            const pref = new Pref({
-              user_id: user._id,
-              pos_qty: false,
-              pos_image: false
-            })
-
-            pref.save(err => {
-              if (err) {
-                res.status(500).send({ message: err });
-                return;
-              }
-              res.send(user);
-            })
           }
-
-          //
+        }).then(roles => {
+          user.setRoles(roles).then(() => {
+            res.send({ message: "User registered successfully!" });
+          });
         });
-      });
-    }
-  });
+      } else {
+        // user role = 1
+        user.setRoles([1,2,3,4,5]).then(() => {
+          res.send({ message: "User registered successfully!" });
+        });
+      }
+    })
+    .catch(err => {
+      res.status(500).send({ message: err.message });
+    });
 };
 
 exports.signin = (req, res) => {
-  User.findOne({
+  User.findOne({where: {
     username: req.body.username
-  })
-    .populate("roles", "-__v")
-    .exec((err, user) => {
-      if (err) {
-        res.status(500).send({ message: err });
-        return;
-      }
-
+  }})
+    .then(user => {
       if (!user) {
         return res.status(404).send({ message: "User Not found." });
       }
@@ -109,14 +66,32 @@ exports.signin = (req, res) => {
 
       var authorities = [];
 
-      for (let i = 0; i < user.roles.length; i++) {
-        authorities.push(user.roles[i].name.toLowerCase());
-      }
-      res.status(200).send({
+      //for (let i = 0; i < user.roles.length; i++) {
+      //  authorities.push(user.roles[i].name.toLowerCase());
+      //}
+      console.log("userid:",user.id);
+      db.sequelize.query('SELECT public.roles.name FROM public.user_roles ' +
+        'LEFT JOIN public.roles ON public.user_roles.role_id = public.roles.id ' +
+        'WHERE public.user_roles.user_id=' + user.id)
+        .then(result => {
+          for(let x=0; x<result[0].length; x++){
+            authorities.push(result[0][x].name);
+            if(x == (result[0].length-1)){
+              res.status(200).send({
+                id: user._id,
+                username: user.username,
+                roles: authorities,
+                accessToken: token
+              });
+            }
+          }
+      })
+      
+      /*res.status(200).send({
         id: user._id,
         username: user.username,
         roles: authorities,
         accessToken: token
-      });
+      });*/
     });
 };

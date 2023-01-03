@@ -3,19 +3,47 @@ const { compare } = require('../function/key.function');
 const Setting = db.settings;
 const mongoose = require("mongoose");
 
-// Retrieve all from the database.
+exports.create = (req, res) => {
+  if(!req.headers.apikey || compare(req, res)==0) {
+    res.status(401).send({ message: "Unauthorized!" });
+    return;
+  }
+  if (!req.body.company) {
+    res.status(400).send({ message: "Content can not be empty!" });
+    return;
+  }
+  Setting.findOne({where:{company: req.body.company}}).then(find => {
+    if(find.length > 0) res.status(500).send({ message: "Already Existed!" });
+    else{
+      const setting = ({
+        cost_general: req.body.cost_general ? req.body.cost_general : false,
+        comp_name: req.body.comp_name, comp_addr: req.body.comp_addr,
+        comp_phone: req.body.comp_phone, comp_email: req.body.comp_email,
+        nav_color: req.body.nav_color ? req.body.nav_color : '#dddddd',
+        title_color: req.body.nav_color ? req.body.nav_color : '#333333',
+        image: req.body.image,
+        restaurant: req.body.restaurant ? req.body.restaurant : false,
+        pos_shift: req.body.pos_shift ? req.body.pos_shift : false,
+        parent: req.body.parent,
+      });
+      Setting.create(setting).then(dataa => {
+        res.send(datab);
+      }).catch(err =>{console.error("br0102",err.message);res.status(500).send({message:err.message}); });
+    }
+  }).catch(err =>{console.error("br0103",err.message);res.status(500).send({message:err.message}); });
+};
+
 exports.findAll = (req, res) => {
   if(!req.headers.apikey || compare(req, res)==0) {
     res.status(401).send({ message: "Unauthorized!" });
     return;
   }
-  Setting.find()
+  Setting.findAll()
     .then(data => {
       res.send(data);
     }).catch(err =>{console.error("sett0101",err.message);res.status(500).send({message:err.message}); });
 };
 
-// Update by the id in the request
 exports.update = (req, res) => {
   if(!req.headers.apikey || compare(req, res)==0) {
     res.status(401).send({ message: "Unauthorized!" });
@@ -26,14 +54,10 @@ exports.update = (req, res) => {
       message: "Data to update can not be empty!"
     });
   }
-  Setting.findByIdAndUpdate(req.params.id, req.body, { useFindAndModify: false })
+  Setting.update(req.body, req.params.id)
     .then(data => {
       if (!data) {
-        res.status(404).send({
-          message: `Cannot update with id=${id}. Maybe Data was not found!`
-        });
-      } else {res.send(data);
-       
-      }
+        res.status(404).send({message: `Cannot update with id=${id}. Maybe Data was not found!`});
+      } else res.send(data);
     }).catch(err =>{console.error("sett0201",err.message);res.status(500).send({message:err.message}); });
 };

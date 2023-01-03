@@ -3,25 +3,23 @@ const { compare } = require('../function/key.function');
 const Id = db.ids;
 const mongoose = require("mongoose");
 
-// Retrieve all from the database.
 exports.findAll = (req, res) => {
   if(!req.headers.apikey || compare(req, res)==0) {
     res.status(401).send({ message: "Unauthorized!" });
     return;
   }
-  Id.find(req.query.pos_id)
+  Id.findAll()
     .then(data => {
       res.send(data);
     }).catch(err =>{console.error("id0101",err.message);res.status(500).send({message:err.message}); });
 };
 
-// Retrieve POSID.
 exports.findPOSessId = (req, res) => {
   if(!req.headers.apikey || compare(req, res)==0) {
     res.status(401).send({ message: "Unauthorized!" });
     return;
   }
-  Id.find()
+  Id.findOne({where: {company: req.body.company}})
     .then(ids => {
       if(ids[0].pos_session < 10) prefixes = '00000';
       else if(ids[0].pos_session < 100) prefixes = '0000';

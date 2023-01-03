@@ -1,16 +1,8 @@
-module.exports = mongoose => {
-  var schema = mongoose.Schema(
-    {
-      description: String,
-      active: Boolean
-    },
-    { timestamps: true }
-  );
-  schema.method("toJSON", function() {
-    const { __v, _id, ...object } = this.toObject();
-    object.id = _id;
-    return object;
+module.exports = (sequelize, Sequelize) => {
+  const Brand = sequelize.define("brands", {
+    description: {type: Sequelize.STRING},
+    active: {type: Sequelize.BOOLEAN},
   });
-  const Brand = mongoose.model("brands", schema);
+
   return Brand;
 };

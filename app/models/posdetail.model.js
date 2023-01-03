@@ -1,38 +1,19 @@
-module.exports = mongoose => {
-  var schema = mongoose.Schema(
-    {
-      order_id: String,
-      qty: Number,
-      uom: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Uom"
-      },
-      price_unit: Number,
-      discount: Number,
-      tax: Number,
-      include: Boolean,
-      subtotal: Number,
-      product: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Product"
-      },
-      store: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Store"
-      },
-      warehouse: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Warehouse"
-      },
-      date: Date
-    },
-    { timestamps: true }
-  );
-  schema.method("toJSON", function() {
-    const { __v, _id, ...object } = this.toObject();
-    object.id = _id;
-    return object;
+module.exports = (sequelize, Sequelize) => {
+  const Posdetail = sequelize.define("posdetails", {
+    order_id: {type: Sequelize.STRING},
+    qty: {type: Sequelize.FLOAT},
+    uom: {type: Sequelize.INTEGER},
+    price_unit: {type: Sequelize.FLOAT},
+    discount: {type: Sequelize.FLOAT},
+    tax: {type: Sequelize.FLOAT},
+    include: {type: Sequelize.BOOLEAN},
+    subtotal: {type: Sequelize.FLOAT},
+    product: {type: Sequelize.INTEGER},
+    store: {type: Sequelize.INTEGER},
+    warehouse: {type: Sequelize.INTEGER},
+    date: {type: 'TIMESTAMP'},
+    company: {type: Sequelize.INTEGER},
   });
-  const Posdetail = mongoose.model("posdetails", schema);
+
   return Posdetail;
 };

@@ -1,45 +1,29 @@
-module.exports = mongoose => {
-  var schema = mongoose.Schema(
-    {
-      purchase_id: String,
-      date: Date,
-      expected: Date,
-      disc_type: String,
-      discount: Number,
-      amount_untaxed: Number,
-      amount_tax: Number,
-      amount_total: Number,
-      delivery_state: Number, //0 No, 1 Partial, 2 Complete
-      supplier: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Partner"
-      },
-      warehouse: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Warehouse"
-      },
-      user: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User"
-      },
-      purchase_detail:[
-        {type: mongoose.Schema.Types.ObjectId,
-        ref: "Purchasedetail"}
-      ],
-      payment:[
-        {type: mongoose.Schema.Types.ObjectId,
-        ref: "Payment"}
-      ],
-      paid: Number, //0 No, 1 Partial, 2 Complete
-      open: Boolean,
-    },
-    { timestamps: true }
-  );
-  schema.method("toJSON", function() {
-    const { __v, _id, ...object } = this.toObject();
-    object.id = _id;
-    return object;
+module.exports = (sequelize, Sequelize) => {
+  const Purchase = sequelize.define("purchases", {
+    purchase_id: {type: Sequelize.STRING},
+    date: {type: 'TIMESTAMP'},
+    expected: {type: 'TIMESTAMP'},
+    disc_type: {type: Sequelize.STRING},
+    discount: {type: Sequelize.FLOAT},
+    amount_untaxed: {type: Sequelize.FLOAT},
+    amount_tax: {type: Sequelize.FLOAT},
+    amount_total: {type: Sequelize.FLOAT},
+    delivery_state: {type: Sequelize.INTEGER}, //0 No, 1 Partial, 2 Complete
+    supplier: {type: Sequelize.INTEGER},
+    warehouse: {type: Sequelize.INTEGER},
+    user: {type: Sequelize.INTEGER},
+    
+    paid: {type: Sequelize.INTEGER}, //0 No, 1 Partial, 2 Complete
+    open: {type: Sequelize.BOOLEAN},
+    company: {type: Sequelize.INTEGER},
   });
-  const Purchase = mongoose.model("purchases", schema);
+
   return Purchase;
 };
+
+/*purchase_detail:[
+      {type: Sequelize.INTEGER},
+    ],
+    payment:[
+      {type: Sequelize.INTEGER},
+    ],*/

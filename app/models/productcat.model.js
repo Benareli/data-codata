@@ -1,17 +1,9 @@
-module.exports = mongoose => {
-  var schema = mongoose.Schema(
-    {
-      catid: String,
-      description: String,
-      active: Boolean
-    },
-    { timestamps: true }
-  );
-  schema.method("toJSON", function() {
-    const { __v, _id, ...object } = this.toObject();
-    object.id = _id;
-    return object;
+module.exports = (sequelize, Sequelize) => {
+  const ProductCat = sequelize.define("productcats", {
+    catid: {type: Sequelize.STRING},
+    description: {type: Sequelize.STRING},
+    active: {type: Sequelize.BOOLEAN},
   });
-  const ProductCat = mongoose.model("productcats", schema);
+
   return ProductCat;
 };

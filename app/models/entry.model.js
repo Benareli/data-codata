@@ -1,40 +1,21 @@
-module.exports = mongoose => {
-  var schema = mongoose.Schema(
-    {
-      journal_id: String,
-      debit_acc: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Coa"
-      },
-      credit_acc: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Coa"
-      },
-      debit: Number,
-      credit: Number,
-      label: String,
-      product: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Product"
-      },
-      qty: Number,
-      uom: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Uom"
-      },
-      price_unit: Number,
-      tax: Number,
-      discount: Number,
-      subtotal: Number,
-      date: Date
-    },
-    { timestamps: true }
-  );
-  schema.method("toJSON", function() {
-    const { __v, _id, ...object } = this.toObject();
-    object.id = _id;
-    return object;
+module.exports = (sequelize, Sequelize) => {
+  const Entry = sequelize.define("entrys", {
+    journal_id: {type: Sequelize.INTEGER},
+    debit_acc: {type: Sequelize.INTEGER},
+    credit_acc: {type: Sequelize.INTEGER},
+    debit: {type: Sequelize.FLOAT},
+    credit: {type: Sequelize.FLOAT},
+    label: {type: Sequelize.STRING},
+    product: {type: Sequelize.INTEGER},
+    qty: {type: Sequelize.FLOAT},
+    uom: {type: Sequelize.INTEGER},
+    price_unit: {type: Sequelize.FLOAT},
+    tax: {type: Sequelize.FLOAT},
+    discount: {type: Sequelize.FLOAT},
+    subtotal: {type: Sequelize.FLOAT},
+    date: {type: 'TIMESTAMP'},
+    company: {type: Sequelize.INTEGER},
   });
-  const Entry = mongoose.model("entrys", schema);
+
   return Entry;
 };

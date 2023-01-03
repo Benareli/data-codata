@@ -4,9 +4,8 @@ const cors = require("cors");
 const dbConfig = require("./app/config/db.config");
 const baseurl = require("./app/config/url.config");
 const cron = require('node-cron');
-const helmet = require('helmet');
-const morgan = require('morgan');
 const app = express();
+const db = require("./app/models");
 
 var corsOptions = {
   origin: `${baseurl.baseurl}`
@@ -25,15 +24,19 @@ app.use((req, res, next)=>{
   next();
 })
 
-const db = require("./app/models");
+//db.sequelize.sync({ force: true }).then(() => {console.log("Drop and re-sync db.");});
+
 const Role = db.role;
 const Setting = db.settings;
 const Ids = db.ids;
-const Pref = db.prefs;
+const Coa = db.coas;
 const Log = db.logs;
 
 const Warehouse = db.warehouses;
 const Store = db.stores;
+
+/*const Pref = db.prefs;
+
 const ProductCat = db.productcats;
 const Partner = db.partners;
 const Product = db.products;
@@ -42,14 +45,112 @@ const Uom = db.uoms;
 const Stockmove = db.stockmoves;
 const Qof = db.qofs;
 const Qop = db.qops;
-const Coa = db.coas;
 const Tax = db.taxs;
-const Bom = db.boms;
+const Bom = db.boms;*/
 
 var uomid;
 
-db.mongoose
-  .connect(`mongodb://${dbConfig.HOST}:${dbConfig.PORT}/${dbConfig.DB}`, {
+Setting.findAll().then(res => {
+  if(res.length == 0) initial();
+});
+
+function initial() {
+  Ids.create({
+    pos_id: 1,
+    pre_pos_id: "POS",
+    pos_session: 1,
+    pre_pos_session: "POS-SESS",
+    transfer_id: 1,
+    pre_transfer_id: "TRANSF",
+    pay_id: 1,
+    pre_pay_id: "PAY",
+    purchase_id: 1,
+    pre_purchase_id: "PUR",
+    sale_id: 1,
+    pre_sale_id: "SAL",
+    journal_id: 1,
+    pre_journal_id: "JOUR",
+    bill_id: 1,
+    pre_bill_id: "BILL",
+    invoice_id: 1,
+    pre_invoice_id: "INVOICE",
+    ticket_id: 1,
+    pre_ticket_id: "TICK",
+    company: 1,
+  });
+  Setting.create({
+    cost_general: true,
+    comp_name: "Codata",
+    comp_addr: "",
+    comp_phone: "",
+    comp_email: "",
+    image: "default.png",
+    nav_color: "#f2f2f2",
+    title_color: "#3f5efb",
+    pos_shift: false,
+    retail: true,
+  });
+  Role.create({id:1,name: "admin"});
+  Role.create({id:2,name: "inventory_user"});
+  Role.create({id:3,name: "inventory_manager"});
+  Role.create({id:4,name: "partner_user"});
+  Role.create({id:5,name: "partner_manager"});
+  Role.create({id:6,name: "acc_user"});
+  Role.create({id:7,name: "acc_manager"});
+  Role.create({id:8,name: "purchase_user"});
+  Role.create({id:9,name: "purchase_manager"});
+  Role.create({id:10,name: "sale_user"});
+  Role.create({id:11,name: "sale_manager"});
+  Role.create({id:12,name: "pos_user"});
+  Role.create({id:13,name: "pos_manager"});
+  Role.create({id:14,name: "pos_disc_add"});
+  Role.create({id:15,name: "production_user"});
+  Role.create({id:16,name: "production_manager"});
+  Role.create({id:17,name: "ticket_user"});
+  Role.create({id:18,name: "ticket_manager"});
+  Role.create({id:19,name: "project_user"});
+  Role.create({id:20,name: "project_manager"});
+
+  Coa.create({prefix: 1,company: 1,code: "1-1001",name: "Kas",active: true});
+  Coa.create({prefix: 1,company: 1,code: "1-1101",name: "Bank",active: true});
+  Coa.create({prefix: 1,company: 1,code: "1-1111",name: "Settlement",active: true});
+  Coa.create({prefix: 1,company: 1,code: "1-2001",name: "Piutang",active: true});
+  Coa.create({prefix: 1,company: 1,code: "1-2901",name: "PPN Masukan",active: true});
+  Coa.create({prefix: 1,company: 1,code: "1-3001",name: "Persediaan",active: true});
+  Coa.create({prefix: 1,company: 1,code: "1-3901",name: "Persediaan Transit",active: true});
+  Coa.create({prefix: 1,company: 1,code: "1-5001",name: "Aktiva Tetap",active: true});
+  Coa.create({prefix: 2,company: 1,code: "2-1001",name: "Hutang Dagang",active: true});
+  Coa.create({prefix: 2,company: 1,code: "2-2001",name: "Hutang Lainnya",active: true});
+  Coa.create({prefix: 2,company: 1,code: "2-3001",name: "Hutang Dalam Perjalanan",active: true});
+  Coa.create({prefix: 2,company: 1,code: "2-4001",name: "PPN Keluaran",active: true});
+  Coa.create({prefix: 3,company: 1,code: "3-1001",name: "Modal",active: true});
+  Coa.create({prefix: 3,company: 1,code: "3-4001",name: "Laba Rugi",active: true});
+  Coa.create({prefix: 4,company: 1,code: "4-1001",name: "Pendapatan",active: true});
+  Coa.create({prefix: 5,company: 1,code: "5-1001",name: "HPP",active: true});
+  Coa.create({prefix: 6,company: 1,code: "6-1001",name: "Biaya Operasional",active: true});
+  Coa.create({prefix: 6,company: 1,code: "6-1001",name: "Biaya Variabel",active: true});
+  Coa.create({prefix: 6,company: 1,code: "6-9001",name: "Biaya Lain Lain",active: true});
+
+  Warehouse.create({
+    name: "Gudang Utama",
+    short: "UTAMA",
+    main: true,
+    active: true,
+    company: 1
+  });
+  Log.create({message: "dibuat oleh sistem", warehouse: 1});
+  Store.create({
+    store_name: "Codata",
+    warehouse: 1,
+    company: 1,
+    active: true
+  });
+  Log.create({message: "dibuat oleh sistem", store: 1});
+  
+}
+
+/*db.mongoose
+  .connect(`mongodb://127.0.0.1:27017/codata`, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
@@ -60,21 +161,24 @@ db.mongoose
   .catch(err => {
     console.error("Connection error", err);
     process.exit();
-  });
+  });*/
 
 app.get("/", cors(corsOptions), (req, res) => {
   res.status(200).send("Welcome");
 });
 
-// routes
-require("./app/routes/file.routes")(app);
-
-require("./app/routes/id.routes")(app);
-require("./app/routes/pref.routes")(app);
-require("./app/routes/setting.routes")(app);
-require("./app/routes/log.routes")(app);
+require("./app/routes/auth.routes")(app);
+require("./app/routes/user.routes")(app);
 require("./app/routes/useruser.routes")(app);
 require("./app/routes/userrole.routes")(app);
+require("./app/routes/setting.routes")(app);
+require("./app/routes/store.routes")(app);
+require("./app/routes/id.routes")(app);
+// routes
+/*require("./app/routes/file.routes")(app);
+
+require("./app/routes/pref.routes")(app);
+require("./app/routes/log.routes")(app);
 require("./app/routes/coa.routes")(app);
 require("./app/routes/tax.routes")(app);
 require("./app/routes/product.routes")(app);
@@ -84,7 +188,6 @@ require("./app/routes/uom.routes")(app);
 require("./app/routes/brand.routes")(app);
 require("./app/routes/bundle.routes")(app);
 require("./app/routes/warehouse.routes")(app);
-require("./app/routes/store.routes")(app);
 require("./app/routes/partner.routes")(app);
 require("./app/routes/stockmove.routes")(app);
 require("./app/routes/stockrequest.routes")(app);
@@ -104,10 +207,7 @@ require("./app/routes/bom.routes")(app);
 require("./app/routes/costing.routes")(app);
 
 require("./app/routes/ticket.routes")(app);
-require("./app/routes/project.routes")(app);
-
-require("./app/routes/auth.routes")(app);
-require("./app/routes/user.routes")(app);
+require("./app/routes/project.routes")(app);*/
 
 // set port, listen for requests
 const PORT = process.env.PORT || 8080;
@@ -116,13 +216,13 @@ app.listen(PORT, () => {
 });
 
 //cron schedule
-cron.schedule('00 10 * * *', function() {
+/*cron.schedule('00 10 * * *', function() {
   console.log('Running stock calculation');
   checkQof();
-});
+});*/
 
 //AI FUCK
-function checkQof() {
+/*function checkQof() {
   const find1 = Qof.find()
     .then(res => {
       if(res.length>0){
@@ -733,6 +833,5 @@ function ProductsCare() {
         });
       });
     });
-  });
-  
-}
+  });  
+}*/

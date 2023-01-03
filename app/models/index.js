@@ -1,50 +1,75 @@
-const mongoose = require('mongoose');
-mongoose.Promise = global.Promise;
+const dbConfig = require("../config/db.config.js");
+
+const Sequelize = require("sequelize");
+const sequelize = new Sequelize(dbConfig.DB, dbConfig.USER, dbConfig.PASSWORD, {
+  host: dbConfig.HOST,
+  dialect: dbConfig.dialect,
+  operatorsAliases: false,
+
+  pool: {
+    max: dbConfig.pool.max,
+    min: dbConfig.pool.min,
+    acquire: dbConfig.pool.acquire,
+    idle: dbConfig.pool.idle
+  }
+});
 
 const db = {};
 
-db.mongoose = mongoose;
+db.Sequelize = Sequelize;
+db.sequelize = sequelize;
 
-db.settings = require("./setting.model.js")(mongoose);
-db.prefs = require("./pref.model.js")(mongoose);
-db.logs = require("./log.model.js")(mongoose);
-db.ids = require("./id.model.js")(mongoose);
-db.products = require("./product.model.js")(mongoose);
-db.productcats = require("./productcat.model.js")(mongoose);
-db.brands = require("./brand.model.js")(mongoose);
-db.uomcats = require("./uomcat.model.js")(mongoose);
-db.uoms = require("./uom.model.js")(mongoose);
-db.bundles = require("./bundle.model.js")(mongoose);
-db.warehouses = require("./warehouse.model.js")(mongoose);
-db.stores = require("./store.model.js")(mongoose);
-db.partners = require("./partner.model.js")(mongoose);
-db.stockmoves = require("./stockmove.model.js")(mongoose);
-db.stockrequests = require("./stockrequest.model.js")(mongoose);
-db.qofs = require("./qof.model.js")(mongoose);
-db.qops = require("./qop.model.js")(mongoose);
-db.possessions = require("./possession.model.js")(mongoose);
-db.poss = require("./pos.model.js")(mongoose);
-db.posdetails = require("./posdetail.model.js")(mongoose);
-db.purchases = require("./purchase.model.js")(mongoose);
-db.purchasedetails = require("./purchasedetail.model.js")(mongoose);
-db.sales = require("./sale.model.js")(mongoose);
-db.saledetails = require("./saledetail.model.js")(mongoose);
-db.payments = require("./payment.model.js")(mongoose);
-db.coas = require("./coa.model.js")(mongoose);
-db.taxs = require("./tax.model.js")(mongoose);
-db.journals = require("./journal.model.js")(mongoose);
-db.entrys = require("./entry.model.js")(mongoose);
-db.boms = require("./bom.model.js")(mongoose);
-db.costings = require("./costing.model.js")(mongoose);
+db.settings = require("./setting.model.js")(sequelize, Sequelize);
+db.prefs = require("./pref.model.js")(sequelize, Sequelize);
+db.logs = require("./log.model.js")(sequelize, Sequelize);
+db.ids = require("./id.model.js")(sequelize, Sequelize);
+db.products = require("./product.model.js")(sequelize, Sequelize);
+db.productcats = require("./productcat.model.js")(sequelize, Sequelize);
+db.brands = require("./brand.model.js")(sequelize, Sequelize);
+db.uomcats = require("./uomcat.model.js")(sequelize, Sequelize);
+db.uoms = require("./uom.model.js")(sequelize, Sequelize);
+db.bundles = require("./bundle.model.js")(sequelize, Sequelize);
+db.warehouses = require("./warehouse.model.js")(sequelize, Sequelize);
+db.stores = require("./store.model.js")(sequelize, Sequelize);
+db.partners = require("./partner.model.js")(sequelize, Sequelize);
+db.stockmoves = require("./stockmove.model.js")(sequelize, Sequelize);
+db.stockrequests = require("./stockrequest.model.js")(sequelize, Sequelize);
+db.qofs = require("./qof.model.js")(sequelize, Sequelize);
+db.qops = require("./qop.model.js")(sequelize, Sequelize);
+db.possessions = require("./possession.model.js")(sequelize, Sequelize);
+db.poss = require("./pos.model.js")(sequelize, Sequelize);
+db.posdetails = require("./posdetail.model.js")(sequelize, Sequelize);
+db.purchases = require("./purchase.model.js")(sequelize, Sequelize);
+db.purchasedetails = require("./purchasedetail.model.js")(sequelize, Sequelize);
+db.sales = require("./sale.model.js")(sequelize, Sequelize);
+db.saledetails = require("./saledetail.model.js")(sequelize, Sequelize);
+db.payments = require("./payment.model.js")(sequelize, Sequelize);
+db.coas = require("./coa.model.js")(sequelize, Sequelize);
+db.taxs = require("./tax.model.js")(sequelize, Sequelize);
+db.journals = require("./journal.model.js")(sequelize, Sequelize);
+db.entrys = require("./entry.model.js")(sequelize, Sequelize);
+db.boms = require("./bom.model.js")(sequelize, Sequelize);
+db.costings = require("./costing.model.js")(sequelize, Sequelize);
 
-db.projects = require("./project.model.js")(mongoose);
-db.tasks = require("./task.model.js")(mongoose);
-db.tickets = require("./ticket.model.js")(mongoose);
+/*db.projects = require("./project.model.js")(sequelize, Sequelize);
+db.tasks = require("./task.model.js")(sequelize, Sequelize);
+db.tickets = require("./ticket.model.js")(sequelize, Sequelize);*/
 
-db.users = require("./useruser.model.js")(mongoose);
-db.role = require("./userrole.model.js")(mongoose);
-db.user = require("./user.model");
-db.role = require("./role.model");
+db.users = require("./useruser.model.js")(sequelize, Sequelize);
+//db.role = require("./userrole.model.js")(sequelize, Sequelize);
+db.user = require("./user.model")(sequelize, Sequelize);
+db.role = require("./role.model")(sequelize, Sequelize);
+
+db.role.belongsToMany(db.user, {
+  through: "user_roles",
+  foreignKey: "role_id",
+  otherKey: "user_id"
+});
+db.user.belongsToMany(db.role, {
+  through: "user_roles",
+  foreignKey: "user_id",
+  otherKey: "role_id"
+});
 
 db.ROLES = ["inventory_user", "inventory_manager", "partner_user", "partner_manager", 
 	"trans_user", "trans_manager", "admin"];

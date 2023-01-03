@@ -11,7 +11,7 @@ exports.findAll = (req, res) => {
     res.status(401).send({ message: "Unauthorized!" });
     return;
   }
-  Role.find(condition)
+  Role.findAll({where: condition})
     .then(data => {
       res.send(data);
     }).catch(err =>{console.error("role0101",err.message);res.status(500).send({message:err.message}); });
@@ -23,7 +23,7 @@ exports.findOne = (req, res) => {
     res.status(401).send({ message: "Unauthorized!" });
     return;
   }
-  Role.findById(req.params.id)
+  Role.findByPk({where: req.params.id})
     .then(data => {
       if (!data)
         res.status(404).send({ message: "Not found Data with id " + id });

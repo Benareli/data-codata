@@ -1,44 +1,23 @@
-module.exports = mongoose => {
-  var schema = mongoose.Schema(
-    {
-      purchase_id: String,
-      qty: Number,
-      qty_done: Number,
-      qty_inv: Number,
-      qty_rec: Number,
-      price_unit: Number,
-      discount: Number,
-      tax: Number,
-      subtotal: Number,
-      date: Date,
-      product: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Product"
-      },
-      uom: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Uom"
-      },
-      partner: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Partner"
-      },
-      warehouse: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Warehouse"
-      },
-      stockmove: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Stockmove"
-      }]
-    },
-    { timestamps: true }
-  );
-  schema.method("toJSON", function() {
-    const { __v, _id, ...object } = this.toObject();
-    object.id = _id;
-    return object;
+module.exports = (sequelize, Sequelize) => {
+  const Purchasedetail = sequelize.define("purchasedetail", {
+    purchase_id: {type: Sequelize.INTEGER},
+    qty: {type: Sequelize.FLOAT},
+    qty_done: {type: Sequelize.FLOAT},
+    qty_inv: {type: Sequelize.FLOAT},
+    qty_rec: {type: Sequelize.FLOAT},
+    price_unit: {type: Sequelize.FLOAT},
+    discount: {type: Sequelize.FLOAT},
+    tax: {type: Sequelize.FLOAT},
+    subtotal: {type: Sequelize.FLOAT},
+    date: {type: 'TIMESTAMP'},
+    product: {type: Sequelize.INTEGER},
+    uom: {type: Sequelize.INTEGER},
+    partner: {type: Sequelize.INTEGER},
+    warehouse: {type: Sequelize.INTEGER},
+    company: {type: Sequelize.INTEGER},
   });
-  const Purchasedetail = mongoose.model("purchasedetail", schema);
+
   return Purchasedetail;
 };
+
+//stockmove: [{type: Sequelize.INTEGER},]

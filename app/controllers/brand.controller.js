@@ -5,9 +5,7 @@ const Log = db.logs;
 const User = db.users;
 const duplicate = [];
 
-// Create and Save new
 exports.create = (req, res) => {
-  // Validate request
   if(!req.headers.apikey || compare(req, res)==0) {
     res.status(401).send({ message: "Unauthorized!" });
     return;
@@ -16,7 +14,7 @@ exports.create = (req, res) => {
     res.status(400).send({ message: "Content can not be empty!" });
     return;
   }
-  Brand.find({description: req.body.description}).then(find => {
+  Brand.findOne({where:{description: req.body.description}}).then(find => {
     if(find.length > 0) res.status(500).send({ message: "Already Existed!" });
     else{
       const brand = ({description: req.body.description, active: req.body.active ? req.body.active : false});
@@ -30,9 +28,7 @@ exports.create = (req, res) => {
   }).catch(err =>{console.error("br0103",err.message);res.status(500).send({message:err.message}); });
 };
 
-// Create and Save new
 exports.createMany = (req, res) => {
-  // Validate request
   if(!req.headers.apikey || compare(req, res)==0) {
     res.status(401).send({ message: "Unauthorized!" });
     return;
@@ -46,7 +42,7 @@ exports.createMany = (req, res) => {
 
 function startSequence(x, reqs, users, res){
   if(reqs[x]){
-    Brand.find({description: reqs[x].nama}).then(data => {
+    Brand.findOne({where:{description: reqs[x].nama}}).then(data => {
       if(data.length>0){
         duplicate.push(x+1);
         sequencing(x, reqs, users, res);
@@ -72,27 +68,27 @@ function sequencing(x, reqs, users, res){
   startSequence(x, reqs, users, res);
 }
 
-// Retrieve all from the database.
 exports.findAll = (req, res) => {
   const description = req.query.description;
   var condition = description ? { description: { $regex: new RegExp(description), $options: "i" } } : {};
+  
   if(!req.headers.apikey || compare(req, res)==0) {
     res.status(401).send({ message: "Unauthorized!" });
     return;
   }
-  Brand.find(condition)
+
+  Brand.findAll({where: condition})
     .then(data => {
       res.send(data);
     }).catch(err =>{console.error("br0301",err.message);res.status(500).send({message:err.message}); });
 };
 
-// Find a single with an id
 exports.findOne = (req, res) => {
   if(!req.headers.apikey || compare(req, res)==0) {
     res.status(401).send({ message: "Unauthorized!" });
     return;
   }
-  Brand.findById(req.params.id)
+  Brand.findByPk(req.params.id)
     .then(data => {
       if (!data)
         res.status(404).send({ message: "Not found Data with id " + id });
@@ -100,7 +96,6 @@ exports.findOne = (req, res) => {
     }).catch(err =>{console.error("br0401",err.message);res.status(500).send({message:err.message}); });
 };
 
-// Find a single with an desc
 exports.findByDesc = (req, res) => {
   const description = req.query.description;
   var condition = description ? { description: { $regex: new RegExp(description), $options: "i" } } : {};
@@ -108,13 +103,12 @@ exports.findByDesc = (req, res) => {
     res.status(401).send({ message: "Unauthorized!" });
     return;
   }
-  Brand.find(condition)
+  Brand.findOne({where: condition})
     .then(data => {
       res.send(data);
     }).catch(err =>{console.error("br0501",err.message);res.status(500).send({message:err.message}); });
 };
 
-// Update by the id in the request
 exports.update = (req, res) => {
   if(!req.headers.apikey || compare(req, res)==0) {
     res.status(401).send({ message: "Unauthorized!" });
@@ -124,11 +118,11 @@ exports.update = (req, res) => {
     return res.status(400).send({message: "Data to update can not be empty!"});
   }
 
-  Brand.find({description: req.body.description}).then(find => {
+  Brand.findOne({where:{description: req.body.description}}).then(find => {
     if(find.length > 0 && find[0].id != req.params.id) res.status(500).send({ message: "Already Existed!" });
     else{
-      Brand.findByIdAndUpdate(req.params.id, ({description: req.body.description, 
-        active: req.body.active ? req.body.active : false}), { useFindAndModify: false })
+      Brand.update(({description: req.body.description, 
+        active: req.body.active ? req.body.active : false}), req.params.id)
         .then(data => {
           if (!data) {
             res.status(404).send({message: `Cannot update. Maybe Data was not found!`});
@@ -143,13 +137,12 @@ exports.update = (req, res) => {
     }).catch(err =>{console.error("br0603",err.message);res.status(500).send({message:err.message}); });
 };
 
-// Find all active
 exports.findAllActive = (req, res) => {
   if(!req.headers.apikey || compare(req, res)==0) {
     res.status(401).send({ message: "Unauthorized!" });
     return;
   }
-  Brand.find({ active: true }).sort({description:1})
+  Brand.find({where:{ active: true }})
     .then(data => {
       res.send(data);
     }).catch(err =>{console.error("br0701",err.message);res.status(500).send({message:err.message}); });

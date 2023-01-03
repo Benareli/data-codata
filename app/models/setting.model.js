@@ -1,23 +1,17 @@
-module.exports = mongoose => {
-  var schema = mongoose.Schema(
-    {
-      cost_general: Boolean,
-      comp_name: String,
-      comp_addr: String,
-      comp_phone: String,
-      comp_email: String,
-      nav_color: String,
-      title_color: String,
-      image: String,
-      restaurant: Boolean,
-      pos_shift: Boolean
-    }
-  );
-  schema.method("toJSON", function() {
-    const { __v, _id, ...object } = this.toObject();
-    object.id = _id;
-    return object;
+module.exports = (sequelize, Sequelize) => {
+  const Setting = sequelize.define("settings", {
+    cost_general: {type: Sequelize.BOOLEAN},
+    comp_name: {type: Sequelize.STRING},
+    comp_addr: {type: Sequelize.TEXT},
+    comp_phone: {type: Sequelize.STRING},
+    comp_email: {type: Sequelize.STRING},
+    nav_color: {type: Sequelize.STRING},
+    title_color: {type: Sequelize.STRING},
+    image: {type: Sequelize.TEXT},
+    restaurant: {type: Sequelize.BOOLEAN},
+    pos_shift: {type: Sequelize.BOOLEAN},
+    parent: {type: Sequelize.INTEGER},
   });
-  const Setting = mongoose.model("settings", schema);
+
   return Setting;
 };

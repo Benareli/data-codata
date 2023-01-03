@@ -5,9 +5,7 @@ const Warehouse = db.warehouses;
 const Log = db.logs;
 const User = db.users;
 
-// Create and Save new
 exports.create = (req, res) => {
-  // Validate request
   if(!req.headers.apikey || compare(req, res)==0) {
     res.status(401).send({ message: "Unauthorized!" });
     return;
@@ -18,7 +16,7 @@ exports.create = (req, res) => {
   }
   const store = ({store_name: req.body.store_name, store_addr: req.body.store_addr, 
     store_phone: req.body.store_addr, warehouse: req.body.warehouse,
-    active: req.body.active ? req.body.active : false});
+    active: req.body.active ? req.body.active : false, company: req.body.company});
   Store.create(store).then(dataa => {
     const log = ({message: "add", store: dataa._id, user: req.body.user,});
     Log.create(log).then(datab => {
@@ -27,7 +25,6 @@ exports.create = (req, res) => {
   }).catch(err =>{console.error("sto0102",err.message);res.status(500).send({message:err.message}); });
 };
 
-// Retrieve all from the database.
 exports.findAll = (req, res) => {
   const store_name = req.query.store_name;
   var condition = store_name ? { store_name: { $regex: new RegExp(store_name), $options: "i" } } : {};
@@ -35,21 +32,18 @@ exports.findAll = (req, res) => {
     res.status(401).send({ message: "Unauthorized!" });
     return;
   }
-  Store.find(condition)
-    .populate({ path: 'warehouse', model: Warehouse })
+  Store.findAll({where: condition})
     .then(data => {
       res.send(data);
     }).catch(err =>{console.error("sto0201",err.message);res.status(500).send({message:err.message}); });
 };
 
-// Find a single with an id
 exports.findOne = (req, res) => {
   if(!req.headers.apikey || compare(req, res)==0) {
     res.status(401).send({ message: "Unauthorized!" });
     return;
   }
-  Store.findById(req.params.id)
-    .populate({ path: 'warehouse', model: Warehouse })
+  Store.findByPk(req.params.id)
     .then(data => {
       if (!data)
         res.status(404).send({ message: "Not found Data with id " + id });
@@ -57,7 +51,6 @@ exports.findOne = (req, res) => {
     }).catch(err =>{console.error("sto0301",err.message);res.status(500).send({message:err.message}); });
 };
 
-// Find a single with an desc
 exports.findByDesc = (req, res) => {
   const store_name = req.query.store_name;
   var condition = store_name ? { store_name: { $regex: new RegExp(store_name), $options: "i" } } : {};
@@ -65,13 +58,12 @@ exports.findByDesc = (req, res) => {
     res.status(401).send({ message: "Unauthorized!" });
     return;
   }
-  Store.find(condition)
+  Store.findAll({where: condition})
     .then(data => {
       res.send(data);
     }).catch(err =>{console.error("sto0401",err.message);res.status(500).send({message:err.message}); });
 };
 
-// Update by the id in the request
 exports.update = (req, res) => {
   if(!req.headers.apikey || compare(req, res)==0) {
     res.status(401).send({ message: "Unauthorized!" });
@@ -82,7 +74,7 @@ exports.update = (req, res) => {
       message: "Data to update can not be empty!"
     });
   }
-  Store.findByIdAndUpdate(req.params.id, req.body, { useFindAndModify: false })
+  Store.update(req.body, req.params.id)
     .then(data => {
       if (!data) {
         res.status(404).send({
@@ -97,13 +89,12 @@ exports.update = (req, res) => {
     }).catch(err =>{console.error("sto0502",err.message);res.status(500).send({message:err.message}); });
 };
 
-// Delete with the specified id in the request
 exports.delete = (req, res) => {
   if(!req.headers.apikey || compare(req, res)==0) {
     res.status(401).send({ message: "Unauthorized!" });
     return;
   }
-  Store.findByIdAndRemove(req.params.id, { useFindAndModify: false })
+  Store.delete(req.params.id)
     .then(data => {
       if (!data) {
         res.status(404).send({
@@ -115,7 +106,6 @@ exports.delete = (req, res) => {
     }).catch(err =>{console.error("sto0601",err.message);res.status(500).send({message:err.message}); });
 };
 
-// Delete all from the database.
 exports.deleteAll = (req, res) => {
   if(!req.headers.apikey || compare(req, res)==0) {
     res.status(401).send({ message: "Unauthorized!" });
@@ -129,14 +119,12 @@ exports.deleteAll = (req, res) => {
     }).catch(err =>{console.error("sto0701",err.message);res.status(500).send({message:err.message}); });
 };
 
-// Find all active
 exports.findAllActive = (req, res) => {
   if(!req.headers.apikey || compare(req, res)==0) {
     res.status(401).send({ message: "Unauthorized!" });
     return;
   }
-  Store.find({ active: true })
-    .populate({ path: 'warehouse', model: Warehouse })
+  Store.find({where: { active: true }})
     .then(data => {
       res.send(data);
     }).catch(err =>{console.error("sto0801",err.message);res.status(500).send({message:err.message}); });

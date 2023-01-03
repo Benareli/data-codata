@@ -5,8 +5,8 @@ const User = db.user;
 checkDuplicateUsernameOrEmail = (req, res, next) => {
   // Username
   User.findOne({
-    username: req.body.username
-  }).exec((err, user) => {
+    where: {username: req.body.username}
+  }).then((err, user) => {
     if (err) {
       res.status(500).send({ message: err });
       return;

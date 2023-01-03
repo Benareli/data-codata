@@ -1,34 +1,27 @@
-module.exports = mongoose => {
-  var schema = mongoose.Schema(
-    {
-      pos_id: Number,
-      pre_pos_id: String,
-      pos_session: Number,
-      pre_pos_session: String,
-      transfer_id: Number,
-      pre_transfer_id: String,
-      pay_id: Number,
-      pre_pay_id: String,
-      journal_id: Number,
-      pre_journal_id: String,
-      purchase_id: Number,
-      pre_purchase_id: String,
-      sale_id: Number,
-      pre_sale_id: String,
-      bill_id: Number,
-      pre_bill_id: String,
-      invoice_id: Number,
-      pre_invoice_id: String,
-      ticket_id: Number,
-      pre_ticket_id: String,
-    },
-    { timestamps: true }
-  );
-  schema.method("toJSON", function() {
-    const { __v, _id, ...object } = this.toObject();
-    object.id = _id;
-    return object;
+module.exports = (sequelize, Sequelize) => {
+  const Id = sequelize.define("ids", {
+    pos_id: {type: Sequelize.INTEGER},
+    pre_pos_id: {type: Sequelize.STRING},
+    pos_session: {type: Sequelize.INTEGER},
+    pre_pos_session: {type: Sequelize.STRING},
+    transfer_id: {type: Sequelize.INTEGER},
+    pre_transfer_id: {type: Sequelize.STRING},
+    pay_id: {type: Sequelize.INTEGER},
+    pre_pay_id: {type: Sequelize.STRING},
+    journal_id: {type: Sequelize.INTEGER},
+    pre_journal_id: {type: Sequelize.STRING},
+    purchase_id: {type: Sequelize.INTEGER},
+    pre_purchase_id: {type: Sequelize.STRING},
+    sale_id: {type: Sequelize.INTEGER},
+    pre_sale_id: {type: Sequelize.STRING},
+    bill_id: {type: Sequelize.INTEGER},
+    pre_bill_id: {type: Sequelize.STRING},
+    invoice_id: {type: Sequelize.INTEGER},
+    pre_invoice_id: {type: Sequelize.STRING},
+    ticket_id: {type: Sequelize.INTEGER},
+    pre_ticket_id: {type: Sequelize.STRING},
+    company: {type: Sequelize.INTEGER},
   });
-  const Id = mongoose.model("ids", schema);
+
   return Id;
 };

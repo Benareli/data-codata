@@ -1,40 +1,18 @@
- module.exports = mongoose => {
-  var schema = mongoose.Schema(
-    {
-      trans_id: String,
-      qin: Number,
-      qout: Number,
-      cost: Number,
-      date: Date,
-      origin: String,
-      uom: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Uom"
-      },
-      user: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User"
-      },
-      product: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Product"
-      },
-      partner: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Partner"
-      },
-      warehouse: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Warehouse"
-      }
-    },
-    { timestamps: true }
-  );
-  schema.method("toJSON", function() {
-    const { __v, _id, ...object } = this.toObject();
-    object.id = _id;
-    return object;
+module.exports = (sequelize, Sequelize) => {
+  const Stockmove = sequelize.define("stockmoves", {
+    trans_id: {type: Sequelize.STRING},
+    qin: {type: Sequelize.FLOAT},
+    qout: {type: Sequelize.FLOAT},
+    cost: {type: Sequelize.FLOAT},
+    date: {type: 'TIMESTAMP'},
+    origin: {type: Sequelize.STRING},
+    uom: {type: Sequelize.INTEGER},
+    user: {type: Sequelize.INTEGER},
+    product: {type: Sequelize.INTEGER},
+    partner: {type: Sequelize.INTEGER},
+    warehouse: {type: Sequelize.INTEGER},
+    company: {type: Sequelize.INTEGER},
   });
-  const Stockmove = mongoose.model("stockmoves", schema);
+
   return Stockmove;
 };

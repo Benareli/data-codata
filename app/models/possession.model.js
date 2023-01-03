@@ -1,43 +1,31 @@
-module.exports = mongoose => {
-  var schema = mongoose.Schema(
-    {
-      session_id: String,
-      store: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Store"
-      },
-      time_open: Date,
-      time_close: Date,
-      shift: Number,
-      user: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User"
-      },
-      pos:[
-        {type: mongoose.Schema.Types.ObjectId,
-        ref: "Pos"}
-      ],
-      payment:[
-        {type: mongoose.Schema.Types.ObjectId,
-        ref: "Payment"}
-      ],
-      start_balance: Number,
-      end_balance: Number,
-      money_in: Number,
-      money_out: Number,
-      total_discount: Number,
-      total_amount_untaxed: Number,
-      total_amount_tax: Number,
-      total_amount_total: Number,
-      open: Boolean
-    },
-    { timestamps: true }
-  );
-  schema.method("toJSON", function() {
-    const { __v, _id, ...object } = this.toObject();
-    object.id = _id;
-    return object;
+module.exports = (sequelize, Sequelize) => {
+  const Possession = sequelize.define("possessions", {
+    session_id: {type: Sequelize.STRING},
+    store: {type: Sequelize.INTEGER},
+    time_open: {type: 'TIMESTAMP'},
+    time_close: {type: 'TIMESTAMP'},
+    shift: {type: Sequelize.INTEGER},
+    user: {type: Sequelize.INTEGER},
+    start_balance: {type: Sequelize.FLOAT},
+    end_balance: {type: Sequelize.FLOAT},
+    money_in: {type: Sequelize.FLOAT},
+    money_out: {type: Sequelize.FLOAT},
+    total_discount: {type: Sequelize.FLOAT},
+    total_amount_untaxed: {type: Sequelize.FLOAT},
+    total_amount_tax: {type: Sequelize.FLOAT},
+    total_amount_total: {type: Sequelize.FLOAT},
+    open: {type: Sequelize.BOOLEAN},
+    company: {type: Sequelize.INTEGER},
   });
-  const Possession = mongoose.model("possessions", schema);
+
   return Possession;
 };
+
+/*
+pos:[
+      {type: Sequelize.INTEGER},
+    ],
+    payment:[
+      {type: Sequelize.INTEGER},
+    ],
+    */

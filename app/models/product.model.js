@@ -1,61 +1,31 @@
-module.exports = mongoose => {
-  var schema = mongoose.Schema(
-    {
-      sku: String,
-      name: String,
-      description: String,
-      barcode: String,
-      fg: Boolean,
-      rm: Boolean,
-      listprice: Number,
-      botprice: Number,
-      cost: Number,
-      min: Number,
-      max: Number,
-      isStock: Boolean,
-      qoh: Number,
-      image: String,
-      category: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "ProductCat"
-      },
-      suom: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Uom"
-      },
-      puom: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Uom"
-      },
-      taxin: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Tax"
-      },
-      taxout: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Tax"
-      },
-      brand: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Brand"
-      },
-      supplier: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Partner"
-      },
-      qop:[
-        {type: mongoose.Schema.Types.ObjectId,
-        ref: "Partner"}
-      ],
-      active: Boolean
-    },
-    { timestamps: true }
-  );
-  schema.method("toJSON", function() {
-    const { __v, _id, ...object } = this.toObject();
-    object.id = _id;
-    return object;
+module.exports = (sequelize, Sequelize) => {
+  const Product = sequelize.define("products", {
+    sku: {type: Sequelize.STRING},
+    name: {type: Sequelize.TEXT},
+    description: {type: Sequelize.TEXT},
+    barcode: {type: Sequelize.STRING},
+    fg: {type: Sequelize.BOOLEAN},
+    rm: {type: Sequelize.BOOLEAN},
+    listprice: {type: Sequelize.FLOAT},
+    botprice: {type: Sequelize.FLOAT},
+    cost: {type: Sequelize.FLOAT},
+    min: {type: Sequelize.FLOAT},
+    max: {type: Sequelize.FLOAT},
+    isStock: {type: Sequelize.BOOLEAN},
+    qoh: {type: Sequelize.FLOAT},
+    image: {type: Sequelize.STRING},
+    category: {type: Sequelize.INTEGER},
+    suom: {type: Sequelize.INTEGER},
+    puom: {type: Sequelize.INTEGER},
+    taxin: {type: Sequelize.INTEGER},
+    taxout: {type: Sequelize.INTEGER},
+    brand: {type: Sequelize.INTEGER},
+    supplier: {type: Sequelize.INTEGER},
+    
+    active: {type: Sequelize.BOOLEAN}
   });
-  const Product = mongoose.model("products", schema);
+
   return Product;
 };
+
+//qop:[{type: Sequelize.STRING}],

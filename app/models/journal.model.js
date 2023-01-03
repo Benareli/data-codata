@@ -1,35 +1,26 @@
-module.exports = mongoose => {
-  var schema = mongoose.Schema(
-    {
-      journal_id: String,
-      entries:[
-        {type: mongoose.Schema.Types.ObjectId,
-        ref: "Entry"}
-      ],
-      amount: Number,
-      payments: Number,
-      date: Date,
-      duedate: Date,
-      state: Number, //0 - Unpaid, 1 - Partial, 2 - Full Paid
-      lock: Boolean,
-      type: String, //journal, invoice, bill, payment, transfer, pos
-      origin: String,
-      partner: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Partner"
-      },
-      payment:[
-        {type: mongoose.Schema.Types.ObjectId,
-        ref: "Payment"}
-      ],
-    },
-    { timestamps: true }
-  );
-  schema.method("toJSON", function() {
-    const { __v, _id, ...object } = this.toObject();
-    object.id = _id;
-    return object;
+module.exports = (sequelize, Sequelize) => {
+  const Journal = sequelize.define("journals", {
+    journal_id: {type: Sequelize.STRING},
+    amount: {type: Sequelize.FLOAT},
+    payments: {type: Sequelize.FLOAT},
+    date: {type: 'TIMESTAMP'},
+    duedate: {type: 'TIMESTAMP'},
+    state: {type: Sequelize.INTEGER}, //0 - Unpaid, 1 - Partial, 2 - Full Paid
+    lock: {type: Sequelize.BOOLEAN},
+    type: {type: Sequelize.STRING}, //journal, invoice, bill, payment, transfer, pos
+    origin: {type: Sequelize.STRING},
+    partner: {type: Sequelize.INTEGER},
+    company: {type: Sequelize.INTEGER},
   });
-  const Journal = mongoose.model("journals", schema);
+
   return Journal;
 };
+
+/*
+entries:[
+      {type: Sequelize.INTEGER},
+    ],
+    payment:[
+      {type: Sequelize.INTEGER},
+    ],
+    */

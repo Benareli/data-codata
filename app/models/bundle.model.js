@@ -1,27 +1,10 @@
-module.exports = mongoose => {
-  var schema = mongoose.Schema(
-    {
-      bundle: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Product"
-      },
-      qty: Number,
-      uom: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Uom"
-      },
-      product: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Product"
-      }
-    },
-    { timestamps: true }
-  );
-  schema.method("toJSON", function() {
-    const { __v, _id, ...object } = this.toObject();
-    object.id = _id;
-    return object;
+module.exports = (sequelize, Sequelize) => {
+  const Bundle = sequelize.define("bundles", {
+    bundle: {type: Sequelize.INTEGER},
+    qty: {type: Sequelize.FLOAT},
+    uom: {type: Sequelize.INTEGER},
+    product: {type: Sequelize.INTEGER},
   });
-  const Bundle = mongoose.model("bundles", schema);
+
   return Bundle;
 };

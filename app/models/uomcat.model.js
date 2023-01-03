@@ -1,15 +1,7 @@
-module.exports = mongoose => {
-  var schema = mongoose.Schema(
-    {
-      uom_cat: String,
-    },
-    { timestamps: true }
-  );
-  schema.method("toJSON", function() {
-    const { __v, _id, ...object } = this.toObject();
-    object.id = _id;
-    return object;
+module.exports = (sequelize, Sequelize) => {
+  const Uomcat = sequelize.define("uomcats", {
+    uom_cat: {type: Sequelize.STRING},
   });
-  const Uomcat = mongoose.model("uomcats", schema);
+
   return Uomcat;
 };
