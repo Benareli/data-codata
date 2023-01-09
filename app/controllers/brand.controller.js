@@ -122,7 +122,8 @@ exports.update = (req, res) => {
     if(find.length > 0 && find[0].id != req.params.id) res.status(500).send({ message: "Already Existed!" });
     else{
       Brand.update(({description: req.body.description, 
-        active: req.body.active ? req.body.active : false}), req.params.id)
+        active: req.body.active ? req.body.active : false}), 
+        {where:{id:req.params.id}})
         .then(data => {
           if (!data) {
             res.status(404).send({message: `Cannot update. Maybe Data was not found!`});

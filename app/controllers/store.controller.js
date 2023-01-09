@@ -74,7 +74,7 @@ exports.update = (req, res) => {
       message: "Data to update can not be empty!"
     });
   }
-  Store.update(req.body, req.params.id)
+  Store.update(req.body, {where:{id:req.params.id}})
     .then(data => {
       if (!data) {
         res.status(404).send({

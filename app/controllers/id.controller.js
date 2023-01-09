@@ -29,7 +29,7 @@ exports.findPOSessId = (req, res) => {
       posid = ids[0].pre_pos_session+'-'+new Date().getFullYear().toString().substr(-2)+
       '0'+(new Date().getMonth() + 1).toString().slice(-2)+
       prefixes+ids[0].pos_session.toString();
-      Id.findOneAndUpdate({_id: ids[0]._id}, {pos_session: Number(ids[0].pos_session) + 1}, {useFindAndModify: false})
+      Id.update({pos_session: Number(ids[0].pos_session) + 1}, {where: {_id: ids[0]._id}})
         .then(data => {
           res.send({message: posid});
           //console.log(data, posid);
@@ -37,7 +37,6 @@ exports.findPOSessId = (req, res) => {
     }).catch(err =>{console.error("id0202",err.message);res.status(500).send({message:err.message}); });
 };
 
-// Retrieve POSID.
 exports.findPOSId = (req, res) => {
   if(!req.headers.apikey || compare(req, res)==0) {
     res.status(401).send({ message: "Unauthorized!" });
@@ -53,15 +52,13 @@ exports.findPOSId = (req, res) => {
       posid = ids[0].pre_pos_id+'-'+new Date().getFullYear().toString().substr(-2)+
       '0'+(new Date().getMonth() + 1).toString().slice(-2)+
       prefixes+ids[0].pos_id.toString();
-      Id.findOneAndUpdate({_id: ids[0]._id}, {pos_id: Number(ids[0].pos_id) + 1}, {useFindAndModify: false})
+      Id.update({pos_id: Number(ids[0].pos_id) + 1}, {where: {_id: ids[0]._id}})
         .then(data => {
           res.send({message: posid});
-          //console.log(data, posid);
         }).catch(err =>{console.error("id0301",err.message);res.status(500).send({message:err.message}); });
     }).catch(err =>{console.error("id0302",err.message);res.status(500).send({message:err.message}); });
 };
 
-// Retrieve PaymentID.
 exports.findPaymentId = (req, res) => {
   if(!req.headers.apikey || compare(req, res)==0) {
     res.status(401).send({ message: "Unauthorized!" });
@@ -77,15 +74,13 @@ exports.findPaymentId = (req, res) => {
       payid = ids[0].pre_pay_id+'-'+new Date().getFullYear().toString().substr(-2)+
       '0'+(new Date().getMonth() + 1).toString().slice(-2)+
       prefixes+ids[0].pay_id.toString();
-      Id.findOneAndUpdate({_id: ids[0]._id}, {pay_id: Number(ids[0].pay_id) + 1}, {useFindAndModify: false})
+      Id.update({pay_id: Number(ids[0].pay_id) + 1}, {where: {_id: ids[0]._id}})
         .then(data => {
           res.send({message: payid});
-          //console.log(data, posid);
         }).catch(err =>{console.error("id0401",err.message);res.status(500).send({message:err.message}); });
     }).catch(err =>{console.error("id0402",err.message);res.status(500).send({message:err.message}); });
 };
 
-// Retrieve PaymentID.
 exports.findTransferId = (req, res) => {
   if(!req.headers.apikey || compare(req, res)==0) {
     res.status(401).send({ message: "Unauthorized!" });
@@ -101,7 +96,7 @@ exports.findTransferId = (req, res) => {
       transferid = ids[0].pre_transfer_id+'-'+new Date().getFullYear().toString().substr(-2)+
       '0'+(new Date().getMonth() + 1).toString().slice(-2)+
       prefixes+ids[0].transfer_id.toString();
-      Id.findOneAndUpdate({_id: ids[0]._id}, {transfer_id: Number(ids[0].transfer_id) + 1}, {useFindAndModify: false})
+      Id.update({transfer_id: Number(ids[0].transfer_id) + 1}, {where: {_id: ids[0]._id}})
         .then(data => {
           res.send({message: transferid});
           //console.log(data, posid);
@@ -109,7 +104,6 @@ exports.findTransferId = (req, res) => {
       }).catch(err =>{console.error("id0502",err.message);res.status(500).send({message:err.message}); });
 };
 
-// Retrieve PurchaseID.
 exports.findPurchaseId = (req, res) => {
   if(!req.headers.apikey || compare(req, res)==0) {
     res.status(401).send({ message: "Unauthorized!" });
@@ -124,14 +118,13 @@ exports.findPurchaseId = (req, res) => {
       purchid = ids[0].pre_purchase_id+'-'+new Date().getFullYear().toString().substr(-2)+
       '0'+(new Date().getMonth() + 1).toString().slice(-2)+
       prefixes+ids[0].purchase_id.toString();
-      Id.findOneAndUpdate({_id: ids[0]._id}, {purchase_id: ids[0].purchase_id+1}, {useFindAndModify: false})
+      Id.update({purchase_id: ids[0].purchase_id+1}, {where: {_id: ids[0]._id}})
         .then(data => {
           res.send({message: purchid});
         }).catch(err =>{console.error("id0601",err.message);res.status(500).send({message:err.message}); });
       }).catch(err =>{console.error("id0602",err.message);res.status(500).send({message:err.message}); });
 };
 
-// Retrieve PurchaseID.
 exports.findSaleId = (req, res) => {
   if(!req.headers.apikey || compare(req, res)==0) {
     res.status(401).send({ message: "Unauthorized!" });
@@ -146,14 +139,13 @@ exports.findSaleId = (req, res) => {
       saleid = ids[0].pre_sale_id+'-'+new Date().getFullYear().toString().substr(-2)+
       '0'+(new Date().getMonth() + 1).toString().slice(-2)+
       prefixes+ids[0].sale_id.toString();
-      Id.findOneAndUpdate({_id: ids[0]._id}, {sale_id: ids[0].sale_id+1}, {useFindAndModify: false})
+      Id.update({sale_id: ids[0].sale_id+1}, {where: {_id: ids[0]._id}})
         .then(data => {
           res.send({message: saleid});
         }).catch(err =>{console.error("id0701",err.message);res.status(500).send({message:err.message}); });
       }).catch(err =>{console.error("id0702",err.message);res.status(500).send({message:err.message}); });
 };
 
-// Update by the id in the request
 exports.update = (req, res) => {
   if(!req.headers.apikey || compare(req, res)==0) {
     res.status(401).send({ message: "Unauthorized!" });
@@ -165,7 +157,7 @@ exports.update = (req, res) => {
     });
   }
 
-  Id.findByIdAndUpdate(req.params.id, req.body, { useFindAndModify: false })
+  Id.update(req.body, {where: {id: req.params.id}})
     .then(data => {
       if (!data) {
         res.status(404).send({

@@ -54,7 +54,7 @@ exports.update = (req, res) => {
       message: "Data to update can not be empty!"
     });
   }
-  Setting.update(req.body, req.params.id)
+  Setting.update(req.body, {where:{id:req.params.id}})
     .then(data => {
       if (!data) {
         res.status(404).send({message: `Cannot update with id=${id}. Maybe Data was not found!`});
