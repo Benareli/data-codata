@@ -28,6 +28,7 @@ exports.signup = (req, res) => {
           });
         });
       } else {
+        Role.findAll().then(rolex => {console.log(rolex);})
         // user role = 1
         user.setRoles([1,2,3,4,5]).then(() => {
           res.send({ message: "User registered successfully!" });
