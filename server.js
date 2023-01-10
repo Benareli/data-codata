@@ -171,19 +171,20 @@ require("./app/routes/userrole.routes")(app);
 require("./app/routes/setting.routes")(app);
 require("./app/routes/store.routes")(app);
 require("./app/routes/id.routes")(app);
+require("./app/routes/log.routes")(app);
 
 require("./app/routes/tax.routes")(app);
+
+require("./app/routes/brand.routes")(app);
+require("./app/routes/productcat.routes")(app);
 // routes
 /*require("./app/routes/file.routes")(app);
 
 require("./app/routes/pref.routes")(app);
-require("./app/routes/log.routes")(app);
 require("./app/routes/coa.routes")(app);
 require("./app/routes/product.routes")(app);
-require("./app/routes/productcat.routes")(app);
 require("./app/routes/uomcat.routes")(app);
 require("./app/routes/uom.routes")(app);
-require("./app/routes/brand.routes")(app);
 require("./app/routes/bundle.routes")(app);
 require("./app/routes/warehouse.routes")(app);
 require("./app/routes/partner.routes")(app);

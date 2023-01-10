@@ -5,6 +5,7 @@ const Role = db.role;
 const Pref = db.prefs;
 
 const Op = db.Sequelize.Op;
+var roleArr = [];
 
 var jwt = require("jsonwebtoken");
 var bcrypt = require("bcryptjs");
@@ -28,11 +29,17 @@ exports.signup = (req, res) => {
           });
         });
       } else {
-        Role.findAll().then(rolex => {console.log(rolex);})
+        Role.findAll().then(rolex => {
+          console.log(rolex.length);
+          for(x=1;x<=rolex.length;x++){
+            roleArr.push(x);
+          }
+          user.setRoles(roleArr).then(() => {
+            res.send({ message: "User registered successfully!" });
+          });
+        })
         // user role = 1
-        user.setRoles([1,2,3,4,5]).then(() => {
-          res.send({ message: "User registered successfully!" });
-        });
+        
       }
     })
     .catch(err => {
@@ -79,7 +86,7 @@ exports.signin = (req, res) => {
             authorities.push(result[0][x].name);
             if(x == (result[0].length-1)){
               res.status(200).send({
-                id: user._id,
+                id: user.id,
                 username: user.username,
                 roles: authorities,
                 accessToken: token

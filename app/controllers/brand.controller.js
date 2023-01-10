@@ -14,12 +14,12 @@ exports.create = (req, res) => {
     res.status(400).send({ message: "Content can not be empty!" });
     return;
   }
-  Brand.findOne({where:{description: req.body.description}}).then(find => {
+  Brand.findAll({where:{description: req.body.description}}).then(find => {
     if(find.length > 0) res.status(500).send({ message: "Already Existed!" });
     else{
       const brand = ({description: req.body.description, active: req.body.active ? req.body.active : false});
       Brand.create(brand).then(dataa => {
-        const log = ({message: "dibuat", brand: dataa._id, user: req.body.user,});
+        const log = ({message: "dibuat", brand: dataa.id, user: req.body.user,});
         Log.create(log).then(datab => {
           res.send(datab);
         }).catch(err =>{console.error("br0101",err.message);res.status(500).send({message:err.message}); });
@@ -118,7 +118,7 @@ exports.update = (req, res) => {
     return res.status(400).send({message: "Data to update can not be empty!"});
   }
 
-  Brand.findOne({where:{description: req.body.description}}).then(find => {
+  Brand.findAll({where:{description: req.body.description}}).then(find => {
     if(find.length > 0 && find[0].id != req.params.id) res.status(500).send({ message: "Already Existed!" });
     else{
       Brand.update(({description: req.body.description, 

@@ -5,9 +5,7 @@ const Log = db.logs;
 const User = db.users;
 const duplicate = [];
 
-// Create and Save new
 exports.create = (req, res) => {
-  // Validate request
   if(!req.headers.apikey || compare(req, res)==0) {
     res.status(401).send({ message: "Unauthorized!" });
     return;
@@ -16,13 +14,13 @@ exports.create = (req, res) => {
     res.status(400).send({ message: "Content can not be empty!" });
     return;
   }
-  const prodcat = ({catid: req.body.catid, description: req.body.description, 
-    active: req.body.active ? req.body.active : false});
-  ProductCat.find({description: req.body.description}).then(find => {
+  ProductCat.findAll({where:{description: req.body.description}}).then(find => {
     if(find.length > 0) res.status(500).send({ message: "Already Existed!" });
     else{
+      const prodcat = ({catid: req.body.catid, description: req.body.description, 
+        active: req.body.active ? req.body.active : false});
       ProductCat.create(prodcat).then(dataa => {
-        const log = ({message: "dibuat", category: dataa._id, user: req.body.user,});
+        const log = ({message: "dibuat", category: dataa.id, user: req.body.user,});
         Log.create(log).then(datab => {
           res.send(datab);
         }).catch(err =>{console.error("pcat0101",err.message);res.status(500).send({message:err.message}); });
@@ -31,9 +29,7 @@ exports.create = (req, res) => {
   }).catch(err =>{console.error("pcat0103",err.message);res.status(500).send({message:err.message}); });
 };
 
-// Create and Save new
 exports.createMany = (req, res) => {
-  // Validate request
   if(!req.headers.apikey || compare(req, res)==0) {
     res.status(401).send({ message: "Unauthorized!" });
     return;
@@ -73,27 +69,23 @@ function sequencing(x, reqs, users, res){
   startSequence(x, reqs, users, res);
 }
 
-// Retrieve all from the database.
 exports.findAll = (req, res) => {
-  const description = req.query.description;
-  var condition = description ? { description: { $regex: new RegExp(description), $options: "i" } } : {};
   if(!req.headers.apikey || compare(req, res)==0) {
     res.status(401).send({ message: "Unauthorized!" });
     return;
   }
-  ProductCat.find(condition)
+  ProductCat.findAll()
     .then(data => {
       res.send(data);
     }).catch(err =>{console.error("pcat0301",err.message);res.status(500).send({message:err.message}); });
 };
 
-// Find a single with an id
 exports.findOne = (req, res) => {
   if(!req.headers.apikey || compare(req, res)==0) {
     res.status(401).send({ message: "Unauthorized!" });
     return;
   }
-  ProductCat.findById(req.params.id)
+  ProductCat.findByPk(req.params.id)
     .then(data => {
       if (!data)
         res.status(404).send({ message: "Not found Data with id " + id });
@@ -101,7 +93,6 @@ exports.findOne = (req, res) => {
     }).catch(err =>{console.error("pcat0401",err.message);res.status(500).send({message:err.message}); });
 };
 
-// Find a single with an desc
 exports.findByDesc = (req, res) => {
   const description = req.query.description;
   var condition = description ? { description: { $regex: new RegExp(description), $options: "i" } } : {};
@@ -109,13 +100,12 @@ exports.findByDesc = (req, res) => {
     res.status(401).send({ message: "Unauthorized!" });
     return;
   }
-  ProductCat.find(condition)
+  ProductCat.findAll({where:condition})
     .then(data => {
       res.send(data);
     }).catch(err =>{console.error("pcat0501",err.message);res.status(500).send({message:err.message}); });
 };
 
-// Find a single with an catid
 exports.findByCatId = (req, res) => {
   const catid = req.query.catid;
   var condition = catid ? { catid: { $regex: new RegExp(catid), $options: "i" } } : {};
@@ -123,13 +113,12 @@ exports.findByCatId = (req, res) => {
     res.status(401).send({ message: "Unauthorized!" });
     return;
   }
-  ProductCat.find(condition)
+  ProductCat.findAll({where:condition})
     .then(data => {
       res.send(data);
     }).catch(err =>{console.error("pcat0601",err.message);res.status(500).send({message:err.message}); });
 };
 
-// Update by the id in the request
 exports.update = (req, res) => {
   if(!req.headers.apikey || compare(req, res)==0) {
     res.status(401).send({ message: "Unauthorized!" });
@@ -140,10 +129,10 @@ exports.update = (req, res) => {
       message: "Data to update can not be empty!"
     });
   }
-  ProductCat.find({description: req.body.description}).then(find => {
+  ProductCat.findAll({where:{description: req.body.description}}).then(find => {
     if(find.length > 0 && find[0].id != req.params.id) res.status(500).send({ message: "Already Existed!" });
     else{
-      ProductCat.findByIdAndUpdate(req.params.id, req.body, { useFindAndModify: false })
+      ProductCat.update(req.body, {where:{id:req.params.id}})
         .then(data => {
           if (!data) {
             res.status(404).send({message: `Cannot update. Maybe Data was not found!`});
@@ -158,7 +147,6 @@ exports.update = (req, res) => {
     }).catch(err =>{console.error("pcat0703",err.message);res.status(500).send({message:err.message}); });
 };
 
-// Delete with the specified id in the request
 exports.delete = (req, res) => {
   if(!req.headers.apikey || compare(req, res)==0) {
     res.status(401).send({ message: "Unauthorized!" });
@@ -176,13 +164,12 @@ exports.delete = (req, res) => {
     }).catch(err =>{console.error("pcat0801",err.message);res.status(500).send({message:err.message}); });
 };
 
-// Find all active
 exports.findAllActive = (req, res) => {
   if(!req.headers.apikey || compare(req, res)==0) {
     res.status(401).send({ message: "Unauthorized!" });
     return;
   }
-  ProductCat.find({ active: true }).sort({description:1})
+  ProductCat.findAll({where:{ active: true }})
     .then(data => {
       res.send(data);
     }).catch(err =>{console.error("pcat0901",err.message);res.status(500).send({message:err.message}); });
