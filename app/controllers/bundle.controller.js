@@ -5,9 +5,7 @@ const Product = db.products;
 const Uom = db.uoms;
 const duplicate = [];
 
-// Create and Save new
 exports.create = (req, res) => {
-  // Validate request
   if(!req.headers.apikey || compare(req, res)==0) {
     res.status(401).send({ message: "Unauthorized!" });
     return;
@@ -16,45 +14,44 @@ exports.create = (req, res) => {
     res.status(400).send({ message: "Content can not be empty!" });
     return;
   }
-
+  
   const bundle = ({
     bundle: req.body.bundle,
     qty: req.body.qty,
-    uom: req.body.uom,
-    product: req.body.product
+    uom_id: req.body.uom_id,
+    product_id: req.body.product_id
   });
   Bundle.create(bundle).then(dataa => {
       res.send(dataa);
   }).catch(err =>{console.error("bun0101",err.message);res.status(500).send({message:err.message}); });
 };
 
-// Retrieve all from the database.
 exports.findAll = (req, res) => {
-  const bundle = req.query.bundle;
-  var condition = bundle ? { bundle: { $regex: new RegExp(bundle), $options: "i" } } : {};
   if(!req.headers.apikey || compare(req, res)==0) {
     res.status(401).send({ message: "Unauthorized!" });
     return;
   }
-  Bundle.find(condition)
-    .populate({ path: 'bundle', model: Product })
-    .populate({ path: 'uom', model: Uom })
-    .populate({ path: 'product', model: Product })
+  Bundle.findAll({ include: [
+      {model: Product, as: "products"},
+      {model: Uom, as: "uoms"},
+    ] })
     .then(data => {
       res.send(data);
     }).catch(err =>{console.error("bun0201",err.message);res.status(500).send({message:err.message}); });
 };
 
-// Find a single with an id
 exports.findOne = (req, res) => {
   if(!req.headers.apikey || compare(req, res)==0) {
     res.status(401).send({ message: "Unauthorized!" });
     return;
   }
-  Bundle.findById(req.params.id)
-    .populate({ path: 'bundle', model: Product })
+  Bundle.findByPk(req.params.id, {include: [
+      {model: Product, as: "products"},
+      {model: Uom, as: "uoms"},
+    ] })
+    /*.populate({ path: 'bundle', model: Product })
     .populate({ path: 'uom', model: Uom })
-    .populate({ path: 'product', model: Product })
+    .populate({ path: 'product', model: Product })*/
     .then(data => {
       if (!data)
         res.status(404).send({ message: "Not found Data with id " + id });
@@ -62,37 +59,36 @@ exports.findOne = (req, res) => {
     }).catch(err =>{console.error("bun0301",err.message);res.status(500).send({message:err.message}); });
 };
 
-// Find a single with an desc
 exports.findByProduct = (req, res) => {
   if(!req.headers.apikey || compare(req, res)==0) {
     res.status(401).send({ message: "Unauthorized!" });
     return;
   }
-  Bundle.find({product: req.params.product})
-    .populate({ path: 'bundle', model: Product })
-    .populate({ path: 'uom', model: Uom })
-    .populate({ path: 'product', model: Product })
+  Bundle.findAll({where:{product_id: req.params.product},
+    include: [
+      {model: Product, as: "products"},
+      {model: Uom, as: "uoms"},
+    ] })
     .then(data => {
       res.send(data);
     }).catch(err =>{console.error("bun0401",err.message);res.status(500).send({message:err.message}); });
 };
 
-// Find a single with an desc
 exports.findByBundle = (req, res) => {
   if(!req.headers.apikey || compare(req, res)==0) {
     res.status(401).send({ message: "Unauthorized!" });
     return;
   }
-  Bundle.find({bundle: req.params.bundle})
-    .populate({ path: 'bundle', model: Product })
-    .populate({ path: 'uom', model: Uom })
-    .populate({ path: 'product', model: Product })
+  Bundle.findAll({where:{bundle: req.params.bundle}, 
+    include: [
+      {model: Product, as: "products"},
+      {model: Uom, as: "uoms"},
+    ] })
     .then(data => {
       res.send(data);
     }).catch(err =>{console.error("bun0501",err.message);res.status(500).send({message:err.message}); });
 };
 
-// Update by the id in the request
 exports.update = (req, res) => {
   if(!req.headers.apikey || compare(req, res)==0) {
     res.status(401).send({ message: "Unauthorized!" });
@@ -104,12 +100,12 @@ exports.update = (req, res) => {
     });
   }
 
-  Bundle.findByIdAndUpdate(req.params.id, ({
+  Bundle.update(({
     bundle: req.body.bundle,
     qty: req.body.qty,
-    uom: req.body.uom,
-    product: req.body.product
-  }), { useFindAndModify: false })
+    uom_id: req.body.uom,
+    product_id: req.body.product
+  }), {where:{id:req.params.id}})
     .then(data => {
       if (!data) {
         res.status(404).send({
@@ -124,13 +120,12 @@ exports.update = (req, res) => {
     }).catch(err =>{console.error("bun0602",err.message);res.status(500).send({message:err.message}); });
 };
 
-// Delete with the specified id in the request
 exports.delete = (req, res) => {
   if(!req.headers.apikey || compare(req, res)==0) {
     res.status(401).send({ message: "Unauthorized!" });
     return;
   }
-  Bundle.findByIdAndRemove(req.params.id, { useFindAndModify: false })
+  Bundle.destroy({where:{id:req.params.id}, truncate: false})
     .then(data => {
       if (!data) {
         res.status(404).send({

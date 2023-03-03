@@ -15,15 +15,11 @@ const Coa = db.coas;
 const Journal = db.journals;
 const Entry = db.entrys;
 const Log = db.logs;
-const mongoose =  require("mongoose");
-const ObjectId = mongoose.Types.ObjectId;
 var costA = 0;
 var amountx = 0;
 var prefixes = '';
 var transid = '';
-var journid;
-var journalid;
-var journalcount;
+var journid, journalid, journalcount;
 
 async function getUpdateTransId() {
   const res1 = await id.getUpdateTransId();

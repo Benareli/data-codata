@@ -5,25 +5,20 @@ const Product = db.products;
 const Uom = db.uoms;
 const Partner = db.partners;
 const Warehouse = db.warehouses;
-const mongoose = require("mongoose");
-const ObjectId = mongoose.Types.ObjectId;
 
-// Create and Save new
 exports.create = (req, res) => {
   if(!req.headers.apikey || compare(req, res)==0) {
     res.status(401).send({ message: "Unauthorized!" });
     return;
   }
-  // Create
   const qop = new Qop({
-    product: mongoose.Types.ObjectId(req.body.product),
-    partner: mongoose.Types.ObjectId(req.body.partner),
-    warehouse: mongoose.Types.ObjectId(req.body.warehouse),
+    product_id: req.body.product,
+    partner_id: req.body.partner,
+    warehouse_id: req.body.warehouse,
     cost: req.body.cost ? req.body.cost: 0,
     qop: req.body.qop,
-    uom: req.body.uom
+    uom_id: req.body.uom
   });
-  // Save in the database
   qop
     .save(qop)
     .then(data => {
@@ -31,13 +26,11 @@ exports.create = (req, res) => {
     }).catch(err =>{console.error("qop0101",err.message);res.status(500).send({message:err.message}); });
 };
 
-// Create and Update Product new
 exports.createUpdate = (req, res) => {
   if(!req.headers.apikey || compare(req, res)==0) {
     res.status(401).send({ message: "Unauthorized!" });
     return;
   }
-  // Find first
   if(req.body.partner != "null"){
     Qop.find({product: req.body.product, partner: req.body.partner, warehouse: req.body.warehouse})
       .then(data => {
@@ -126,35 +119,33 @@ exports.createUpdate = (req, res) => {
   }
 };
 
-
-// Retrieve all from the database.
 exports.findAll = (req, res) => {
-  /*const product = req.query.product;
-  var condition = product ? { product: { $regex: new RegExp(product), $options: "i" } } : {};
-  var o_id = mongoose.Types.ObjectId(req.query.product);*/
   if(!req.headers.apikey || compare(req, res)==0) {
     res.status(401).send({ message: "Unauthorized!" });
     return;
   }
-  Qop.find({product: req.query.product})
-    .populate({ path: 'partner', model: Partner })
-    .populate({ path: 'warehouse', model: Warehouse })
-    .populate({ path: 'uom', model: Uom })
+  Qop.findAll({include: [
+      {model: Partner, as: "partners"},
+      {model: Product, as: "products"},
+      {model: Warehouse, as: "warehouses"},
+      {model: Uom, as: "uoms"}
+    ] })
     .then(data => {
       res.send(data);
     }).catch(err =>{console.error("qop0301",err.message);res.status(500).send({message:err.message}); });
 };
 
-// Find a single with an id
 exports.findOne = (req, res) => {
   if(!req.headers.apikey || compare(req, res)==0) {
     res.status(401).send({ message: "Unauthorized!" });
     return;
   }
-  Qop.findById(req.params.id)
-    .populate({ path: 'partner', model: Partner })
-    .populate({ path: 'warehouse', model: Warehouse })
-    .populate({ path: 'uom', model: Uom })
+  Qop.findByPk(req.params.id, {include: [
+      {model: Partner, as: "partners"},
+      {model: Product, as: "products"},
+      {model: Warehouse, as: "warehouses"},
+      {model: Uom, as: "uoms"}
+    ] })
     .then(data => {
       if (!data)
         res.status(404).send({ message: "Not found Data with id " + id });
@@ -162,35 +153,54 @@ exports.findOne = (req, res) => {
     }).catch(err =>{console.error("qop0401",err.message);res.status(500).send({message:err.message}); });
 };
 
-// Find a single with an desc
 exports.findByProduct = (req, res) => {
   if(compare(req, res)==0 || !req.headers.apikey) res.status(401).send({ message: "Unauthorized!" });
   else{
-  Qop.find({product: req.params.product,warehouse: req.params.warehouse})
-    .populate({ path: 'partner', model: Partner })
-    .populate({ path: 'warehouse', model: Warehouse })
-    .populate({ path: 'uom', model: Uom })
-    .then(data => {
-      res.send(data);
-    }).catch(err =>{console.error("qop0501",err.message);res.status(500).send({message:err.message}); });
+    Qop.findAll({where:{product_id: req.params.product,warehouse_id: req.params.warehouse},
+      include: [
+        {model: Partner, as: "partners"},
+        {model: Product, as: "products"},
+        {model: Warehouse, as: "warehouses"},
+        {model: Uom, as: "uoms"}
+      ] })
+      .then(data => {
+        res.send(data);
+      }).catch(err =>{console.error("qop0501",err.message);res.status(500).send({message:err.message}); });
   }
 };
 
-// Find a single with an desc
 exports.findByProduct2 = (req, res) => {
   if(compare(req, res)==0 || !req.headers.apikey) res.status(401).send({ message: "Unauthorized!" });
   else{
-  Qop.find({product: req.headers.product,warehouse: req.headers.warehouse})
-    .populate({ path: 'partner', model: Partner })
-    .populate({ path: 'warehouse', model: Warehouse })
-    .populate({ path: 'uom', model: Uom })
-    .then(data => {
-      res.send(data);
-    }).catch(err =>{console.error("qop0501",err.message);res.status(500).send({message:err.message}); });
+    Qop.findAll({where:{product_id: req.headers.product,warehouse_id: req.headers.warehouse},
+      include: [
+        {model: Partner, as: "partners"},
+        {model: Product, as: "products"},
+        {model: Warehouse, as: "warehouses"},
+        {model: Uom, as: "uoms"}
+      ] })
+      .then(data => {
+        res.send(data);
+      }).catch(err =>{console.error("qop0502",err.message);res.status(500).send({message:err.message}); });
   }
 };
 
-// Update by the id in the request
+exports.findByProduct3 = (req, res) => {
+  if(compare(req, res)==0 || !req.headers.apikey) res.status(401).send({ message: "Unauthorized!" });
+  else{
+    Qop.findAll({where:{product_id: req.params.product},
+      include: [
+        {model: Partner, as: "partners"},
+        {model: Product, as: "products"},
+        {model: Warehouse, as: "warehouses"},
+        {model: Uom, as: "uoms"}
+      ] })
+      .then(data => {
+        res.send(data);
+      }).catch(err =>{console.error("qop0503",err.message);res.status(500).send({message:err.message}); });
+  }
+};
+
 exports.update = (req, res) => {
   if(!req.headers.apikey || compare(req, res)==0) {
     res.status(401).send({ message: "Unauthorized!" });
@@ -201,7 +211,7 @@ exports.update = (req, res) => {
       message: "Data to update can not be empty!"
     });
   }
-  Qop.findByIdAndUpdate(req.params.id, req.body, { useFindAndModify: false })
+  Qop.update(req.body, {where:{id:req.params.id}})
     .then(data => {
       if (!data) {
         res.status(404).send({
@@ -211,44 +221,30 @@ exports.update = (req, res) => {
     }).catch(err =>{console.error("qop0601",err.message);res.status(500).send({message:err.message}); });
 };
 
-// Find a single with an desc
 exports.findByProd = (req, res) => {
   if(compare(req, res)==0 || !req.headers.apikey) res.status(401).send({ message: "Unauthorized!" });
   else{
-  Qop.aggregate([
-    { $match: {
-      product: ObjectId(req.params.product)
-    }},
-    { $lookup: {
-        from: "warehouses",
-        localField: "warehouse",
-        foreignField: "_id",
-        as: "map_wh"
-      }},
-    { $unwind: "$map_wh" },
-    {
-      $group:
-      {
-        _id: { warehouse: "$map_wh.name" },
-        totalLine: { $sum: 1 },
-        totalQop: { $sum: "$qop" }
-      }
-    }
-    ])
+    db.sequelize.query
+    ('SELECT public.warehouses.name, COUNT(public.qops.id), SUM(public.qops.qop) FROM public.qops ' +
+      'LEFT JOIN public.warehouses ON public.qops.warehouse_id = public.warehouses.id ' +
+      'WHERE public.qops.product_id = ' + req.params.product +
+      'GROUP BY public.warehouses.name')
     .then(result => {
-        res.send(result)
+      res.send(result);
     }).catch(err =>{console.error("qop0701",err.message);res.status(500).send({message:err.message}); });
   }
 };
 
-// Find a single with an desc
 exports.findByWh = (req, res) => {
   if(compare(req, res)==0 || !req.headers.apikey) res.status(401).send({ message: "Unauthorized!" });
   else{
-  Qop.find({warehouse: req.params.warehouse})
-    .populate({ path: 'partner', model: Partner })
-    .populate({ path: 'product', model: Product })
-    .populate({ path: 'uom', model: Uom })
+  Qop.find({where:{warehouse: req.params.warehouse},
+    include: [
+      {model: Partner, as: "partners"},
+      {model: Product, as: "products"},
+      {model: Warehouse, as: "warehouses"},
+      {model: Uom, as: "uoms"}
+    ] })
     .then(data => {
       res.send(data);
     }).catch(err =>{console.error("qop0801",err.message);res.status(500).send({message:err.message}); });

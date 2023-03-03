@@ -42,7 +42,7 @@ exports.createMany = (req, res) => {
 
 function startSequence(x, reqs, users, res){
   if(reqs[x]){
-    Brand.findOne({where:{description: reqs[x].nama}}).then(data => {
+    Brand.findAll({where:{description: reqs[x].nama}}).then(data => {
       if(data.length>0){
         duplicate.push(x+1);
         sequencing(x, reqs, users, res);
@@ -143,7 +143,7 @@ exports.findAllActive = (req, res) => {
     res.status(401).send({ message: "Unauthorized!" });
     return;
   }
-  Brand.find({where:{ active: true }})
+  Brand.findAll({where:{active: true }})
     .then(data => {
       res.send(data);
     }).catch(err =>{console.error("br0701",err.message);res.status(500).send({message:err.message}); });

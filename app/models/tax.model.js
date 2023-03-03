@@ -4,7 +4,7 @@ module.exports = (sequelize, Sequelize) => {
     name: {type: Sequelize.STRING},
     include: {type: Sequelize.BOOLEAN},
     company: {type: Sequelize.INTEGER},
-  });
+  }, {underscored: true});
 
   return Tax;
 };

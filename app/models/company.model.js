@@ -1,5 +1,5 @@
 module.exports = (sequelize, Sequelize) => {
-  const Setting = sequelize.define("settings", {
+  const Company = sequelize.define("companys", {
     cost_general: {type: Sequelize.BOOLEAN},
     comp_name: {type: Sequelize.STRING},
     comp_addr: {type: Sequelize.TEXT},
@@ -11,7 +11,7 @@ module.exports = (sequelize, Sequelize) => {
     restaurant: {type: Sequelize.BOOLEAN},
     pos_shift: {type: Sequelize.BOOLEAN},
     parent: {type: Sequelize.INTEGER},
-  });
+  }, {underscored: true});
 
-  return Setting;
+  return Company;
 };

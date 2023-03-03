@@ -4,9 +4,7 @@ const Partner = db.partners;
 const Log = db.logs;
 const User = db.users;
 
-// Create and Save new
 exports.create = (req, res) => {
-  // Validate request
   if(!req.headers.apikey || compare(req, res)==0) {
     res.status(401).send({ message: "Unauthorized!" });
     return;
@@ -16,7 +14,7 @@ exports.create = (req, res) => {
     return;
   }
 
-  Partner.find({name: req.body.name}).then(find => {
+  Partner.findAll({where:{name: req.body.name}}).then(find => {
     if(find.length > 0) res.status(500).send({ message: "Already Existed!" });
     else{
       const partner = ({
@@ -24,7 +22,7 @@ exports.create = (req, res) => {
         isSupplier: req.body.isSupplier ? req.body.isSupplier : false, active: req.body.active ? req.body.active : false
       });
       Partner.create(partner).then(dataa => {
-        const log = ({message: "dibuat", partner: dataa._id, user: req.body.user,});
+        const log = ({message: "dibuat", partner: dataa.id, user: req.body.user,});
         Log.create(log).then(datab => {
           res.send(datab);
         }).catch(err =>{console.error("par0101",err.message);res.status(500).send({message:err.message}); });
@@ -33,9 +31,7 @@ exports.create = (req, res) => {
   }).catch(err =>{console.error("par0103",err.message);res.status(500).send({message:err.message}); });
 };
 
-// Create and Save new
 exports.createMany = (req, res) => {
-  // Validate request
   if(!req.headers.apikey || compare(req, res)==0) {
     res.status(401).send({ message: "Unauthorized!" });
     return;
@@ -101,7 +97,6 @@ function sequencing(x, reqs, users, res){
   startSequence(x, reqs, users, res);
 }
 
-// Retrieve all from the database.
 exports.findAll = (req, res) => {
   const name = req.query.name;
   var condition = name ? { name: { $regex: new RegExp(name), $options: "i" } } : {};
@@ -109,19 +104,18 @@ exports.findAll = (req, res) => {
     res.status(401).send({ message: "Unauthorized!" });
     return;
   }
-  Partner.find(condition)
+  Partner.findAll({where:condition})
     .then(data => {
       res.send(data);
     }).catch(err =>{console.error("par0301",err.message);res.status(500).send({message:err.message}); });
 };
 
-// Find a single with an id
 exports.findOne = (req, res) => {
   if(!req.headers.apikey || compare(req, res)==0) {
     res.status(401).send({ message: "Unauthorized!" });
     return;
   }
-  Partner.findById(req.params.id)
+  Partner.findByPk(req.params.id)
     .then(data => {
       if (!data)
         res.status(404).send({ message: "Not found Data with id " + id });
@@ -129,7 +123,6 @@ exports.findOne = (req, res) => {
     }).catch(err =>{console.error("par0401",err.message);res.status(500).send({message:err.message}); });
 };
 
-// Find a single with an desc
 exports.findByDesc = (req, res) => {
   const name = req.query.name;
   var condition = name ? { name: { $regex: new RegExp(name), $options: "i" } } : {};
@@ -137,13 +130,12 @@ exports.findByDesc = (req, res) => {
     res.status(401).send({ message: "Unauthorized!" });
     return;
   }
-  Partner.find(condition)
+  Partner.findAll({where:condition})
     .then(data => {
       res.send(data);
     }).catch(err =>{console.error("par0501",err.message);res.status(500).send({message:err.message}); });
 };
 
-// Update by the id in the request
 exports.update = (req, res) => {
   if(!req.headers.apikey || compare(req, res)==0) {
     res.status(401).send({ message: "Unauthorized!" });
@@ -153,10 +145,10 @@ exports.update = (req, res) => {
     return res.status(400).send({message: "Data to update can not be empty!"});
   }
 
-  Partner.find({name: req.body.name}).then(find => {
+  Partner.findAll({where:{name: req.body.name}}).then(find => {
     if(find.length > 0 && find[0].id != req.params.id) res.status(500).send({ message: "Already Existed!" });
     else{
-      Partner.findByIdAndUpdate(req.params.id, req.body, { useFindAndModify: false })
+      Partner.update(req.body, {where:{id:req.params.id}})
         .then(data => {
           if (!data) {
             res.status(404).send({message: `Cannot update. Maybe Data was not found!`});
@@ -171,62 +163,56 @@ exports.update = (req, res) => {
     }).catch(err =>{console.error("par0603",err.message);res.status(500).send({message:err.message}); });
 };
 
-// Find all active
 exports.findAllActive = (req, res) => {
   if(!req.headers.apikey || compare(req, res)==0) {
     res.status(401).send({ message: "Unauthorized!" });
     return;
   }
-  Partner.find({ active: true })
+  Partner.findAll({where:{ active: true }})
     .then(data => {
       res.send(data);
     }).catch(err =>{console.error("par0701",err.message);res.status(500).send({message:err.message}); });
 };
 
-// Find all customer
 exports.findAllCustomer = (req, res) => {
   if(!req.headers.apikey || compare(req, res)==0) {
     res.status(401).send({ message: "Unauthorized!" });
     return;
   }
-  Partner.find({ isCustomer: true })
+  Partner.findAll({where:{ isCustomer: true }})
     .then(data => {
       res.send(data);
     }).catch(err =>{console.error("par0801",err.message);res.status(500).send({message:err.message}); });
 };
 
-// Find all supplier
 exports.findAllSupplier = (req, res) => {
   if(!req.headers.apikey || compare(req, res)==0) {
     res.status(401).send({ message: "Unauthorized!" });
     return;
   }
-  Partner.find({ isSupplier: true })
+  Partner.findAll({where:{ isSupplier: true }})
     .then(data => {
       res.send(data);
     }).catch(err =>{console.error("par0901",err.message);res.status(500).send({message:err.message}); });
 };
 
-
-// Find all active customer
 exports.findAllActiveCustomer = (req, res) => {
   if(!req.headers.apikey || compare(req, res)==0) {
     res.status(401).send({ message: "Unauthorized!" });
     return;
   }
-  Partner.find({ active: true, isCustomer: true })
+  Partner.findAll({where:{ active: true, isCustomer: true }})
     .then(data => {
       res.send(data);
     }).catch(err =>{console.error("par1001",err.message);res.status(500).send({message:err.message}); });
 };
 
-// Find all active supplier
 exports.findAllActiveSupplier = (req, res) => {
   if(!req.headers.apikey || compare(req, res)==0) {
     res.status(401).send({ message: "Unauthorized!" });
     return;
   }
-  Partner.find({ active: true, isSupplier: true })
+  Partner.findAll({where:{ active: true, isSupplier: true }})
     .then(data => {
       res.send(data);
     }).catch(err =>{console.error("par1101",err.message);res.status(500).send({message:err.message}); });

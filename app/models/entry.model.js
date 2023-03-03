@@ -1,8 +1,5 @@
 module.exports = (sequelize, Sequelize) => {
   const Entry = sequelize.define("entrys", {
-    journal_id: {type: Sequelize.INTEGER},
-    debit_acc: {type: Sequelize.INTEGER},
-    credit_acc: {type: Sequelize.INTEGER},
     debit: {type: Sequelize.FLOAT},
     credit: {type: Sequelize.FLOAT},
     label: {type: Sequelize.STRING},
@@ -14,8 +11,7 @@ module.exports = (sequelize, Sequelize) => {
     discount: {type: Sequelize.FLOAT},
     subtotal: {type: Sequelize.FLOAT},
     date: {type: 'TIMESTAMP'},
-    company: {type: Sequelize.INTEGER},
-  });
+  }, {underscored: true});
 
   return Entry;
 };

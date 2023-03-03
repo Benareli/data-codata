@@ -10,7 +10,6 @@ const Uom = db.uoms;
 const Partner = db.partners;
 const Warehouse = db.warehouses;
 const User = db.users;
-const mongoose = require("mongoose");
 
 exports.create = (req, res) => {
   if(!req.headers.apikey || compare(req, res)==0) {

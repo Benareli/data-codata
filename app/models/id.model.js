@@ -21,7 +21,7 @@ module.exports = (sequelize, Sequelize) => {
     ticket_id: {type: Sequelize.INTEGER},
     pre_ticket_id: {type: Sequelize.STRING},
     company: {type: Sequelize.INTEGER},
-  });
+  }, {underscored: true});
 
   return Id;
 };

@@ -3,7 +3,7 @@ module.exports = (sequelize, Sequelize) => {
     user_id: {type: Sequelize.STRING},
     pos_qty: {type: Sequelize.BOOLEAN},
     pos_image: {type: Sequelize.BOOLEAN},
-  });
+  }, {underscored: true});
 
   return Pref;
 };

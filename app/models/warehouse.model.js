@@ -4,8 +4,7 @@ module.exports = (sequelize, Sequelize) => {
     short: {type: Sequelize.STRING},
     main: {type: Sequelize.BOOLEAN},
     active: {type: Sequelize.BOOLEAN},
-    company: {type: Sequelize.INTEGER},
-  });
+  }, {underscored: true});
 
   return Warehouse;
 };

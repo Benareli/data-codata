@@ -5,34 +5,31 @@ const Entry = db.entrys;
 const User = db.users;
 const Coa = db.coas;
 const Id = db.ids;
-var journid;
-var journalid;
-var journalcount;
-//const mongoose = require("mongoose");
+var journid, journalid, journalcount;
 
-// Retrieve all from the database.
 exports.findAll = (req, res) => {
   if(!req.headers.apikey || compare(req, res)==0) {
     res.status(401).send({ message: "Unauthorized!" });
     return;
   }
-  Entry.find()
-    .populate({ path: 'debit_acc', model: Coa })
-    .populate({ path: 'credit_acc', model: Coa })
+  Entry.findAll({ include: [
+      {model: Coa, as: "debits"},
+      {model: Coa, as: "credits"},
+    ] })
     .then(data => {
       res.send(data);
     }).catch(err =>{console.error("ent0101",err.message);res.status(500).send({message:err.message}); });  
 };
 
-// Find a single with an id
 exports.findOne = (req, res) => {
   if(!req.headers.apikey || compare(req, res)==0) {
     res.status(401).send({ message: "Unauthorized!" });
     return;
   }
-  Entry.findById(req.params.id)
-    .populate({ path: 'debit_acc', model: Coa })
-    .populate({ path: 'credit_acc', model: Coa })
+  Entry.findByPk(req.params.id, { include: [
+      {model: Coa, as: "debits"},
+      {model: Coa, as: "credits"},
+    ] })
     .then(data => {
       if (!data)
         res.status(404).send({ message: "Not found Data with id " + id });
@@ -40,15 +37,21 @@ exports.findOne = (req, res) => {
     }).catch(err =>{console.error("ent0201",err.message);res.status(500).send({message:err.message}); });
 };
 
-// Find a single with an desc
 exports.findByJournal = (req, res) => {
   if(!req.headers.apikey || compare(req, res)==0) {
     res.status(401).send({ message: "Unauthorized!" });
     return;
   }
-  Entry.find({journal_id: req.params.journal})
-    .populate({ path: 'debit_acc', model: Coa })
-    .populate({ path: 'credit_acc', model: Coa })
+  /*Entry.findAll({where:{journal_id: req.params.journal},
+    include: [
+      {model: Coa, as: "debits"},
+      {model: Coa, as: "credits"},
+    ] })*/
+  db.sequelize.query
+    ('SELECT public.entrys.* FROM public.journal_entry ' +
+      'LEFT JOIN public.entrys ON public.journal_entry.entry_id = public.entrys.id ' +
+      'WHERE public.journal_entry.journal_id = ' + req.params.journal
+      ,{raw: true, nest: true})
     .then(data => {
       res.send(data);
     }).catch(err =>{console.error("ent0301",err.message);res.status(500).send({message:err.message}); });

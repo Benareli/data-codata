@@ -9,12 +9,7 @@ const Journal = db.journals;
 const Entry = db.entrys;
 const Id = db.ids;
 const Log = db.logs;
-const mongoose = require("mongoose");
-var journid;
-var journalid;
-var journalcount;
-var payments;
-var pays1;
+var journid, journalid, journalcount, payments, pays1;
 
 async function getJournalId1() {
   const res1 = await id.getJournalId1();
@@ -48,33 +43,41 @@ exports.create = (req, res) => {
     res.status(400).send({ message: "Content can not be empty!" });
     return;
   }
-  if(req.body.payment2!="null"){
-    const posdetail = ({
-      pay_id: req.body.pay_id,
-      order_id: req.body.order_id,
-      amount_total: req.body.amount_total,
-      payment1: req.body.payment1,
-      pay1method: req.body.pay1method,
-      pay1note: req.body.pay1note,
-      payment2: req.body.payment2,
-      pay2method: req.body.pay2method,
-      pay2note: req.body.pay2note,
-      change: req.body.change,
-      changeMethod: req.body.changeMethod,
-      date: req.body.date,
-      type: req.body.type,
-    });
-    Payment.create(posdetail).then(dataa => { 
-      payments = dataa;
-      if(req.body.session!="null"){
-        const possF = Possession.find({_id:req.body.session})
-          .then(posf => {
-          const poss1 = Possession.findOneAndUpdate({_id:req.body.session}, 
-            {$push: {payment: dataa._id}}, { useFindAndModify: false })
-              .then(datab => {
-                if(req.body.type == "in"){
-                  insertAcc(req.body, res);
-                }else{
+  if(req.body.type == "in"){
+    req.body.type = 0;
+  }else if(req.body.type == "out"){
+    req.body.type = 1;
+  }
+  const payment = ({
+    pay_id: req.body.pay_id,
+    order_id: req.body.order_id,
+    amount_total: req.body.amount_total,
+    payment: Number(req.body.payment),
+    pay_method: titleCase(req.body.pay_method),
+    pay_note: req.body.pay_note,
+    change: req.body.change,
+    change_method: req.body.change_method,
+    date: req.body.date,
+    type: req.body.type,
+  });
+  Payment.create(payment).then(dataa => {
+    payments = dataa;
+    if(req.body.type == 1){
+      Journal.findOne({where:{name:req.body.order_id}}).then(fj => {
+        Journal.update({amountdue:fj.amountdue-req.body.payment},{where:{id:fj.id}}).then(ufj => {
+          insertPayOut(req.body, res);
+        })
+      })
+    }
+    /*if(req.body.session!="null"){
+      const possF = Possession.find({_id:req.body.session})
+        .then(posf => {
+        const poss1 = Possession.findOneAndUpdate({_id:req.body.session}, 
+          {$push: {payment: dataa._id}}, { useFindAndModify: false })
+            .then(datab => {
+              if(req.body.type == "in"){
+                insertAcc(req.body, res);
+              }else{
                   Journal.findOneAndUpdate({journal_id: req.body.order_id}, {$push: {payment: dataa._id}}, { useFindAndModify: false })
                     .then(jou => {
                       if(!jou.payments){
@@ -88,45 +91,12 @@ exports.create = (req, res) => {
                       }).catch(err => {console.error("pay0101",err.message);res.status(500).send({message:err.message}); })
                     }).catch(err => {console.error("pay0102",err.message);res.status(500).send({message:err.message}); })
                 }
-                //res.send(dataa);
               }).catch(err => {console.error("pay0103",err.message);res.status(500).send({message:err.message}); })
           }).catch(err => {console.error("pay0104",err.message);res.status(500).send({message:err.message}); })
       }else{
         insertAcc(req.body, res);
-        //res.send(dataa);
-      }
+      }*/
     }).catch(err => {res.status(500).send({message:err.message}); })
-  }else if(req.body.payment2=="null"){
-    const posdetail = ({
-      pay_id: req.body.pay_id,
-      order_id: req.body.order_id,
-      amount_total: req.body.amount_total,
-      payment1: req.body.payment1,
-      pay1method: req.body.pay1method,
-      pay1note: req.body.pay1note,
-      change: req.body.change,
-      changeMethod: req.body.changeMethod,
-      date: req.body.date,
-      type: req.body.type,
-    });
-    Payment.create(posdetail).then(dataa => {
-      payments = dataa;
-      if(req.body.session!="null"){
-        const possF = Possession.find({_id:req.body.session})
-          .then(posf => {
-          const poss1 = Possession.findOneAndUpdate({_id:req.body.session}, 
-            {$push: {payment: dataa._id}}, { useFindAndModify: false })
-              .then(datab => {
-                insertAcc(req.body, res);
-                //res.send(dataa);
-              }).catch(err => {console.error("pay0105",err.message);res.status(500).send({message:err.message}); })
-          }).catch(err => {console.error("pay0106",err.message);res.status(500).send({message:err.message}); })
-      }else{
-        insertAcc(req.body, res);
-        //res.send(dataa);
-      }
-    }).catch(err => {res.status(500).send({message:err.message}); })
-  }
 };
 
 function insertPayOut(req, res) {
@@ -135,26 +105,27 @@ function insertPayOut(req, res) {
     pp = datacoa[1];
     getUpdateJournalId().then(dataid => {
       journid = dataid;
-      const ent1 = ({journal_id: journid, label: req.order_id,
-        debit_acc: oo, debit: req.payment1, date: req.date})
-      Entry.create(ent1).then(dataa => {
-        const ent2 = ({journal_id: journid, label: req.pay1method,
-          credit_acc: pp, credit: req.payment1, date: req.date})
-        Entry.create(ent2).then(datab => {
-          const journal = ({journal_id: journid, origin: req.pay_id, type: "payment", lock: true,
-            amount: Number(req.payment1) + Number(req.payment2) ? req.payment2 : 0 + 
-              Number(req.change) ? req.change : 0,
-            entries:[dataa._id, datab._id], date: req.date})
-            Journal.create(journal).then(datac => {
-              const log = ({message: "dibuat", journal: datac._id, user: req.user,});
-              Log.create(log).then(datae => {
-                res.send(payments);
+      const journal = ({name: journid, origin: req.pay_id, type: "payment", lock: true,
+        amount: req.payment, date: req.date})
+      Journal.create(journal).then(dataz => {
+        const ent1 = ({label: req.order_id, debit_id: oo, debit: req.payment, date: req.date})
+        Entry.create(ent1).then(dataa => {
+          const ent2 = ({label: req.pay_method, credit_id: pp, credit: req.payment, date: req.date})
+          Entry.create(ent2).then(datab => {
+            dataz.addEntrys(dataa);
+            dataz.addEntrys(datab);
+            Journal.findOne({where:{name:req.order_id}}).then(datay => {
+              datay.addPayments(payments);
+              const log = ({message: "dibuat", journal: dataz.id, user: req.user,});
+                Log.create(log).then(datae => {
+                  res.send(payments);
               }).catch(err =>{console.error("pay0201",err.message);res.status(500).send({message:err.message}); });
-            }).catch(err =>{console.error("pay0202",err.message);res.status(500).send({message:err.message}); })
-          }).catch(err =>{console.error("pay0203",err.message);res.status(500).send({message:err.message}); });
+            }).catch(err =>{console.error("pay0202",err.message);res.status(500).send({message:err.message}); });
+          }).catch(err =>{console.error("pay0203",err.message);res.status(500).send({message:err.message}); })
         }).catch(err =>{console.error("pay0204",err.message);res.status(500).send({message:err.message}); });
       }).catch(err =>{console.error("pay0205",err.message);res.status(500).send({message:err.message}); });
     }).catch(err =>{console.error("pay0206",err.message);res.status(500).send({message:err.message}); });
+  }).catch(err =>{console.error("pay0207",err.message);res.status(500).send({message:err.message}); });
 }
 
 function insertAcc(req, res) {
@@ -183,12 +154,12 @@ function insertAcc(req, res) {
                 }else{
                   res.send(payments);
                 }
-              }).catch(err =>{console.error("pay0201",err.message);res.status(500).send({message:err.message}); });
-            }).catch(err =>{console.error("pay0202",err.message);res.status(500).send({message:err.message}); })
-          }).catch(err =>{console.error("pay0203",err.message);res.status(500).send({message:err.message}); });
-        }).catch(err =>{console.error("pay0204",err.message);res.status(500).send({message:err.message}); });
-      }).catch(err =>{console.error("pay0205",err.message);res.status(500).send({message:err.message}); });
-    }).catch(err =>{console.error("pay0206",err.message);res.status(500).send({message:err.message}); });
+              }).catch(err =>{console.error("pay0301",err.message);res.status(500).send({message:err.message}); });
+            }).catch(err =>{console.error("pay0302",err.message);res.status(500).send({message:err.message}); })
+          }).catch(err =>{console.error("pay0303",err.message);res.status(500).send({message:err.message}); });
+        }).catch(err =>{console.error("pay0304",err.message);res.status(500).send({message:err.message}); });
+      }).catch(err =>{console.error("pay0305",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("pay0306",err.message);res.status(500).send({message:err.message}); });
 }
 
 function secondAcc(req, res) {
@@ -209,10 +180,10 @@ function secondAcc(req, res) {
             }else{
               res.send(payments);
             }
-          }).catch(err =>{console.error("pay0301",err.message);res.status(500).send({message:err.message}); });
-        }).catch(err =>{console.error("pay0302",err.message);res.status(500).send({message:err.message}); });
-      }).catch(err =>{console.error("pay0303",err.message);res.status(500).send({message:err.message}); });
-    }).catch(err =>{console.error("pay0304",err.message);res.status(500).send({message:err.message}); });
+          }).catch(err =>{console.error("pay0401",err.message);res.status(500).send({message:err.message}); });
+        }).catch(err =>{console.error("pay0402",err.message);res.status(500).send({message:err.message}); });
+      }).catch(err =>{console.error("pay0403",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("pay0404",err.message);res.status(500).send({message:err.message}); });
 }
 
 function changeAcc(req, res) {
@@ -299,3 +270,9 @@ exports.update = (req, res) => {
       }
     }).catch(err =>{console.error("pay0801",err.message);res.status(500).send({message:err.message}); });
 };
+
+function titleCase(str) {
+  return str.toLowerCase().split(' ').map(function(word) {
+    return (word.charAt(0).toUpperCase() + word.slice(1));
+  }).join(' ');
+}

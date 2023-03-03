@@ -9,13 +9,10 @@ const Id = db.ids;
 const Log = db.logs;
 const Payment = db.payments;
 const Partner = db.partners;
+const Product = db.products;
 const Purchasedetail = db.purchasedetails;
 const Saledetail = db.saledetails;
-var billids;
-var taxes;
-var subtotal;
-var entries = [];
-//const mongoose = require("mongoose");
+var billids, taxes, subtotal, entries = [], jnl;
 
 async function getUpdateBillId() {
   const res1 = await id.getUpdateBillId();
@@ -37,27 +34,37 @@ async function getUpdateInvId() {
   return res4;
 }
 
-// Retrieve all from the database.
 exports.findAll = (req, res) => {
   if(!req.headers.apikey || compare(req, res)==0) {
     res.status(401).send({ message: "Unauthorized!" });
     return;
   }
-  Journal.find()
-    .populate({ path: 'entries', model: Entry })
+  Journal.findAll({include: [
+      {model: Entry, as: "entrys", include: [{model: Coa, as: "debits"}, {model: Coa, as: "credits"}],
+        attributes: ["id", "label", "debit", "credit"],
+        through: {attributes: ["entry_id", "journal_id"]}
+      },
+      {model: Partner, as: "partners"},
+    ] })
     .then(data => {
       res.send(data);
     }).catch(err =>{console.error("jour0101",err.message);res.status(500).send({message:err.message}); });
 };
 
-// Find a single with an id
 exports.findOne = (req, res) => {
   if(!req.headers.apikey || compare(req, res)==0) {
     res.status(401).send({ message: "Unauthorized!" });
     return;
   }
-  Journal.findById(req.params.id)
-    .populate({ path: 'entries', model: Entry })
+  Journal.findByPk(req.params.id, {include: [
+      {model: Entry, as: "entrys", include: [{model: Coa, as: "debits"}, {model: Coa, as: "credits"}
+        , {model: Product, as: "products"}],
+        attributes: ["id", "label", "debit", "credit", "qty", "price_unit", "discount", "tax", "subtotal"],
+        through: {attributes: ["entry_id", "journal_id"]}
+      },
+      {model: Payment, as: "payments", through: {attributes: ["payment_id", "journal_id"]}},
+      {model: Partner, as: "partners"},
+    ] })
     .then(data => {
       if (!data)
         res.status(404).send({ message: "Not found Data with id " + id });
@@ -65,14 +72,19 @@ exports.findOne = (req, res) => {
     }).catch(err =>{console.error("jour0201",err.message);res.status(500).send({message:err.message}); });
 };
 
-// Find a single with an id
 exports.findJournal = (req, res) => {
   if(!req.headers.apikey || compare(req, res)==0) {
     res.status(401).send({ message: "Unauthorized!" });
     return;
   }
-  Journal.find({type: { $nin: ["bill","invoice"] }})
-    .populate({ path: 'entries', model: Entry })
+  Journal.findAll({where:{type: { $nin: ["bill","invoice"] }}, include: [
+      {model: Entry, as: "entrys", include: [{model: Coa, as: "debits"}, {model: Coa, as: "credits"}
+        , {model: Product, as: "products"}],
+        attributes: ["id", "label", "debit", "credit"],
+        through: {attributes: ["entry_id", "journal_id"]}
+      },
+      {model: Partner, as: "partners"},
+    ] })
     .then(data => {
       if (!data)
         res.status(404).send({ message: "Not found Data with id " + id });
@@ -80,15 +92,19 @@ exports.findJournal = (req, res) => {
     }).catch(err =>{console.error("jour2101",err.message);res.status(500).send({message:err.message}); });
 };
 
-// Find a single with an id
 exports.findJourn = (req, res) => {
   if(!req.headers.apikey || compare(req, res)==0) {
     res.status(401).send({ message: "Unauthorized!" });
     return;
   }
-  Journal.findOne({journal_id: req.params.journal})
-    .populate({ path: 'entries', model: Entry })
-    .populate({ path: 'payment', model: Payment})
+  Journal.findOne({where:{journal_id: req.params.journal}, include: [
+      {model: Entry, as: "entrys", include: [{model: Coa, as: "debits"}, {model: Coa, as: "credits"}
+        , {model: Product, as: "products"}],
+        attributes: ["id", "label", "debit", "credit"],
+        through: {attributes: ["entry_id", "journal_id"]}
+      },
+      {model: Partner, as: "partners"},
+    ] })
     .then(data => {
       if (!data)
         res.status(404).send({ message: "Not found Data with id " + id });
@@ -96,14 +112,18 @@ exports.findJourn = (req, res) => {
     }).catch(err =>{console.error("jour2201",err.message);res.status(500).send({message:err.message}); });
 };
 
-// Find a single with an id
 exports.findOrigin = (req, res) => {
   if(!req.headers.apikey || compare(req, res)==0) {
     res.status(401).send({ message: "Unauthorized!" });
     return;
   }
-  Journal.find({origin: req.params.origin})
-    .populate({ path: 'entries', model: Entry })
+  Journal.findAll({where:{origin: req.params.origin}, include: [
+      {model: Entry, as: "entrys", include: [{model: Coa, as: "debits"}, {model: Coa, as: "credits"}],
+        attributes: ["id", "label", "debit", "credit"],
+        through: {attributes: ["entry_id", "journal_id"]}
+      },
+      {model: Partner, as: "partners"},
+    ] })
     .then(data => {
       if (!data)
         res.status(404).send({ message: "Not found Data with id " + id });
@@ -111,15 +131,18 @@ exports.findOrigin = (req, res) => {
     }).catch(err =>{console.error("jour2301",err.message);res.status(500).send({message:err.message}); });
 };
 
-// Find a single with an id
 exports.findBill = (req, res) => {
   if(!req.headers.apikey || compare(req, res)==0) {
     res.status(401).send({ message: "Unauthorized!" });
     return;
   }
-  Journal.find({type: "bill"})
-    .populate({ path: 'entries', model: Entry })
-    .populate({ path: 'partner', model: Partner })
+  Journal.findAll({where:{type: "bill"}, include: [
+      {model: Entry, as: "entrys", include: [{model: Coa, as: "debits"}, {model: Coa, as: "credits"}],
+        attributes: ["id", "label", "debit", "credit"],
+        through: {attributes: ["entry_id", "journal_id"]}
+      },
+      {model: Partner, as: "partners"},
+    ] })
     .then(data => {
       if (!data)
         res.status(404).send({ message: "Not found Data with id " + id });
@@ -137,7 +160,7 @@ exports.createBill = (req, res) => {
     res.status(400).send({ message: "Content can not be empty!" });
     return;
   }
-
+  
   taxes = 0;
   if(req.body.productbill.length > 1){
     playSequencing(0, req, res);
@@ -149,53 +172,54 @@ exports.createBill = (req, res) => {
       let qq = datacoa[2];
       getUpdateBillId().then(dataid => {
         billid = dataid;
-        const ent1 = ({journal_id: billid, label: req.body.productname[0], product: req.body.pdetail[0], tax: req.body.tax[0], discount: req.body.discount[0],
-          debit_acc: pp, debit: (req.body.qrec[0] * req.body.priceunit[0]) - (req.body.discount[0]/100 * (req.body.qrec[0] * req.body.priceunit[0])), 
-          date: req.body.date, qty: req.body.qrec[0], price_unit: req.body.priceunit[0], subtotal: req.body.subtotal[0]})
-        Entry.create(ent1).then(dataa => {
-          Purchasedetail.findOneAndUpdate({_id: req.body.pdetail[0]}, {qty_inv: req.body.qinv[0] + req.body.qrec[0]}, {useFindAndModify: false})
-            .then(dataf => {
-              if(req.body.tax[0] > 0){
-                const ent2 = ({journal_id: billid, label: "Tax " + req.body.tax[0] + "%",
-                  debit_acc: qq, debit: (req.body.tax[0]/100 * (req.body.qrec[0] * req.body.priceunit[0]) - (req.body.discount[0]/100 * (req.body.qrec[0] * req.body.priceunit[0]))), 
-                  date: req.body.date})
-                Entry.create(ent2).then(datab => {
-                  const ent3 = ({journal_id: billid, label: "Payable",
-                    credit_acc: oo, credit: (req.body.tax[0]/100 * (req.body.qrec[0] * req.body.priceunit[0]) - (req.body.discount[0]/100 * (req.body.qrec[0] * req.body.priceunit[0]))) +
-                    ((req.body.qrec[0] * req.body.priceunit[0]) - (req.body.discount[0]/100 * (req.body.qrec[0] * req.body.priceunit[0]))), 
-                    date: req.body.date}) 
-                  Entry.create(ent3).then(datac => {
-                    const journal = ({journal_id: billid, origin: req.body.origin, type: "bill", state: 0, partner: req.body.partner, lock: false,
-                      amount: req.body.amount, entries:[dataa._id, datab._id, datac._id], date: req.body.date, duedate: req.body.duedate})
-                    Journal.create(journal).then(datac => {
+        const journal = ({name: billid, origin: req.body.origin, type: "bill", state: 0, partner_id: req.body.partner, lock: false,
+          amount: req.body.amount, amountdue: req.body.amount, date: req.body.date, duedate: req.body.duedate})
+        Journal.create(journal).then(dataz => {
+          const ent1 = ({label: req.body.productname[0], product_id: req.body.productbill[0], tax: req.body.tax[0], discount: req.body.discount[0],
+            debit_id: pp, debit: (req.body.qrec[0] * req.body.priceunit[0]) - (req.body.discount[0]/100 * (req.body.qrec[0] * req.body.priceunit[0])), 
+            date: req.body.date, qty: req.body.qrec[0], price_unit: req.body.priceunit[0], subtotal: req.body.subtotal[0]})
+          Entry.create(ent1).then(dataa => {
+            Purchasedetail.update({qty_inv: req.body.qinv[0] + req.body.qrec[0]}, {where: {id:req.body.pdetail[0]}})
+              .then(dataf => {
+                if(req.body.tax[0] > 0){
+                  const ent2 = ({label: "Tax " + req.body.tax[0] + "%",
+                    debit_id: qq, debit: (req.body.tax[0]/100 * (req.body.qrec[0] * req.body.priceunit[0]) - (req.body.discount[0]/100 * (req.body.qrec[0] * req.body.priceunit[0]))), 
+                    date: req.body.date})
+                  Entry.create(ent2).then(datab => {
+                    const ent3 = ({label: "Payable",
+                      credit_id: oo, credit: (req.body.tax[0]/100 * (req.body.qrec[0] * req.body.priceunit[0]) - (req.body.discount[0]/100 * (req.body.qrec[0] * req.body.priceunit[0]))) +
+                      ((req.body.qrec[0] * req.body.priceunit[0]) - (req.body.discount[0]/100 * (req.body.qrec[0] * req.body.priceunit[0]))), 
+                      date: req.body.date}) 
+                    Entry.create(ent3).then(datac => {
                       xx=null;yy=null;zz=null;oo=null;pp=null;qq=null;
+                      dataz.addEntrys(dataa);
+                      dataz.addEntrys(datab);
+                      dataz.addEntrys(datac);
                       const log = ({message: "dibuat", journal: datac._id, user: req.user,});
-                      Log.create(log).then(datad => {
+                      Log.create(log).then(datae => {
                         res.send(dataa);
                       }).catch(err =>{console.error("bill0101",err.message);res.status(500).send({message:err.message}); });
                     }).catch(err =>{console.error("bill0102",err.message);res.status(500).send({message:err.message}); });
                   }).catch(err =>{console.error("bill0103",err.message);res.status(500).send({message:err.message}); });
-                }).catch(err =>{console.error("bill0104",err.message);res.status(500).send({message:err.message}); });
-              }else{
-                const ent3 = ({journal_id: billid, label: "Payable",
-                  credit_acc: oo, credit: ((req.body.qrec[0] * req.body.priceunit[0]) - (req.body.discount[0]/100 * (req.body.qrec[0] * req.body.priceunit[0]))), 
-                  date: req.body.date, duedate: req.body.duedate}) 
+                }else{
+                const ent3 = ({label: "Payable",
+                  credit_id: oo, credit: ((req.body.qrec[0] * req.body.priceunit[0]) - (req.body.discount[0]/100 * (req.body.qrec[0] * req.body.priceunit[0]))), 
+                  date: req.body.date}) 
                 Entry.create(ent3).then(datac => {
-                  const journal = ({journal_id: billid, origin: req.body.origin, type: "bill", state: 0, partner: req.body.partner, lock: false,
-                    amount: req.body.amount, entries:[dataa._id, , datac._id], date: req.body.date, duedate: req.body.duedate})
-                  Journal.create(journal).then(datac => {
-                    xx=null;yy=null;zz=null;oo=null;pp=null;qq=null;
-                    const log = ({message: "dibuat", journal: datac._id, user: req.user,});
-                    Log.create(log).then(datad => {
-                      res.send(dataa);
-                    }).catch(err =>{console.error("bill0105",err.message);res.status(500).send({message:err.message}); });
-                  }).catch(err =>{console.error("bill0106",err.message);res.status(500).send({message:err.message}); });
-                }).catch(err =>{console.error("bill0107",err.message);res.status(500).send({message:err.message}); });
+                  xx=null;yy=null;zz=null;oo=null;pp=null;qq=null;
+                  dataz.addEntrys(dataa);
+                  dataz.addEntrys(datac);
+                  const log = ({message: "dibuat", journal: dataz.id, user: req.user,});
+                  Log.create(log).then(datae => {
+                    res.send(dataa);
+                  }).catch(err =>{console.error("bill0104",err.message);res.status(500).send({message:err.message}); });
+                }).catch(err =>{console.error("bill0105",err.message);res.status(500).send({message:err.message}); });
               }
-          }).catch(err =>{console.error("bill0108",err.message);res.status(500).send({message:err.message}); });
-        }).catch(err =>{console.error("bill0109",err.message);res.status(500).send({message:err.message}); });
-      }).catch(err =>{console.error("bill0110",err.message);res.status(500).send({message:err.message}); });
-    }).catch(err =>{console.error("bill0111",err.message);res.status(500).send({message:err.message}); });
+            }).catch(err =>{console.error("bill0106",err.message);res.status(500).send({message:err.message}); });
+          }).catch(err =>{console.error("bill0107",err.message);res.status(500).send({message:err.message}); });
+        }).catch(err =>{console.error("bill0108",err.message);res.status(500).send({message:err.message}); });
+      }).catch(err =>{console.error("bill0109",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("bill0110",err.message);res.status(500).send({message:err.message}); });
   }
 };
 
@@ -209,70 +233,76 @@ function playSequencing(x, req, res){
       if(x == 0){
         getUpdateBillId().then(dataid => {
           billids = dataid;
-          const ent1 = ({journal_id: billids, label: req.body.productname[x], product: req.body.pdetail[x], tax: req.body.tax[x], discount: req.body.discount[x],
-            debit_acc: pp, debit: (req.body.qrec[x] * req.body.priceunit[x]) - (req.body.discount[x]/100 * (req.body.qrec[x] * req.body.priceunit[x])), 
-            date: req.body.date, qty: req.body.qrec[x], price_unit: req.body.priceunit[x], subtotal: req.body.subtotal[x]})
-          Entry.create(ent1).then(dataa => {
-            Purchasedetail.findOneAndUpdate({_id: req.body.pdetail[x]}, {qty_inv: req.body.qinv[x] + req.body.qrec[x]}, {useFindAndModify: false})
-              .then(dataf => {
-                taxes = taxes + (req.body.tax[x]/100 * ((req.body.qrec[x] * req.body.priceunit[x]) - (req.body.discount[x]/100 * (req.body.qrec[x] * req.body.priceunit[x]))));
-                entries.push(dataa._id);
-                sequencing(x, req, res);
-            }).catch(err =>{console.error("bill0201",err.message);res.status(500).send({message:err.message}); });
-          }).catch(err =>{console.error("bill0202",err.message);res.status(500).send({message:err.message}); });
-        }).catch(err =>{console.error("bill0203",err.message);res.status(500).send({message:err.message}); });
+          const journal = ({name: billids, origin: req.body.origin, type: "bill", state: 0, partner_id: req.body.partner, lock: false,
+            amount: req.body.amount, date: req.body.date, duedate: req.body.duedate})
+          Journal.create(journal).then(dataz => {
+            jnl = dataz;
+            const ent1 = ({label: req.body.productname[x], product_id: req.body.productbill[x], tax: req.body.tax[x], discount: req.body.discount[x],
+              debit_id: pp, debit: (req.body.qrec[x] * req.body.priceunit[x]) - (req.body.discount[x]/100 * (req.body.qrec[x] * req.body.priceunit[x])), 
+              date: req.body.date, qty: req.body.qrec[x], price_unit: req.body.priceunit[x], subtotal: req.body.subtotal[x]})
+            Entry.create(ent1).then(dataa => {
+              Purchasedetail.update({qty_inv: req.body.qinv[x] + req.body.qrec[x]}, {where:{id:req.body.pdetail[x]}})
+                .then(dataf => {
+                  taxes = taxes + (req.body.tax[x]/100 * ((req.body.qrec[x] * req.body.priceunit[x]) - (req.body.discount[x]/100 * (req.body.qrec[x] * req.body.priceunit[x]))));
+                  entries.push(dataa);
+                  sequencing(x, req, res);
+              }).catch(err =>{console.error("bill0201",err.message);res.status(500).send({message:err.message}); });
+            }).catch(err =>{console.error("bill0202",err.message);res.status(500).send({message:err.message}); });
+          }).catch(err =>{console.error("bill0203",err.message);res.status(500).send({message:err.message}); });
+        }).catch(err =>{console.error("bill0204",err.message);res.status(500).send({message:err.message}); });
       }else{
-        const ent1 = ({journal_id: billids, label: req.body.productname[x], product: req.body.pdetail[x], tax: req.body.tax[x], discount: req.body.discount[x],
-          debit_acc: pp, debit: (req.body.qrec[x] * req.body.priceunit[x]) - (req.body.discount[x]/100 * (req.body.qrec[x] * req.body.priceunit[x])), 
+        const ent1 = ({label: req.body.productname[x], product_id: req.body.productbill[x], tax: req.body.tax[x], discount: req.body.discount[x],
+          debit_id: pp, debit: (req.body.qrec[x] * req.body.priceunit[x]) - (req.body.discount[x]/100 * (req.body.qrec[x] * req.body.priceunit[x])), 
           date: req.body.date, qty: req.body.qrec[x], price_unit: req.body.priceunit[x], subtotal: req.body.subtotal[x]})
         Entry.create(ent1).then(dataa => {
-          Purchasedetail.findOneAndUpdate({_id: req.body.pdetail[x]}, {qty_inv: req.body.qinv[x] + req.body.qrec[x]}, {useFindAndModify: false})
+          Purchasedetail.update({qty_inv: req.body.qinv[x] + req.body.qrec[x]}, {where:{id: req.body.pdetail[x]}})
             .then(dataf => {
               taxes = taxes + (req.body.tax[x]/100 * ((req.body.qrec[x] * req.body.priceunit[x]) - (req.body.discount[x]/100 * (req.body.qrec[x] * req.body.priceunit[x]))));
-              entries.push(dataa._id);
+              entries.push(dataa);
               sequencing(x, req, res);
-          }).catch(err =>{console.error("bill0204",err.message);res.status(500).send({message:err.message}); });
-        }).catch(err =>{console.error("bill0205",err.message);res.status(500).send({message:err.message}); });
+          }).catch(err =>{console.error("bill0205",err.message);res.status(500).send({message:err.message}); });
+        }).catch(err =>{console.error("bill0206",err.message);res.status(500).send({message:err.message}); });
       }
     }else{
       if(taxes>0){
-        const ent2 = ({journal_id: billids, label: "Tax",
-          debit_acc: qq, debit: taxes, date: req.body.date})
+        const ent2 = ({label: "Tax", debit_id: qq, debit: taxes, date: req.body.date})
         Entry.create(ent2).then(datab => {
-          entries.push(datab._id);
-          const ent3 = ({journal_id: billids, label: "Payable",
-            credit_acc: oo, credit: req.body.amount ,date: req.body.date}) 
+          entries.push(datab);
+          const ent3 = ({label: "Payable", credit_id: oo, credit: req.body.amount ,date: req.body.date}) 
           Entry.create(ent3).then(datac => {
-            entries.push(datac._id);
-            const journal = ({journal_id: billids, origin: req.body.origin, type: "bill", state: 0, partner: req.body.partner, lock: false,
-              amount: req.body.amount, entries:entries, date: req.body.date, duedate: req.body.duedate})
-            Journal.create(journal).then(datac => {
-              xx=null;yy=null;zz=null;oo=null;pp=null;qq=null;
-              const log = ({message: "dibuat", journal: datac._id, user: req.user,});
-              Log.create(log).then(datad => {
-                res.send(datad);
-              }).catch(err =>{console.error("bill0206",err.message);res.status(500).send({message:err.message}); });
+            entries.push(datac);
+            xx=null;yy=null;zz=null;oo=null;pp=null;qq=null;
+            const log = ({message: "dibuat", journal: jnl.id, user: req.user,});
+            Log.create(log).then(datad => {
+              for(let x=0;x<entries.length;x++){
+                jnl.addEntrys(entries[x]);
+                if(x == entries.length-1){
+                  entries=[];
+                  res.send(datad);
+                }
+              }
             }).catch(err =>{console.error("bill0207",err.message);res.status(500).send({message:err.message}); });
           }).catch(err =>{console.error("bill0208",err.message);res.status(500).send({message:err.message}); });
         }).catch(err =>{console.error("bill0209",err.message);res.status(500).send({message:err.message}); });
       }else{
-        const ent3 = ({journal_id: billids, label: "Payable",
-          credit_acc: oo, credit: req.body.amount, date: req.body.date}) 
+        const ent3 = ({label: "Payable", credit_id: oo, credit: req.body.amount, date: req.body.date}) 
         Entry.create(ent3).then(datac => {
-          entries.push(datac._id);
-          const journal = ({journal_id: billids, origin: req.body.origin, type: "bill", state: 0, partner: req.body.partner, lock: false,
-            amount: req.body.amount, entries:entries, date: req.body.date, duedate: req.body.duedate})
-          Journal.create(journal).then(datac => {
-            xx=null;yy=null;zz=null;oo=null;pp=null;qq=null;
-            const log = ({message: "dibuat", journal: datac._id, user: req.user,});
-            Log.create(log).then(datad => {
-              res.send(datad);
-            }).catch(err =>{console.error("bill0210",err.message);res.status(500).send({message:err.message}); });
-          }).catch(err =>{console.error("bill0211",err.message);res.status(500).send({message:err.message}); });
-        }).catch(err =>{console.error("bill0212",err.message);res.status(500).send({message:err.message}); });
+          entries.push(datac);
+          xx=null;yy=null;zz=null;oo=null;pp=null;qq=null;
+          const log = ({message: "dibuat", journal: jnl.id, user: req.user,});
+          Log.create(log).then(datad => {
+            for(let x=0;x<entries.length;x++){
+              jnl.addEntrys(entries[x]);
+              if(x == entries.length-1){
+                entries=[];
+                res.send(datad);
+              }
+            }
+          }).catch(err =>{console.error("bill0210",err.message);res.status(500).send({message:err.message}); });
+        }).catch(err =>{console.error("bill0211",err.message);res.status(500).send({message:err.message}); });
       }
     }
-  }).catch(err =>{console.error("bill0213",err.message);res.status(500).send({message:err.message}); });
+  }).catch(err =>{console.error("bill0212",err.message);res.status(500).send({message:err.message}); });
 }
 
 function sequencing(x, req, res){
@@ -290,14 +320,12 @@ exports.updateLock = (req, res) => {
     return res.status(400).send({message: "Data to update can not be empty!"});
   }
 
-  Journal.findByIdAndUpdate(req.params.id, 
-    ({lock: req.body.lock}), 
-    { useFindAndModify: false })
+  Journal.update({lock: req.body.lock}, {where:{id:req.params.id}})
     .then(data => {
       if (!data) {
         res.status(404).send({message: `Cannot update. Maybe Data was not found!`});
       } else{
-        const log = ({message: "updated", journal: data._id, user: req.body.user,});
+        const log = ({message: "updated", journal: data.id, user: req.body.user,});
         Log.create(log).then(datab => {
           res.send({ message: "Updated successfully." });
         }).catch(err =>{console.error("jour2501",err.message);res.status(500).send({message:err.message}); });
@@ -311,9 +339,13 @@ exports.findInv = (req, res) => {
     res.status(401).send({ message: "Unauthorized!" });
     return;
   }
-  Journal.find({type: "invoice"})
-    .populate({ path: 'entries', model: Entry })
-    .populate({ path: 'partner', model: Partner })
+  Journal.findAll({where:{type: "invoice"}, include: [
+      {model: Entry, as: "entrys", include: [{model: Coa, as: "debits"}, {model: Coa, as: "credits"}],
+        attributes: ["id", "label", "debit", "credit"],
+        through: {attributes: ["entry_id", "journal_id"]}
+      },
+      {model: Partner, as: "partners"},
+    ] })
     .then(data => {
       if (!data)
         res.status(404).send({ message: "Not found Data with id " + id });

@@ -12,10 +12,7 @@ const Coa = db.coas;
 const Journal = db.journals;
 const Entry = db.entrys;
 const Id = db.ids;
-const mongoose = require("mongoose");
-var journid;
-var journalid;
-var journalcount;
+var journid, journalid, journalcount;
 
 async function getJournalId() {
   const res1 = await id.getJournalId();

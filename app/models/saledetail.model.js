@@ -16,7 +16,7 @@ module.exports = (sequelize, Sequelize) => {
     warehouse: {type: Sequelize.INTEGER},
     company: {type: Sequelize.INTEGER},
     //stockmove: [{type: Sequelize.INTEGER},]
-  });
+  }, {underscored: true});
 
   return Saledetail;
 };

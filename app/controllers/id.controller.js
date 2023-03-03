@@ -1,7 +1,6 @@
 const db = require("../models");
 const { compare } = require('../function/key.function');
 const Id = db.ids;
-const mongoose = require("mongoose");
 
 exports.findAll = (req, res) => {
   if(!req.headers.apikey || compare(req, res)==0) {
@@ -29,7 +28,7 @@ exports.findPOSessId = (req, res) => {
       posid = ids[0].pre_pos_session+'-'+new Date().getFullYear().toString().substr(-2)+
       '0'+(new Date().getMonth() + 1).toString().slice(-2)+
       prefixes+ids[0].pos_session.toString();
-      Id.update({pos_session: Number(ids[0].pos_session) + 1}, {where: {_id: ids[0]._id}})
+      Id.update({pos_session: Number(ids[0].pos_session) + 1}, {where: {id: ids[0].id}})
         .then(data => {
           res.send({message: posid});
           //console.log(data, posid);
@@ -42,7 +41,7 @@ exports.findPOSId = (req, res) => {
     res.status(401).send({ message: "Unauthorized!" });
     return;
   }
-  Id.find()
+  Id.findAll()
     .then(ids => {
       if(ids[0].pos_id < 10) prefixes = '00000';
       else if(ids[0].pos_id < 100) prefixes = '0000';
@@ -52,7 +51,7 @@ exports.findPOSId = (req, res) => {
       posid = ids[0].pre_pos_id+'-'+new Date().getFullYear().toString().substr(-2)+
       '0'+(new Date().getMonth() + 1).toString().slice(-2)+
       prefixes+ids[0].pos_id.toString();
-      Id.update({pos_id: Number(ids[0].pos_id) + 1}, {where: {_id: ids[0]._id}})
+      Id.update({pos_id: Number(ids[0].pos_id) + 1}, {where: {id: ids[0].id}})
         .then(data => {
           res.send({message: posid});
         }).catch(err =>{console.error("id0301",err.message);res.status(500).send({message:err.message}); });
@@ -64,7 +63,7 @@ exports.findPaymentId = (req, res) => {
     res.status(401).send({ message: "Unauthorized!" });
     return;
   }
-  Id.find()
+  Id.findAll()
     .then(ids => {
       if(ids[0].pay_id < 10) prefixes = '00000';
       else if(ids[0].pay_id < 100) prefixes = '0000';
@@ -74,7 +73,7 @@ exports.findPaymentId = (req, res) => {
       payid = ids[0].pre_pay_id+'-'+new Date().getFullYear().toString().substr(-2)+
       '0'+(new Date().getMonth() + 1).toString().slice(-2)+
       prefixes+ids[0].pay_id.toString();
-      Id.update({pay_id: Number(ids[0].pay_id) + 1}, {where: {_id: ids[0]._id}})
+      Id.update({pay_id: Number(ids[0].pay_id) + 1}, {where: {id: ids[0].id}})
         .then(data => {
           res.send({message: payid});
         }).catch(err =>{console.error("id0401",err.message);res.status(500).send({message:err.message}); });
@@ -86,7 +85,7 @@ exports.findTransferId = (req, res) => {
     res.status(401).send({ message: "Unauthorized!" });
     return;
   }
-  Id.find()
+  Id.findAll()
     .then(ids => {
       if(ids[0].transfer_id < 10) prefixes = '00000';
       else if(ids[0].transfer_id < 100) prefixes = '0000';
@@ -96,7 +95,7 @@ exports.findTransferId = (req, res) => {
       transferid = ids[0].pre_transfer_id+'-'+new Date().getFullYear().toString().substr(-2)+
       '0'+(new Date().getMonth() + 1).toString().slice(-2)+
       prefixes+ids[0].transfer_id.toString();
-      Id.update({transfer_id: Number(ids[0].transfer_id) + 1}, {where: {_id: ids[0]._id}})
+      Id.update({transfer_id: Number(ids[0].transfer_id) + 1}, {where: {id: ids[0].id}})
         .then(data => {
           res.send({message: transferid});
           //console.log(data, posid);
@@ -109,7 +108,7 @@ exports.findPurchaseId = (req, res) => {
     res.status(401).send({ message: "Unauthorized!" });
     return;
   }
-  Id.find().then(ids => {
+  Id.findAll().then(ids => {
       if(ids[0].purchase_id < 10) prefixes = '00000';
       else if(ids[0].purchase_id < 100) prefixes = '0000';
       else if(ids[0].purchase_id < 1000) prefixes = '000';
@@ -118,7 +117,7 @@ exports.findPurchaseId = (req, res) => {
       purchid = ids[0].pre_purchase_id+'-'+new Date().getFullYear().toString().substr(-2)+
       '0'+(new Date().getMonth() + 1).toString().slice(-2)+
       prefixes+ids[0].purchase_id.toString();
-      Id.update({purchase_id: ids[0].purchase_id+1}, {where: {_id: ids[0]._id}})
+      Id.update({purchase_id: ids[0].purchase_id+1}, {where: {id: ids[0].id}})
         .then(data => {
           res.send({message: purchid});
         }).catch(err =>{console.error("id0601",err.message);res.status(500).send({message:err.message}); });
@@ -130,7 +129,7 @@ exports.findSaleId = (req, res) => {
     res.status(401).send({ message: "Unauthorized!" });
     return;
   }
-  Id.find().then(ids => {
+  Id.findAll().then(ids => {
       if(ids[0].sale_id < 10) prefixes = '00000';
       else if(ids[0].sale_id < 100) prefixes = '0000';
       else if(ids[0].sale_id < 1000) prefixes = '000';
@@ -139,7 +138,7 @@ exports.findSaleId = (req, res) => {
       saleid = ids[0].pre_sale_id+'-'+new Date().getFullYear().toString().substr(-2)+
       '0'+(new Date().getMonth() + 1).toString().slice(-2)+
       prefixes+ids[0].sale_id.toString();
-      Id.update({sale_id: ids[0].sale_id+1}, {where: {_id: ids[0]._id}})
+      Id.update({sale_id: ids[0].sale_id+1}, {where: {id: ids[0].id}})
         .then(data => {
           res.send({message: saleid});
         }).catch(err =>{console.error("id0701",err.message);res.status(500).send({message:err.message}); });

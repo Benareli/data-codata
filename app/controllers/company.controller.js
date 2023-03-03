@@ -1,7 +1,6 @@
 const db = require("../models");
 const { compare } = require('../function/key.function');
-const Setting = db.settings;
-const mongoose = require("mongoose");
+const Company = db.companys;
 
 exports.create = (req, res) => {
   if(!req.headers.apikey || compare(req, res)==0) {
@@ -12,7 +11,7 @@ exports.create = (req, res) => {
     res.status(400).send({ message: "Content can not be empty!" });
     return;
   }
-  Setting.findOne({where:{company: req.body.company}}).then(find => {
+  Company.findOne({where:{comp_name: req.body.company}}).then(find => {
     if(find.length > 0) res.status(500).send({ message: "Already Existed!" });
     else{
       const setting = ({
@@ -26,7 +25,7 @@ exports.create = (req, res) => {
         pos_shift: req.body.pos_shift ? req.body.pos_shift : false,
         parent: req.body.parent,
       });
-      Setting.create(setting).then(dataa => {
+      Company.create(setting).then(dataa => {
         res.send(datab);
       }).catch(err =>{console.error("br0102",err.message);res.status(500).send({message:err.message}); });
     }
@@ -38,7 +37,7 @@ exports.findAll = (req, res) => {
     res.status(401).send({ message: "Unauthorized!" });
     return;
   }
-  Setting.findAll()
+  Company.findAll()
     .then(data => {
       res.send(data);
     }).catch(err =>{console.error("sett0101",err.message);res.status(500).send({message:err.message}); });
@@ -54,7 +53,7 @@ exports.update = (req, res) => {
       message: "Data to update can not be empty!"
     });
   }
-  Setting.update(req.body, {where:{id:req.params.id}})
+  Company.update(req.body, {where:{id:req.params.id}})
     .then(data => {
       if (!data) {
         res.status(404).send({message: `Cannot update with id=${id}. Maybe Data was not found!`});

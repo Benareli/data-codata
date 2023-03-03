@@ -14,16 +14,9 @@ module.exports = (sequelize, Sequelize) => {
     isStock: {type: Sequelize.BOOLEAN},
     qoh: {type: Sequelize.FLOAT},
     image: {type: Sequelize.STRING},
-    category: {type: Sequelize.INTEGER},
-    suom: {type: Sequelize.INTEGER},
-    puom: {type: Sequelize.INTEGER},
-    taxin: {type: Sequelize.INTEGER},
-    taxout: {type: Sequelize.INTEGER},
-    brand: {type: Sequelize.INTEGER},
     supplier: {type: Sequelize.INTEGER},
-    
     active: {type: Sequelize.BOOLEAN}
-  });
+  }, {underscored: true});
 
   return Product;
 };

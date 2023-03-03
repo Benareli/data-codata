@@ -1,6 +1,5 @@
 module.exports = (sequelize, Sequelize) => {
   const Purchasedetail = sequelize.define("purchasedetail", {
-    purchase_id: {type: Sequelize.INTEGER},
     qty: {type: Sequelize.FLOAT},
     qty_done: {type: Sequelize.FLOAT},
     qty_inv: {type: Sequelize.FLOAT},
@@ -10,14 +9,7 @@ module.exports = (sequelize, Sequelize) => {
     tax: {type: Sequelize.FLOAT},
     subtotal: {type: Sequelize.FLOAT},
     date: {type: 'TIMESTAMP'},
-    product: {type: Sequelize.INTEGER},
-    uom: {type: Sequelize.INTEGER},
-    partner: {type: Sequelize.INTEGER},
-    warehouse: {type: Sequelize.INTEGER},
-    company: {type: Sequelize.INTEGER},
-  });
+  }, {underscored: true});
 
   return Purchasedetail;
 };
-
-//stockmove: [{type: Sequelize.INTEGER},]

@@ -12,15 +12,9 @@ const User = db.users;
 const Coa = db.coas;
 const Id = db.ids;
 const Log = db.logs;
-const mongoose =  require("mongoose");
-const ObjectId = mongoose.Types.ObjectId;
-var journid;
-var journalid;
-var journalcount;
-var xx;
-var yy;
-var qt;
-//const mongoose = require("mongoose");
+var journid, journalid, journalcount;
+var xx, yy, qt;
+var qty, oriqty, uom_id, oriuom_id, cost, oricost;
 
 async function getUpdateJournalId() {
   const res1 = await id.getUpdateJournalId();
@@ -42,8 +36,8 @@ async function updateProductCache() {
   return res4;
 }
 
-async function inputJournalStock(xx, yy, qt, req, prodname) {
-  const jour1 = await journal.inputJournalStock(xx, yy, qt, req, prodname);
+async function inputJournalStock(xx, yy, qt, req, reqcost, prodname) {
+  const jour1 = await journal.inputJournalStock(xx, yy, qt, req, reqcost, prodname);
   return jour1;
 }
 
@@ -52,105 +46,115 @@ async function insertUpdateQop(productid, partnerid, whid, data) {
   return qop1;
 }
 
-// Create and Save new
 exports.create = (req, res) => {
-  // Validate request
   if(!req.headers.apikey || compare(req, res)==0) {
     res.status(401).send({ message: "Unauthorized!" });
     return;
   }
-  if (!req.body.product) {
+  if (!req.body.product_id) {
     res.status(400).send({ message: "Content can not be empty!" });
     return;
   }
-  // Create
-  if(req.body.partner != "null"){
-    const stockmove = ({
-      trans_id: req.body.trans_id,
-      user: req.body.user,
-      product: req.body.product,
-      partner: req.body.partner,
-      warehouse: req.body.warehouse,
-      qin: req.body.qin,
-      qout: req.body.qout,
-      uom: req.body.uom,
-      date: req.body.date
-    });
+  Product.findByPk(req.body.product_id).then(prod => {
+    if(prod.uom_id != req.body.uom_id){
+      Uom.findByPk(req.body.uom).then(uom => {
+        if(req.body.qin) {
+          qty = req.body.qin * uom.ratio;
+          uom_id = prod.uom_id;
+          cost = req.body.cost / uom.ratio;
+        }
+        if(data.qout) {
+          qty = req.body.qout * uom.ratio;
+          uom_id = prod.uom_id;
+          cost = req.body.cost * uom.ratio;
+        }
+        oriqty = req.body.qin;
+        oriuom_id = req.body.uom_id;
+        oricost = req.body.cost;
+        createSM(req, res, qty);
+      }).catch(err => {console.error("sm0002",err.message);res.status(500).send({message:err.message}); });
+    }else{
+      qty = req.body.qin;
+      uom_id = req.body.uom_id;
+      cost = req.body.cost;
+      createSM(req, res, qty);
+    }
+  }).catch(err => {console.error("sm0001",err.message);res.status(500).send({message:err.message}); });
+};
+
+function createSM(req, res, qty) {
+  const stockmove = ({
+    trans_id: req.body.trans_id,
+    product_id: req.body.product_id,
+    partner_id: req.body.partner_id,
+    warehouse_id: req.body.warehouse_id,
+    qin: qty,
+    qout: req.body.qout,
+    uom_id: uom_id,
+    date: req.body.date,
+    company_id: req.body.company_id,
+    user_id: req.body.user_id,
+    cost: cost,
+    oriqin: oriqty,
+    oriuom_id: oriuom_id,
+    oricost: oricost
+  });
     /*Old Price * Quantity valued at Old Price) + 
     (Quantity received in last shipment * Price of the product in last shipment)) / 
     (Quantity valued at old price + quantity received in last shipment*/
-    
-    Stockmove.create(stockmove).then(data => {
-      insertUpdateQop(req.body.product, req.body.partner, req.body.warehouse, req.body).then(qop => {
+  Stockmove.create(stockmove).then(data => {
+    if(req.body.req){
+      res.send(data);
+    }else{
+      insertUpdateQop(req.body.product_id, req.body.partner_id, req.body.warehouse_id, req.body).then(qop => {
         updateProductCache().then(upc => {
-          insertAcc(req.body, res);
+          insertAcc(req.body, res, cost);
         }).catch(err => {console.error("sm0101",err.message);res.status(500).send({message:err.message}); });
       }).catch(err => {console.error("sm0102",err.message);res.status(500).send({message:err.message}); });
-    }).catch(err => {console.error("sm0103",err.message);res.status(500).send({message:err.message}); });
-  }
-  if(req.body.partner == "null"){
-    const stockmove = ({
-      trans_id: req.body.trans_id,
-      user: req.body.user,
-      product: req.body.product,
-      warehouse: req.body.warehouse,
-      qin: req.body.qin,
-      qout: req.body.qout,
-      uom: req.body.uom,
-      date: req.body.date
-    });
-    Stockmove.create(stockmove).then(data => {
-      insertUpdateQop(req.body.product, null, req.body.warehouse, req.body).then(qop => {
-        updateProductCache().then(upc => {
-          insertAcc(req.body, res);
-        }).catch(err => {console.error("sm0104",err.message);res.status(500).send({message:err.message}); });
-      }).catch(err => {console.error("sm0105",err.message);res.status(500).send({message:err.message}); });
-    }).catch(err => {console.error("sm0106",err.message);res.status(500).send({message:err.message}); });
-  }
+    }
+  }).catch(err => {console.error("sm0103",err.message);res.status(500).send({message:err.message}); });
 };
 
-function insertAcc(req, res) {
+function insertAcc(req, res, cost) {
   if((req.qin && !req.qout) || (req.qin && req.qout == 0)) {xx = "1-3001"; yy = "1-3901"; qt = req.qin;}
   else {xx = "1-3901"; yy = "1-3001"; qt = req.qout;}
-  Product.findById(req.product).then(prod => {
+  Product.findByPk(req.product_id).then(prod => {
     let prodname = prod.name;
-    inputJournalStock(xx, yy, qt, req, prodname).then(inputJour => {
+    inputJournalStock(xx, yy, qt, req, cost, prodname).then(inputJour => {
       res.send(inputJour);
     }).catch(err =>{console.error("sm0101",err.message);res.status(500).send({message:err.message}); });
   }).catch(err =>{console.error("sm0102",err.message);res.status(500).send({message:err.message}); });
 }
 
-// Retrieve all from the database.
 exports.findAll = (req, res) => {
-  const product = req.query.product;
-  var condition = product ? { product: { $regex: new RegExp(product), $options: "i" } } : {};
   if(!req.headers.apikey || compare(req, res)==0) {
     res.status(401).send({ message: "Unauthorized!" });
     return;
   }
-  Stockmove.find(condition)
-    .populate({ path: 'user', model: User })
-    .populate({ path: 'product', model: Product })
-    .populate({ path: 'partner', model: Partner })
-    .populate({ path: 'warehouse', model: Warehouse })
-    .populate({ path: 'uom', model: Uom })
+  Stockmove.findAll({ include: [
+      {model: Product, as: "products"},
+      {model: Partner, as: "partners"},
+      {model: Warehouse, as: "warehouses"},
+      {model: Uom, as: "uoms"},
+      {model: Uom, as: "oriuoms"}
+    ] })
     .then(data => {
       res.send(data);
     }).catch(err =>{console.error("sm0201",err.message);res.status(500).send({message:err.message}); });
 };
 
-// Find a single with an id
 exports.findOne = (req, res) => {
   if(!req.headers.apikey || compare(req, res)==0) {
     res.status(401).send({ message: "Unauthorized!" });
     return;
   }
-  Stockmove.findById(req.params.id)
-    .populate({ path: 'user', model: User })
-    .populate({ path: 'product', model: Product })
-    .populate({ path: 'partner', model: Partner })
-    .populate({ path: 'warehouse', model: Warehouse })
-    .populate({ path: 'uom', model: Uom })
+  Stockmove.findByPk(req.params.id, { include: [
+      {model: Product, as: "products"},
+      {model: Partner, as: "partners"},
+      {model: Warehouse, as: "warehouses"},
+      {model: Uom, as: "uoms"},
+      {model: Uom, as: "oriuoms"}
+    ] })
     .then(data => {
       if (!data)
         res.status(404).send({ message: "Not found Data with id " + id });
@@ -158,7 +162,6 @@ exports.findOne = (req, res) => {
     }).catch(err =>{console.error("sm0301",err.message);res.status(500).send({message:err.message}); });
 };
 
-// Find a single with an desc
 exports.findByDesc = (req, res) => {
   const product = req.query.product;
   var condition = product ? { product: { $regex: new RegExp(product), $options: "i" } } : {};
@@ -166,67 +169,66 @@ exports.findByDesc = (req, res) => {
     res.status(401).send({ message: "Unauthorized!" });
     return;
   }
-  Stockmove.find({product: req.query.product})
+  Stockmove.findAll({where:{product_id: req.params.product},
+    include: [
+      {model: Product, as: "products"},
+      {model: Partner, as: "partners"},
+      {model: Warehouse, as: "warehouses"},
+      {model: Uom, as: "uoms"},
+      {model: Uom, as: "oriuoms"}
+    ] })
     .then(data => {
       res.send(data);
     }).catch(err =>{console.error("sm0401",err.message);res.status(500).send({message:err.message}); });
 };
 
-// Retrieve all from the database.
 exports.findTransId = (req, res) => {
   if(!req.headers.apikey || compare(req, res)==0) {
     res.status(401).send({ message: "Unauthorized!" });
     return;
   }
-  Stockmove.find({trans_id: req.params.transid})
-    .populate({ path: 'user', model: User })
-    .populate({ path: 'product', model: Product })
-    .populate({ path: 'partner', model: Partner })
-    .populate({ path: 'warehouse', model: Warehouse })
-    .populate({ path: 'uom', model: Uom })
+  Stockmove.findAll({where:{trans_id: req.params.transid},
+    include: [
+      {model: Product, as: "products"},
+      {model: Partner, as: "partners"},
+      {model: Warehouse, as: "warehouses"},
+      {model: Uom, as: "uoms"},
+      {model: Uom, as: "oriuoms"}
+    ] })
     .then(data => {
       res.send(data);
     }).catch(err =>{console.error("sm0501",err.message);res.status(500).send({message:err.message}); });
 };
 
-// Retrieve all from the database.
 exports.findOrigin = (req, res) => {
   if(!req.headers.apikey || compare(req, res)==0) {
     res.status(401).send({ message: "Unauthorized!" });
     return;
   }
-  Stockmove.find({origin: req.params.origin})
-    .populate({ path: 'user', model: User })
-    .populate({ path: 'product', model: Product })
-    .populate({ path: 'partner', model: Partner })
-    .populate({ path: 'warehouse', model: Warehouse })
-    .populate({ path: 'uom', model: Uom })
+  Stockmove.findAll({where:{origin: req.params.origin},
+    include: [
+      {model: Product, as: "products"},
+      {model: Partner, as: "partners"},
+      {model: Warehouse, as: "warehouses"},
+      {model: Uom, as: "uoms"},
+      {model: Uom, as: "oriuoms"}
+    ] })
     .then(data => {
       res.send(data);
     }).catch(err =>{console.error("sm0601",err.message);res.status(500).send({message:err.message}); });
 };
 
-// Retrieve all from the database.
 exports.findTransIn = (req, res) => {
   if(!req.headers.apikey || compare(req, res)==0) {
     res.status(401).send({ message: "Unauthorized!" });
     return;
   }
-  Stockmove.aggregate([
-    { $match: {
-      product: ObjectId(req.params.product)
-    }},
-    {
-      $group:
-      {
-        _id: { product: "$product" },
-        totalLine: { $sum: 1 },
-        totalQin: { $sum: "$qin" }
-      }
-    }
-    ])
+  db.sequelize.query
+    ('SELECT COUNT(public.stockmoves.id) as totalLine, SUM(public.stockmoves.qin) as totalQin FROM public.stockmoves ' +
+      'WHERE public.stockmoves.product_id = ' + req.params.product +
+      'AND public.stockmoves.qin > 0',{raw: true, nest: true})
     .then(result => {
-        res.send(result)
+      res.send(result);
     }).catch(err =>{console.error("sm0701",err.message);res.status(500).send({message:err.message}); });
 };
 
@@ -236,21 +238,12 @@ exports.findTransOut = (req, res) => {
     res.status(401).send({ message: "Unauthorized!" });
     return;
   }
-  Stockmove.aggregate([
-    { $match: {
-      product: ObjectId(req.params.product)
-    }},
-    {
-      $group:
-      {
-        _id: { product: "$product" },
-        totalLine: { $sum: 1 },
-        totalQout: { $sum: "$qout" }
-      }
-    }
-    ])
+  db.sequelize.query
+    ('SELECT COUNT(public.stockmoves.id) as totalLine, SUM(public.stockmoves.qout) as totalQout FROM public.stockmoves ' +
+      'WHERE public.stockmoves.product_id = ' + req.params.product +
+      'AND public.stockmoves.qout > 0',{raw: true, nest: true})
     .then(result => {
-        res.send(result)
+      res.send(result);
     }).catch(err =>{console.error("sm0801",err.message);res.status(500).send({message:err.message}); });
 };
 
@@ -260,12 +253,14 @@ exports.findByWh = (req, res) => {
     res.status(401).send({ message: "Unauthorized!" });
     return;
   }
-  Stockmove.find({warehouse: req.params.wh})
-    .populate({ path: 'user', model: User })
-    .populate({ path: 'product', model: Product })
-    .populate({ path: 'partner', model: Partner })
-    .populate({ path: 'warehouse', model: Warehouse })
-    .populate({ path: 'uom', model: Uom })
+  Stockmove.findAll({where:{warehouse_id: req.params.wh},
+    include: [
+      {model: Product, as: "products"},
+      {model: Partner, as: "partners"},
+      {model: Warehouse, as: "warehouses"},
+      {model: Uom, as: "uoms"},
+      {model: Uom, as: "oriuoms"}
+    ] })
     .then(data => {
       res.send(data);
     }).catch(err =>{console.error("sm0901",err.message);res.status(500).send({message:err.message}); });

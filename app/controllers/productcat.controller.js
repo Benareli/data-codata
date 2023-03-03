@@ -43,7 +43,7 @@ exports.createMany = (req, res) => {
 
 function startSequence(x, reqs, users, res){
   if(reqs[x]){
-    ProductCat.find({description: reqs[x].nama}).then(data => {
+    ProductCat.findAll({where:{description: reqs[x].nama}}).then(data => {
       if(data.length>0){
         duplicate.push(x+1);
         sequencing(x, reqs, users, res);
@@ -51,7 +51,7 @@ function startSequence(x, reqs, users, res){
       else{
         const prodcat = ({catid: reqs[x].id, description: reqs[x].nama, active: true});
         ProductCat.create(prodcat).then(dataa => {
-          const log = ({message: "upload", category: dataa._id, user: users,});
+          const log = ({message: "upload", category: dataa.id, user: users,});
           Log.create(log).then(datab => {
             sequencing(x, reqs, users, res);
           }).catch(err =>{console.error("pcat0201",err.message);res.status(500).send({message:err.message}); });

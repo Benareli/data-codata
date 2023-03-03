@@ -15,7 +15,7 @@ module.exports = (sequelize, Sequelize) => {
     journal: {type: Sequelize.INTEGER},
     ticket: {type: Sequelize.INTEGER},
     user: {type: Sequelize.INTEGER},
-  });
+  }, {underscored: true});
 
   return Log;
 };

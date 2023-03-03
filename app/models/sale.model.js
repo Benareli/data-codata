@@ -16,7 +16,7 @@ module.exports = (sequelize, Sequelize) => {
     paid: {type: Sequelize.INTEGER}, //0 No, 1 Partial, 2 Complete
     open: {type: Sequelize.BOOLEAN},
     company: {type: Sequelize.INTEGER},
-  });
+  }, {underscored: true});
 
   return Sale;
 };

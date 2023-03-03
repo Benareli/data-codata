@@ -30,7 +30,6 @@ exports.signup = (req, res) => {
         });
       } else {
         Role.findAll().then(rolex => {
-          console.log(rolex.length);
           for(x=1;x<=rolex.length;x++){
             roleArr.push(x);
           }
@@ -77,7 +76,6 @@ exports.signin = (req, res) => {
       //for (let i = 0; i < user.roles.length; i++) {
       //  authorities.push(user.roles[i].name.toLowerCase());
       //}
-      console.log("userid:",user.id);
       db.sequelize.query('SELECT public.roles.name FROM public.user_roles ' +
         'LEFT JOIN public.roles ON public.user_roles.role_id = public.roles.id ' +
         'WHERE public.user_roles.user_id=' + user.id)

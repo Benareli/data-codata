@@ -16,7 +16,7 @@ module.exports = (sequelize, Sequelize) => {
     total_amount_total: {type: Sequelize.FLOAT},
     open: {type: Sequelize.BOOLEAN},
     company: {type: Sequelize.INTEGER},
-  });
+  }, {underscored: true});
 
   return Possession;
 };

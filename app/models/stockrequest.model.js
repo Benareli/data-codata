@@ -6,13 +6,8 @@ module.exports = (sequelize, Sequelize) => {
     cost: {type: Sequelize.FLOAT},
     date: {type: 'TIMESTAMP'},
     origin: {type: Sequelize.STRING},
-    uom: {type: Sequelize.INTEGER},
-    user: {type: Sequelize.INTEGER},
-    product: {type: Sequelize.INTEGER},
-    partner: {type: Sequelize.INTEGER},
-    warehouse: {type: Sequelize.INTEGER},
-    company: {type: Sequelize.INTEGER},
-  });
+    req: {type: Sequelize.BOOLEAN},
+  }, {underscored: true});
 
   return Stockrequest;
 };

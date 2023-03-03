@@ -13,7 +13,7 @@ module.exports = (sequelize, Sequelize) => {
     warehouse: {type: Sequelize.INTEGER},
     date: {type: 'TIMESTAMP'},
     company: {type: Sequelize.INTEGER},
-  });
+  }, {underscored: true});
 
   return Posdetail;
 };

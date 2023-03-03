@@ -3,9 +3,7 @@ const { compare } = require('../function/key.function');
 const Costing = db.costings;
 const Product = db.products;
 
-// Create and Save new
 exports.create = (req, res) => {
-  // Validate request
   if(!req.headers.apikey || compare(req, res)==0) {
     res.status(401).send({ message: "Unauthorized!" });
     return;
@@ -14,14 +12,13 @@ exports.create = (req, res) => {
     res.status(400).send({ message: "Content can not be empty!" });
     return;
   }
-  const costing = ({product: req.body.product, overhead: req.body.overhead, ovType: req.body.ovType, ovTime: req.body.ovTime, 
+  const costing = ({product_id: req.body.product_id, overhead: req.body.overhead, ovType: req.body.ovType, ovTime: req.body.ovTime, 
     labor: req.body.labor, laType: req.body.laType, laTime: req.body.laTime});
   Costing.create(costing).then(dataa => {
       res.send(dataa);
     }).catch(err =>{console.error("cost0101",err.message);res.status(500).send({message:err.message}); });
 };
 
-// Retrieve all from the database.
 exports.findAll = (req, res) => {
   const product = req.query.product;
   var condition = product ? { product: { $regex: new RegExp(product), $options: "i" } } : {};
@@ -29,21 +26,20 @@ exports.findAll = (req, res) => {
     res.status(401).send({ message: "Unauthorized!" });
     return;
   }
-  Costing.find(condition)
-    .populate({ path: 'product', model: Product })
+  Costing.findAll({ include: [
+      {model: Product, as: "products"},
+    ] })
     .then(data => {
       res.send(data);
     }).catch(err =>{console.error("cost0201",err.message);res.status(500).send({message:err.message}); });
 };
 
-// Find a single with an id
 exports.findOne = (req, res) => {
   if(!req.headers.apikey || compare(req, res)==0) {
     res.status(401).send({ message: "Unauthorized!" });
     return;
   }
-  Costing.findById(req.params.id)
-    .populate({ path: 'product', model: Product })
+  Costing.findByPk(req.params.id)
     .then(data => {
       if (!data)
         res.status(404).send({ message: "Not found Data with id " + id });
@@ -51,7 +47,6 @@ exports.findOne = (req, res) => {
     }).catch(err =>{console.error("cost0301",err.message);res.status(500).send({message:err.message}); });
 };
 
-// Update by the id in the request
 exports.update = (req, res) => {
   if(!req.headers.apikey || compare(req, res)==0) {
     res.status(401).send({ message: "Unauthorized!" });
@@ -62,7 +57,7 @@ exports.update = (req, res) => {
       message: "Data to update can not be empty!"
     });
   }
-  Costing.findByIdAndUpdate(req.params.id, req.body, { useFindAndModify: false })
+  Costing.update(req.body, {where:{id:req.params.id}})
     .then(data => {
       if (!data) {
         res.status(404).send({
@@ -74,13 +69,12 @@ exports.update = (req, res) => {
     }).catch(err =>{console.error("cost0401",err.message);res.status(500).send({message:err.message}); });
 };
 
-// Delete with the specified id in the request
 exports.delete = (req, res) => {
   if(!req.headers.apikey || compare(req, res)==0) {
     res.status(401).send({ message: "Unauthorized!" });
     return;
   }
-  Costing.findByIdAndRemove(req.params.id, { useFindAndModify: false })
+  Costing.destroy({where:{id:req.params.id}})
     .then(data => {
       if (!data) {
         res.status(404).send({
@@ -92,14 +86,15 @@ exports.delete = (req, res) => {
     }).catch(err =>{console.error("cost501",err.message);res.status(500).send({message:err.message}); });
 };
 
-// Find by product
 exports.findByProduct = (req, res) => {
   if(!req.headers.apikey || compare(req, res)==0) {
     res.status(401).send({ message: "Unauthorized!" });
     return;
   }
-  Costing.find({ product: req.params.product })
-    .populate({ path: 'product', model: Product })
+  Costing.findAll({where:{product_id: req.params.product_id},
+    include: [
+      {model: Product, as: "products"},
+    ] })
     .then(data => {
       res.send(data);
     }).catch(err =>{console.error("cost0601",err.message);res.status(500).send({message:err.message}); });

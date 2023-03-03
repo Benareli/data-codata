@@ -3,10 +3,9 @@ const { compare } = require('../function/key.function');
 const Warehouse = db.warehouses;
 const Log = db.logs;
 const User = db.users;
+const Company = db.companys;
 
-// Create and Save new
 exports.create = (req, res) => {
-  // Validate request
   if(!req.headers.apikey || compare(req, res)==0) {
     res.status(401).send({ message: "Unauthorized!" });
     return;
@@ -15,7 +14,7 @@ exports.create = (req, res) => {
     res.status(400).send({ message: "Content can not be empty!" });
     return;
   }
-  const warehouse = ({name: req.body.name, short: req.body.short, 
+  const warehouse = ({name: req.body.name, short: req.body.short, company_id: req.body.companyid,
     main: req.body.main ? req.body.main : false, active: req.body.active ? req.body.active : false});
   Warehouse.create(warehouse).then(dataa => {
     const log = ({message: "dibuat", warehouse: dataa._id, user: req.body.user,});
@@ -25,9 +24,7 @@ exports.create = (req, res) => {
   }).catch(err =>{console.error("wh0102",err.message);res.status(500).send({message:err.message}); });
 };
 
-// Create and Save new
 exports.createMany = (req, res) => {
-  // Validate request
   if(!req.headers.apikey || compare(req, res)==0) {
     res.status(401).send({ message: "Unauthorized!" });
     return;
@@ -41,7 +38,7 @@ exports.createMany = (req, res) => {
 
 function startSequence(x, reqs, users, res){
   if(reqs[x]){
-    Warehouse.find({description: reqs[x].nama}).then(data => {
+    Warehouse.findAll({where:{description: reqs[x].nama}}).then(data => {
       if(data.length>0){
         duplicate.push(x+1);
         sequencing(x, reqs, users, res);
@@ -49,7 +46,7 @@ function startSequence(x, reqs, users, res){
       else{
         const wh = ({short: reqs[x].kode, name: reqs[x].nama, active: true});
         Warehouse.create(wh).then(dataa => {
-          const log = ({message: "upload", warehouse: dataa._id, user: users,});
+          const log = ({message: "upload", warehouse: dataa.id, user: users,});
           Log.create(log).then(datab => {
             sequencing(x, reqs, users, res);
           }).catch(err =>{console.error("wh0201",err.message);res.status(500).send({message:err.message}); });
@@ -67,25 +64,25 @@ function sequencing(x, reqs, users, res){
   startSequence(x, reqs, users, res);
 }
 
-// Retrieve all from the database.
 exports.findAll = (req, res) => {
   if(!req.headers.apikey || compare(req, res)==0) {
     res.status(401).send({ message: "Unauthorized!" });
     return;
   }
-  Warehouse.find()
+  Warehouse.findAll({ include: [
+      {model: Company, as: "companys"},
+    ] })
     .then(data => {
       res.send(data);
     }).catch(err =>{console.error("wh0301",err.message);res.status(500).send({message:err.message}); });
 };
 
-// Find a single with an id
 exports.findOne = (req, res) => {
   if(!req.headers.apikey || compare(req, res)==0) {
     res.status(401).send({ message: "Unauthorized!" });
     return;
   }
-  Warehouse.findById(req.params.id)
+  Warehouse.findByPk(req.params.id)
     .then(data => {
       if (!data)
         res.status(404).send({ message: "Not found Data with id " + id });
@@ -93,7 +90,6 @@ exports.findOne = (req, res) => {
     }).catch(err =>{console.error("wh0401",err.message);res.status(500).send({message:err.message}); });
 };
 
-// Find a single with an desc
 exports.findByDesc = (req, res) => {
   const name = req.query.name;
   var condition = name ? { name: { $regex: new RegExp(name), $options: "i" } } : {};
@@ -102,13 +98,15 @@ exports.findByDesc = (req, res) => {
     res.status(401).send({ message: "Unauthorized!" });
     return;
   }
-  Warehouse.find(condition)
+  Warehouse.findAll({where:condition, 
+    include: [
+      {model: Company, as: "companys"},
+    ] })
     .then(data => {
       res.send(data);
     }).catch(err =>{console.error("wh0501",err.message);res.status(500).send({message:err.message}); });
 };
 
-// Update by the id in the request
 exports.update = (req, res) => {
   if(!req.headers.apikey || compare(req, res)==0) {
     res.status(401).send({ message: "Unauthorized!" });
@@ -119,7 +117,7 @@ exports.update = (req, res) => {
       message: "Data to update can not be empty!"
     });
   }
-  Warehouse.findByIdAndUpdate(req.params.id, req.body, { useFindAndModify: false })
+  Warehouse.update(req.body, {where: {id:req.params.id}})
     .then(data => {
       if (!data) {
         res.status(404).send({
@@ -134,25 +132,29 @@ exports.update = (req, res) => {
     }).catch(err =>{console.error("wh0602",err.message);res.status(500).send({message:err.message}); });
 };
 
-// Find all active
 exports.findAllActive = (req, res) => {
   if(!req.headers.apikey || compare(req, res)==0) {
     res.status(401).send({ message: "Unauthorized!" });
     return;
   }
-  Warehouse.find({ active: true })
+  Warehouse.findAll({where:{active: true}, 
+    include: [
+      {model: Company, as: "companys"},
+    ] })
     .then(data => {
       res.send(data);
     }).catch(err =>{console.error("wh0701",err.message);res.status(500).send({message:err.message}); });
 };
 
-// Find main
 exports.findMain = (req, res) => {
   if(!req.headers.apikey || compare(req, res)==0) {
     res.status(401).send({ message: "Unauthorized!" });
     return;
   }
-  Warehouse.find({ main: true })
+  Warehouse.findAll({where:{main: true},
+    include: [
+      {model: Company, as: "companys"},
+    ] })
       .then(data => {
         res.send(data);
       }).catch(err =>{console.error("wh0801",err.message);res.status(500).send({message:err.message}); });

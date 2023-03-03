@@ -6,13 +6,10 @@ module.exports = (sequelize, Sequelize) => {
     cost: {type: Sequelize.FLOAT},
     date: {type: 'TIMESTAMP'},
     origin: {type: Sequelize.STRING},
-    uom: {type: Sequelize.INTEGER},
-    user: {type: Sequelize.INTEGER},
-    product: {type: Sequelize.INTEGER},
-    partner: {type: Sequelize.INTEGER},
-    warehouse: {type: Sequelize.INTEGER},
-    company: {type: Sequelize.INTEGER},
-  });
+    oriqin: {type: Sequelize.FLOAT},
+    oriqout: {type: Sequelize.FLOAT},
+    oricost: {type: Sequelize.FLOAT},
+  }, {underscored: true});
 
   return Stockmove;
 };

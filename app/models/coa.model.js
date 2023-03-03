@@ -5,7 +5,7 @@ module.exports = (sequelize, Sequelize) => {
     name: {type: Sequelize.STRING},
     active: {type: Sequelize.BOOLEAN},
     company: {type: Sequelize.INTEGER},
-  });
+  }, {underscored: true});
 
   return Coa;
 };

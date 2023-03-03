@@ -16,6 +16,9 @@ module.exports = app => {
   routerQop.get("/prod/:product/:warehouse", qops.findByProduct);
 
   // Retrieve a single
+  routerQop.get("/product/:product", qops.findByProduct3);
+
+  // Retrieve a single
   routerQop.get("/prodqop/:product/", qops.findByProd);
 
   // Retrieve a single

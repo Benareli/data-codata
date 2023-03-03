@@ -4,9 +4,7 @@ const Uomcat = db.uomcats;
 const Log = db.logs;
 const User = db.users;
 
-// Create and Save new
 exports.create = (req, res) => {
-  // Validate request
   if(!req.headers.apikey || compare(req, res)==0) {
     res.status(401).send({ message: "Unauthorized!" });
     return;
@@ -24,7 +22,6 @@ exports.create = (req, res) => {
   }).catch(err =>{console.error("uomcat0102",err.message);res.status(500).send({message:err.message}); });
 };
 
-// Retrieve all from the database.
 exports.findAll = (req, res) => {
   const uom_cat = req.query.uom_cat;
   var condition = uom_cat ? { uom_cat: { $regex: new RegExp(uom_cat), $options: "i" } } : {};
@@ -32,19 +29,18 @@ exports.findAll = (req, res) => {
     res.status(401).send({ message: "Unauthorized!" });
     return;
   }
-  Uomcat.find(condition)
+  Uomcat.findAll()
     .then(data => {
       res.send(data);
     }).catch(err =>{console.error("uomcat0201",err.message);res.status(500).send({message:err.message}); });
 };
 
-// Find a single with an id
 exports.findOne = (req, res) => {
   if(!req.headers.apikey || compare(req, res)==0) {
     res.status(401).send({ message: "Unauthorized!" });
     return;
   }
-  Uomcat.findById(req.params.id)
+  Uomcat.findByPk(req.params.id)
     .then(data => {
       if (!data)
         res.status(404).send({ message: "Not found Data with id " + id });
@@ -52,7 +48,6 @@ exports.findOne = (req, res) => {
     }).catch(err =>{console.error("uomcat0301",err.message);res.status(500).send({message:err.message}); });
 };
 
-// Find a single with an desc
 exports.findByDesc = (req, res) => {
   const uom_cat = req.query.uom_cat;
   var condition = uom_cat ? { uom_cat: { $regex: new RegExp(uom_cat), $options: "i" } } : {};
@@ -60,7 +55,7 @@ exports.findByDesc = (req, res) => {
     res.status(401).send({ message: "Unauthorized!" });
     return;
   }
-  Uomcat.find(condition)
+  Uomcat.findAll({where:condition})
     .then(data => {
       res.send(data);
     }).catch(err =>{console.error("uomcat0401",err.message);res.status(500).send({message:err.message}); });
@@ -77,7 +72,7 @@ exports.update = (req, res) => {
       message: "Data to update can not be empty!"
     });
   }
-  Uomcat.findByIdAndUpdate(req.params.id, req.body, { useFindAndModify: false })
+  Uomcat.update(req.body, {where:{id:req.params.id}})
     .then(data => {
       if (!data) {
         res.status(404).send({

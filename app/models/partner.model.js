@@ -6,7 +6,7 @@ module.exports = (sequelize, Sequelize) => {
     isCustomer: {type: Sequelize.BOOLEAN},
     isSupplier: {type: Sequelize.BOOLEAN},
     active: {type: Sequelize.BOOLEAN},
-  });
+  }, {underscored: true});
 
   return Partner;
 };

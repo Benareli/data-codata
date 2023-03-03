@@ -24,10 +24,8 @@ app.use((req, res, next)=>{
   next();
 })
 
-//db.sequelize.sync({ force: true }).then(() => {console.log("Drop and re-sync db.");});
-
 const Role = db.role;
-const Setting = db.settings;
+const Company = db.companys;
 const Ids = db.ids;
 const Coa = db.coas;
 const Log = db.logs;
@@ -51,9 +49,14 @@ const Bom = db.boms;*/
 
 var uomid;
 
-Setting.findAll().then(res => { if(res.length == 0) initial();});
+//db.sequelize.sync({ force: true }).then(() => {console.log("Drop and re-sync db.");});
+Company.findAll().then(res => { if(res.length == 0) initial();});
 
 function initial() {
+  Company.create({
+    cost_general: true, comp_name: "Codata", comp_addr: "", comp_phone: "", comp_email: "",
+    image: "default.png", nav_color: "#f2f2f2", title_color: "#3f5efb", pos_shift: false, retail: true,
+  });
   Ids.create({
     pos_id: 1, pre_pos_id: "POS",
     pos_session: 1, pre_pos_session: "POS-SESS",
@@ -65,12 +68,9 @@ function initial() {
     bill_id: 1, pre_bill_id: "BILL",
     invoice_id: 1, pre_invoice_id: "INVOICE",
     ticket_id: 1, pre_ticket_id: "TICK",
-    company: 1,
+    company_id: 1,
   });
-  Setting.create({
-    cost_general: true, comp_name: "Codata", comp_addr: "", comp_phone: "", comp_email: "",
-    image: "default.png", nav_color: "#f2f2f2", title_color: "#3f5efb", pos_shift: false, retail: true,
-  });
+
   Role.create({id:1,name: "admin"});
   Role.create({id:2,name: "inventory_user"});
   Role.create({id:3,name: "inventory_manager"});
@@ -92,40 +92,40 @@ function initial() {
   Role.create({id:19,name: "project_user"});
   Role.create({id:20,name: "project_manager"});
 
-  Coa.create({prefix: 1,company: 1,code: "1-1001",name: "Kas",active: true});
-  Coa.create({prefix: 1,company: 1,code: "1-1101",name: "Bank",active: true});
-  Coa.create({prefix: 1,company: 1,code: "1-1111",name: "Settlement",active: true});
-  Coa.create({prefix: 1,company: 1,code: "1-2001",name: "Piutang",active: true});
-  Coa.create({prefix: 1,company: 1,code: "1-2901",name: "PPN Masukan",active: true});
-  Coa.create({prefix: 1,company: 1,code: "1-3001",name: "Persediaan",active: true});
-  Coa.create({prefix: 1,company: 1,code: "1-3901",name: "Persediaan Transit",active: true});
-  Coa.create({prefix: 1,company: 1,code: "1-5001",name: "Aktiva Tetap",active: true});
-  Coa.create({prefix: 2,company: 1,code: "2-1001",name: "Hutang Dagang",active: true});
-  Coa.create({prefix: 2,company: 1,code: "2-2001",name: "Hutang Lainnya",active: true});
-  Coa.create({prefix: 2,company: 1,code: "2-3001",name: "Hutang Dalam Perjalanan",active: true});
-  Coa.create({prefix: 2,company: 1,code: "2-4001",name: "PPN Keluaran",active: true});
-  Coa.create({prefix: 3,company: 1,code: "3-1001",name: "Modal",active: true});
-  Coa.create({prefix: 3,company: 1,code: "3-4001",name: "Laba Rugi",active: true});
-  Coa.create({prefix: 4,company: 1,code: "4-1001",name: "Pendapatan",active: true});
-  Coa.create({prefix: 5,company: 1,code: "5-1001",name: "HPP",active: true});
-  Coa.create({prefix: 6,company: 1,code: "6-1001",name: "Biaya Operasional",active: true});
-  Coa.create({prefix: 6,company: 1,code: "6-1001",name: "Biaya Variabel",active: true});
-  Coa.create({prefix: 6,company: 1,code: "6-9001",name: "Biaya Lain Lain",active: true});
+  Coa.create({prefix: 1,setting_id: 1,code: "1-1001",name: "Kas",active: true});
+  Coa.create({prefix: 1,company_id: 1,code: "1-1101",name: "Bank",active: true});
+  Coa.create({prefix: 1,company_id: 1,code: "1-1111",name: "Settlement",active: true});
+  Coa.create({prefix: 1,company_id: 1,code: "1-2001",name: "Piutang",active: true});
+  Coa.create({prefix: 1,company_id: 1,code: "1-2901",name: "PPN Masukan",active: true});
+  Coa.create({prefix: 1,company_id: 1,code: "1-3001",name: "Persediaan",active: true});
+  Coa.create({prefix: 1,company_id: 1,code: "1-3901",name: "Persediaan Transit",active: true});
+  Coa.create({prefix: 1,company_id: 1,code: "1-5001",name: "Aktiva Tetap",active: true});
+  Coa.create({prefix: 2,company_id: 1,code: "2-1001",name: "Hutang Dagang",active: true});
+  Coa.create({prefix: 2,company_id: 1,code: "2-2001",name: "Hutang Lainnya",active: true});
+  Coa.create({prefix: 2,company_id: 1,code: "2-3001",name: "Hutang Dalam Perjalanan",active: true});
+  Coa.create({prefix: 2,company_id: 1,code: "2-4001",name: "PPN Keluaran",active: true});
+  Coa.create({prefix: 3,company_id: 1,code: "3-1001",name: "Modal",active: true});
+  Coa.create({prefix: 3,company_id: 1,code: "3-4001",name: "Laba Rugi",active: true});
+  Coa.create({prefix: 4,company_id: 1,code: "4-1001",name: "Pendapatan",active: true});
+  Coa.create({prefix: 5,company_id: 1,code: "5-1001",name: "HPP",active: true});
+  Coa.create({prefix: 6,company_id: 1,code: "6-1001",name: "Biaya Operasional",active: true});
+  Coa.create({prefix: 6,company_id: 1,code: "6-1001",name: "Biaya Variabel",active: true});
+  Coa.create({prefix: 6,company_id: 1,code: "6-9001",name: "Biaya Lain Lain",active: true});
 
-  Warehouse.create({name: "Gudang Utama", short: "UTAMA", main: true, active: true, company: 1});
+  Warehouse.create({name: "Gudang Utama", short: "UTAMA", main: true, active: true, company_id: 1});
     Log.create({message: "dibuat oleh sistem", warehouse: 1});
-  Store.create({store_name: "Codata", warehouse: 1, company: 1, active: true}); 
+  Store.create({store_name: "Codata", warehouse: 1, company_id: 1, active: true}); 
     Log.create({message: "dibuat oleh sistem", store: 1});
 
   Uomcat.create({id: 1, uom_cat: "Unit"});  Log.create({message: "dibuat oleh sistem", uom_cat: 1});
   Uomcat.create({id: 2, uom_cat: "Berat"}); Log.create({message: "dibuat oleh sistem", uom_cat: 2});
   Uomcat.create({id: 3, uom_cat: "Cair"});  Log.create({message: "dibuat oleh sistem", uom_cat: 3});
-  Uom.create({id: 1, uom_name: "Pcs", uom_cat: 1, ratio: 1}); Log.create({message: "dibuat oleh sistem", uom: 1});
-  Uom.create({id: 2, uom_name: "Lusin", uom_cat: 1, ratio: 12}); Log.create({message: "dibuat oleh sistem", uom: 2});
-  Uom.create({id: 3, uom_name: "Gr", uom_cat: 2, ratio: 1}); Log.create({message: "dibuat oleh sistem", uom: 3});
-  Uom.create({id: 4, uom_name: "Kg", uom_cat: 2, ratio: 1000}); Log.create({message: "dibuat oleh sistem", uom: 4});
-  Uom.create({id: 5, uom_name: "L", uom_cat: 3, ratio: 1}); Log.create({message: "dibuat oleh sistem", uom: 5});
-  Uom.create({id: 6, uom_name: "mL", uom_cat: 3, ratio: 1/1000}); Log.create({message: "dibuat oleh sistem", uom: 6});
+  Uom.create({id: 1, uom_name: "Pcs", uomcat_id: 1, ratio: 1}); Log.create({message: "dibuat oleh sistem", uom: 1});
+  Uom.create({id: 2, uom_name: "Lusin", uomcat_id: 1, ratio: 12}); Log.create({message: "dibuat oleh sistem", uom: 2});
+  Uom.create({id: 3, uom_name: "Gr", uomcat_id: 2, ratio: 1}); Log.create({message: "dibuat oleh sistem", uom: 3});
+  Uom.create({id: 4, uom_name: "Kg", uomcat_id: 2, ratio: 1000}); Log.create({message: "dibuat oleh sistem", uom: 4});
+  Uom.create({id: 5, uom_name: "L", uomcat_id: 3, ratio: 1}); Log.create({message: "dibuat oleh sistem", uom: 5});
+  Uom.create({id: 6, uom_name: "mL", uomcat_id: 3, ratio: 1/1000}); Log.create({message: "dibuat oleh sistem", uom: 6});
 
   Partner.create({
     code: "TEMP",
@@ -135,14 +135,14 @@ function initial() {
     active: true
   }); Log.create({message: "dibuat oleh sistem", partner: 1});
 
-  Tax.create({id: 1,tax: 11, name: "PPN 11% (Inc)", include: true});
-  Tax.create({id: 2,tax: 11, name: "PPN 11%", include: false});
+  Tax.create({id: 1,tax: 11, name: "PPN-11 (Inc)", include: true});
+  Tax.create({id: 2,tax: 11, name: "PPN-11", include: false});
   
   Productcat.create({id: 1, catid: "TEMP", description: "Template", active: true});
     Log.create({message: "dibuat oleh sistem", category: 1});
 
-  Product.create({sku: "TEMP", name: "Template", description: "Template Product", listprice: 1, suom: 1, puom: 1, qoh: 0,
-      cost: 0, isStock: true, fg: false, rm: false, image: "default.png", category: 1, taxin: 1, taxout: 1, active: true});
+  Product.create({sku: "TEMP", name: "Template", description: "Template Product", listprice: 1, uom_id: 1, puom_id: 1, qoh: 0,
+      cost: 0, isStock: true, fg: false, rm: false, image: "default.png", productcat_id: 1, tax_id: 1, taxout_id: 1, active: true});
     Log.create({message: "dibuat oleh sistem", product: 1});
 }
 
@@ -164,11 +164,12 @@ app.get("/", cors(corsOptions), (req, res) => {
   res.status(200).send("Welcome");
 });
 
+require("./app/routes/file.routes")(app);
 require("./app/routes/auth.routes")(app);
 require("./app/routes/user.routes")(app);
 require("./app/routes/useruser.routes")(app);
 require("./app/routes/userrole.routes")(app);
-require("./app/routes/setting.routes")(app);
+require("./app/routes/company.routes")(app);
 require("./app/routes/store.routes")(app);
 require("./app/routes/id.routes")(app);
 require("./app/routes/log.routes")(app);
@@ -177,32 +178,37 @@ require("./app/routes/tax.routes")(app);
 
 require("./app/routes/brand.routes")(app);
 require("./app/routes/productcat.routes")(app);
-// routes
-/*require("./app/routes/file.routes")(app);
-
-require("./app/routes/pref.routes")(app);
-require("./app/routes/coa.routes")(app);
-require("./app/routes/product.routes")(app);
 require("./app/routes/uomcat.routes")(app);
 require("./app/routes/uom.routes")(app);
-require("./app/routes/bundle.routes")(app);
 require("./app/routes/warehouse.routes")(app);
+require("./app/routes/product.routes")(app);
+require("./app/routes/bundle.routes")(app);
+require("./app/routes/bom.routes")(app);
+
 require("./app/routes/partner.routes")(app);
-require("./app/routes/stockmove.routes")(app);
 require("./app/routes/stockrequest.routes")(app);
+require("./app/routes/stockmove.routes")(app);
 require("./app/routes/qof.routes")(app);
 require("./app/routes/qop.routes")(app);
+
+require("./app/routes/purchase.routes")(app);
+require("./app/routes/purchasedetail.routes")(app);
+
+require("./app/routes/entry.routes")(app);
+require("./app/routes/journal.routes")(app);
+require("./app/routes/payment.routes")(app);
+
+// routes
+/*
+require("./app/routes/pref.routes")(app);
+require("./app/routes/coa.routes")(app);
+
 require("./app/routes/possession.routes")(app);
 require("./app/routes/pos.routes")(app);
 require("./app/routes/posdetail.routes")(app);
-require("./app/routes/payment.routes")(app);
-require("./app/routes/purchase.routes")(app);
-require("./app/routes/purchasedetail.routes")(app);
+
 require("./app/routes/sale.routes")(app);
 require("./app/routes/saledetail.routes")(app);
-require("./app/routes/entry.routes")(app);
-require("./app/routes/journal.routes")(app);
-require("./app/routes/bom.routes")(app);
 require("./app/routes/costing.routes")(app);
 
 require("./app/routes/ticket.routes")(app);

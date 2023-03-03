@@ -13,7 +13,7 @@ module.exports = (sequelize, Sequelize) => {
     user: {type: Sequelize.INTEGER},
     open: {type: Sequelize.BOOLEAN},
     company: {type: Sequelize.INTEGER},
-  });
+  }, {underscored: true});
 
   return Pos;
 };
