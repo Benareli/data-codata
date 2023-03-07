@@ -257,9 +257,15 @@ exports.delete = (req, res) => {
     return;
   }
   Purchasedetail.destroy({where:{id:req.params.id}})
-    .then(datab => {
-      res.send(datab);
-    }).catch(err =>{console.error("purd0901",err.message);res.status(500).send({message:err.message}); });    
+    .then(num => {
+      console.log(num);
+      if(num === 1) {
+        res.send({message:'done'})
+      }
+      else {
+        res.send({message:'failed'})
+      }
+    }).catch(err =>{console.error("purd0901",err.message);res.status(500).send({message:err.message}); });
 };
 
 exports.deleteAll = (req, res) => {
