@@ -53,7 +53,7 @@ function inputJournalStock(xx, yy, qt, req, reqcost, prodname) {
       let pp = datacoa[1];
       getUpdateJournalId().then(dataid => {
         journid = dataid;
-        const journal = ({name: journid, origin: req.trans_id, type: "transfer", lock: true,
+        const journal = ({name: journid, origin: req.trans_id, type: "stock", lock: true,
           amount: qt * (req.cost ? req.cost: 0), date: req.date, company_id: req.company})
         Journal.create(journal).then(datac => {
           const ent1 = ({journal_id: datac.id, label: prodname,

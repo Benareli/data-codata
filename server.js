@@ -55,7 +55,7 @@ Company.findAll().then(res => { if(res.length == 0) initial();});
 function initial() {
   Company.create({
     cost_general: true, comp_name: "Codata", comp_addr: "", comp_phone: "", comp_email: "",
-    image: "default.png", nav_color: "#f2f2f2", title_color: "#3f5efb", pos_shift: false, retail: true,
+    image: "default.png", nav_color: "#1ABC9C", title_color: "#9B59B6", pos_shift: false, retail: true,
   });
   Ids.create({
     pos_id: 1, pre_pos_id: "POS",
@@ -164,55 +164,59 @@ app.get("/", cors(corsOptions), (req, res) => {
   res.status(200).send("Welcome");
 });
 
-require("./app/routes/file.routes")(app);
-require("./app/routes/auth.routes")(app);
-require("./app/routes/user.routes")(app);
-require("./app/routes/useruser.routes")(app);
-require("./app/routes/userrole.routes")(app);
-require("./app/routes/company.routes")(app);
-require("./app/routes/store.routes")(app);
-require("./app/routes/id.routes")(app);
-require("./app/routes/log.routes")(app);
+//Settings
+require("./app/routes/settings/company.routes")(app);
+require("./app/routes/settings/file.routes")(app);
+require("./app/routes/settings/id.routes")(app);
+require("./app/routes/settings/log.routes")(app);
+//require("./app/routes/settings/pref.routes")(app);
+require("./app/routes/settings/store.routes")(app);
 
-require("./app/routes/tax.routes")(app);
+//User Auth
+require("./app/routes/userauth/auth.routes")(app);
+require("./app/routes/userauth/user.routes")(app);
+require("./app/routes/userauth/useruser.routes")(app);
+require("./app/routes/userauth/userrole.routes")(app);
 
-require("./app/routes/brand.routes")(app);
-require("./app/routes/productcat.routes")(app);
-require("./app/routes/uomcat.routes")(app);
-require("./app/routes/uom.routes")(app);
-require("./app/routes/warehouse.routes")(app);
-require("./app/routes/product.routes")(app);
-require("./app/routes/bundle.routes")(app);
-require("./app/routes/bom.routes")(app);
+//Masterdata
+require("./app/routes/masterdata/bom.routes")(app);
+require("./app/routes/masterdata/bundle.routes")(app);
+require("./app/routes/masterdata/brand.routes")(app);
+//require("./app/routes/masterdata/costing.routes")(app);
+require("./app/routes/masterdata/partner.routes")(app);
+require("./app/routes/masterdata/product.routes")(app);
+require("./app/routes/masterdata/productcat.routes")(app);
+require("./app/routes/masterdata/uom.routes")(app);
+require("./app/routes/masterdata/uomcat.routes")(app);
+require("./app/routes/masterdata/warehouse.routes")(app);
 
-require("./app/routes/partner.routes")(app);
-require("./app/routes/stockrequest.routes")(app);
-require("./app/routes/stockmove.routes")(app);
-require("./app/routes/qof.routes")(app);
-require("./app/routes/qop.routes")(app);
+//Transaction - Purchase
+require("./app/routes/transaction/purchase/purchase.routes")(app);
+require("./app/routes/transaction/purchase/purchasedetail.routes")(app);
 
-require("./app/routes/purchase.routes")(app);
-require("./app/routes/purchasedetail.routes")(app);
+//Transaction - Stock
+require("./app/routes/transaction/stock/qof.routes")(app);
+require("./app/routes/transaction/stock/qop.routes")(app);
+require("./app/routes/transaction/stock/stockmove.routes")(app);
+require("./app/routes/transaction/stock/stockrequest.routes")(app);
 
-require("./app/routes/entry.routes")(app);
-require("./app/routes/journal.routes")(app);
-require("./app/routes/payment.routes")(app);
+//Transaction - Sale
+//require("./app/routes/transaction/sale/pos.routes")(app);
+//require("./app/routes/transaction/sale/posdetail.routes")(app);
+//require("./app/routes/transaction/sale/possession.routes")(app);
+//require("./app/routes/transaction/sale/sale.routes")(app);
+//require("./app/routes/transaction/sale/saledetail.routes")(app);
 
-// routes
-/*
-require("./app/routes/pref.routes")(app);
-require("./app/routes/coa.routes")(app);
+//Accounting
+require("./app/routes/accounting/coa.routes")(app);
+require("./app/routes/accounting/entry.routes")(app);
+require("./app/routes/accounting/journal.routes")(app);
+require("./app/routes/accounting/payment.routes")(app);
+require("./app/routes/accounting/tax.routes")(app);
 
-require("./app/routes/possession.routes")(app);
-require("./app/routes/pos.routes")(app);
-require("./app/routes/posdetail.routes")(app);
-
-require("./app/routes/sale.routes")(app);
-require("./app/routes/saledetail.routes")(app);
-require("./app/routes/costing.routes")(app);
-
-require("./app/routes/ticket.routes")(app);
-require("./app/routes/project.routes")(app);*/
+//__other
+//require("./app/routes/ticket.routes")(app);
+//require("./app/routes/project.routes")(app);
 
 // set port, listen for requests
 const PORT = process.env.PORT || 8080;
