@@ -18,6 +18,9 @@ module.exports = app => {
   // Retrieve a single
   routerProductCat.get("/:id", productcats.findOne);
 
+  // Retrieve a single with acc
+  routerProductCat.get("/acc/:id/:company", productcats.findOneAcc);
+
   // Update with id
   routerProductCat.put("/:id", productcats.update);
 

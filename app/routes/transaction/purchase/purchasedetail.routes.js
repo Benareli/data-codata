@@ -25,7 +25,7 @@ module.exports = app => {
   routerPurDet.delete("/:id", purchasedetails.delete);
   
   // Update with id
-  routerPurDet.put("/receiveAll/:id/:partner/:wh/:date", purchasedetails.updateReceiveAll);
+  routerPurDet.put("/receiveAll/:id/:partner/:wh/:date/:comp", purchasedetails.updateReceiveAll);
 
   app.use("/api/purchasedetails", routerPurDet);
 };

@@ -7,22 +7,19 @@ const Qop = db.qops;
 const Id = db.ids;
 const Uom = db.uoms;
 const Product = db.products;
+const ProductCatAcc = db.productcataccs;
+const Partner = db.partners;
+const Warehouse = db.warehouses;
 const Qof = db.qofs;
 const Stockmove = db.stockmoves;
 const Coa = db.coas;
 const Entry = db.entrys;
 const Journal = db.journals;
-const mongoose = require("mongoose");
-const ObjectId = mongoose.Types.ObjectId;
-var transid;
-var transferid;
-var trasnfercount;
-var journid;
-var journalid;
-var journalcount;
-var y1;
-var x;
-var qout;
+const Company = db.companys;
+var transid, transferid, trasnfercount;
+var journid, journalid, journalcount;
+var y1, x, qin;
+var qty, oriqty, uom_id, oriuom_id, cost, oricost, entries;
 
 async function getTransId() {
   const res1 = await id.getTransId();
@@ -44,19 +41,17 @@ async function updateProductCache() {
   return res4;
 }
 
-async function inputJournal(xx, yy, debit, credit, amount, label1, label2, type, date) {
-  const jour1 = await journal.inputJournal(xx, yy, debit, credit, amount, label1, label2, type, date);
+async function inputJournal(data) {
+  const jour1 = await journal.inputJournal(data);
   return jour1;
 }
 
-async function insertUpdateQop(productid, partnerid, whid, data) {
-  const qop1 = await qop.insertUpdateQop(productid, partnerid, whid, data);
+async function insertUpdateQop(type, productid, partnerid, whid, data) {
+  const qop1 = await qop.insertUpdateQop(type, productid, partnerid, whid, data);
   return qop1;
 }
 
-// Create and Save new
 exports.create = (req, res) => {
-  // Validate request
   if(!req.headers.apikey || compare(req, res)==0) {
     res.status(401).send({ message: "Unauthorized!" });
     return;
@@ -70,24 +65,22 @@ exports.create = (req, res) => {
     qty: req.body.qty,
     qty_done: req.body.qty_done,
     qty_inv: req.body.qty_inv,
-    uom: req.body.uom,
+    uom_id: req.body.uom,
     price_unit: req.body.price_unit,
     discount: req.body.discount,
     tax: req.body.tax,
     subtotal: req.body.subtotal,
-    product: req.body.product,
-    warehouse: req.body.warehouse,
-    date: req.body.date
+    partner_id: req.body.partner,
+    product_id: req.body.product,
+    warehouse_id: req.body.warehouse,
+    date: req.body.date,
+    company_id: req.body.company
   });
   Saledetail.create(saledet).then(dataa => { 
-    Sale.findOneAndUpdate({sale_id:req.body.sale_id}, {$push: {sale_detail: dataa._id}}, { useFindAndModify: false })
-      .then(datab => {
-          res.send(datab);
-      }).catch(err =>{console.error("saled0101",err.message);res.status(500).send({message:err.message}); });
+    res.send(dataa);
   }).catch(err =>{console.error("saled0102",err.message);res.status(500).send({message:err.message}); });
 };
 
-// Retrieve all from the database.
 exports.findAll = (req, res) => {
   const sale_id = req.query.sale_id;
   var condition = sale_id ? { sale_id: { $regex: new RegExp(sale_id), $options: "i" } } : {};
@@ -95,23 +88,32 @@ exports.findAll = (req, res) => {
     res.status(401).send({ message: "Unauthorized!" });
     return;
   }
-  Saledetail.find(condition)
-    .populate({ path: 'product', model: Product })
-    .populate({ path: 'uom', model: Uom})
+  Saledetail.findAll({ include: [
+      {model: Sale, as: "sales"},
+      {model: Partner, as: "partners"},
+      {model: Warehouse, as: "warehouses"},
+      {model: Product, as: "products"},
+      {model: Uom, as: "uoms"},
+      {model: Company, as: "companys"},
+    ] })
     .then(data => {
       res.send(data);
     }).catch(err =>{console.error("saled0201",err.message);res.status(500).send({message:err.message}); });
 };
 
-// Find a single with an id
 exports.findOne = (req, res) => {
   if(!req.headers.apikey || compare(req, res)==0) {
     res.status(401).send({ message: "Unauthorized!" });
     return;
   }
-  Saledetail.findById(req.params.id)
-    .populate({ path: 'product', model: Product })
-    .populate({ path: 'uom', model: Uom})
+  Saledetail.findByPk(req.params.id,{ include: [
+      {model: Sale, as: "sales"},
+      {model: Partner, as: "partners"},
+      {model: Warehouse, as: "warehouses"},
+      {model: Product, as: "products"},
+      {model: Uom, as: "uoms"},
+      {model: Company, as: "companys"},
+    ] })
     .then(data => {
       if (!data)
         res.status(404).send({ message: "Not found Data with id " + id });
@@ -119,21 +121,25 @@ exports.findOne = (req, res) => {
     }).catch(err =>{console.error("saled0301",err.message);res.status(500).send({message:err.message}); });
 };
 
-// Find a single with an desc
 exports.findBySOId = (req, res) => {
   if(!req.headers.apikey || compare(req, res)==0) {
     res.status(401).send({ message: "Unauthorized!" });
     return;
   }
-  Saledetail.find({sale_id: req.params.so})
-    .populate({ path: 'product', model: Product })
-    .populate({ path: 'uom', model: Uom})
+  Saledetail.findAll({where:{sale_id: req.params.so},
+    include: [
+      {model: Sale, as: "sales"},
+      {model: Partner, as: "partners"},
+      {model: Warehouse, as: "warehouses"},
+      {model: Product, as: "products"},
+      {model: Uom, as: "uoms"},
+      {model: Company, as: "companys"},
+    ] })
     .then(data => {
       res.send(data);
     }).catch(err =>{console.error("saled0401",err.message);res.status(500).send({message:err.message}); });
 };
 
-// Update by the id in the request
 exports.update = (req, res) => {
   if(!req.headers.apikey || compare(req, res)==0) {
     res.status(401).send({ message: "Unauthorized!" });
@@ -142,7 +148,7 @@ exports.update = (req, res) => {
   if (!req.body) {
     return res.status(400).send({message: "Data to update can not be empty!"});
   }
-  Saledetail.findByIdAndUpdate(req.params.id, req.body, { useFindAndModify: false })
+  Saledetail.update(req.body, {where:{id:req.params.id}})
     .then(data => {
       if (!data) {
         res.status(404).send({
@@ -164,66 +170,111 @@ exports.updateSendAll = (req, res) => {
     return res.status(400).send({message: "Data to update can not be empty!"});
   }
   x = 0;
-  //console.log(req.body);
-  startProcess(req, res);
+  checkUom(req, res);
 };
 
-function startProcess(req, res){
-  if(req.body[x] && req.body[x].qty_rec > 0){
-  qout = req.body[x].qty_rec;
-  Saledetail.findById(req.body[x].id)
-    .then(dataa => {
-      getTransId().then(tids => {
-        transid = tids[0];
-        transferid = tids[1];
-        transfercount = tids[2];
-        const stockmove = ({
-          trans_id: transid,
-          user: req.params.id,
-          product: req.body[x].product._id,
-          warehouse: req.params.wh,
-          origin: dataa.sale_id,
-          qout: qout,
-          uom: req.body[x].uom._id,
-          date: req.params.date,
-        });
-        Stockmove.create(stockmove).then(datad => {
-          Saledetail.findOneAndUpdate({_id: req.body[x].id}, {qty_done: req.body[x].qty_done + qout}, {useFindAndModify: false})
-            .then(dataf => {
-              Saledetail.findOneAndUpdate({_id: req.body[x].id}, {$push: {stockmove: datad._id}}, {useFindAndModify: false})
-                .then(datag => {
-                  insertUpdateQop(req.body[x].product._id, req.params.partner, req.params.wh, req.body[x]).then(qop => {
-                    updateProductCache().then(upc => {
-                      insertAcc(req, res);
-                  }).catch(err =>{console.error("saled0601",err.message);res.status(500).send({message:err.message}); });
-                }).catch(err =>{console.error("saled0602",err.message);res.status(500).send({message:err.message}); });
-              }).catch(err =>{console.error("saled0603",err.message);res.status(500).send({message:err.message}); });
-            }).catch(err =>{console.error("saled0604",err.message);res.status(500).send({message:err.message}); });
-          }).catch(err =>{console.error("saled0605",err.message);res.status(500).send({message:err.message}); });
-        }).catch(err =>{console.error("saled0606",err.message);res.status(500).send({message:err.message}); });
-      }).catch(err =>{console.error("saled0607",err.message);res.status(500).send({message:err.message}); });
-  }else {
-    if(req.body[x]) sequencing(req, res);
-    else {
-      Id.findOneAndUpdate({_id: transferid}, {transfer_id: transfercount+1}, {useFindAndModify: false})
-        .then(datae => {
-          res.send({message: "DONE!"});
-        }).catch(err =>{console.error("saled0690",err.message);res.status(500).send({message:err.message}); });
+function checkUom(req, res){
+  Product.findByPk(req.body[x].products.id).then(prod => {
+    if(prod.uom_id != req.body[x].uoms.id){
+      Uom.findByPk(req.body[x].uoms.id).then(uom => {
+        qty = req.body[x].qty_rec * uom.ratio;
+        uom_id = prod.uom_id;
+        cost = req.body[x].subtotal / req.body[x].qty * req.body[x].qty_rec / uom.ratio;
+        oriqty = req.body[x].qty_rec;
+        oriuom_id = req.body[x].uom_id;
+        oricost = req.body[x].subtotal / req.body[x].qty * req.body[x].qty_rec;
+        startProcess(req, res);
+      }).catch(err => {console.error("sm0002",err.message);res.status(500).send({message:err.message}); });
+    }else{
+      qty = req.body[x].qty_rec;
+      uom_id = req.body[x].uom_id;
+      cost = req.body[x].subtotal / req.body[x].qty * req.body[x].qty_rec;
+      startProcess(req, res);
     }
+  }).catch(err => {console.error("sm0001",err.message);res.status(500).send({message:err.message}); });
+}
+
+function startProcess(req, res){
+  if(req.body[x].qty_rec > 0){
+    getTransId().then(tids => {
+      transid = tids[0];
+      transferid = tids[1];
+      transfercount = tids[2];
+      const stockmove = ({
+        trans_id: transid,
+        user_id: req.params.id,
+        product_id: req.body[x].products.id,
+        warehouse_id: req.params.wh,
+        origin: req.body[x].purchases.purchase_id,
+        qout: qty,
+        uom_id: uom_id,
+        date: req.params.date,
+        company_id: req.params.comp,
+        cost: cost,
+        oriqin: oriqty,
+        oriuom_id: oriuom_id,
+        oricost: oricost
+      });
+      Stockmove.create(stockmove).then(datad => {
+        insertUpdateQop("out", req.body[x].products.id, req.params.partner, req.params.wh, req.body[x]).then(qop => {
+          Saledetail.findByPk(req.body[x].id).then(pd => {
+            if(oriqty) qty = oriqty;
+            Saledetail.update({qty_done: pd.qty_done + qty}, {where:{id:req.body[x].id}}).then(pdu => {
+              updateProductCache().then(upc => {
+                insertAcc(req, res, transid);
+              }).catch(err =>{console.error("purd0601",err.message);res.status(500).send({message:err.message}); });
+            }).catch(err =>{console.error("purd0602",err.message);res.status(500).send({message:err.message}); });
+          }).catch(err =>{console.error("purd0603",err.message);res.status(500).send({message:err.message}); });
+        }).catch(err =>{console.error("purd0604",err.message);res.status(500).send({message:err.message}); });
+      }).catch(err =>{console.error("purd0605",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("purd0606",err.message);res.status(500).send({message:err.message}); }); 
+  }else {
+    sequencing(req,res);
   }
 }
 
-function insertAcc(req, res) {
-  inputJournal("4-1001", "4-1001", (Number(req.body[x].subtotal) / Number(req.body[x].qty) * qin), 
-    (Number(req.body[x].subtotal) / Number(req.body[x].qty) * qin), (Number(req.body[x].subtotal) / Number(req.body[x].qty) * qin),
-    req.body[x].product.name, req.body[x].product.name, "stock", req.params.date).then(inputJour => {
-      sequencing(req, res);
-    }).catch(err =>{console.error("saled0801",err.message);res.status(500).send({message:err.message}); });
+function insertAcc(req, res, transid) {
+  entries = [];
+  Product.findByPk(req.body[x].products.id).then(p1 => {
+    ProductCatAcc.findOne({where:{category_id: p1.productcat_id, company_id: req.body[0].company_id}, include: [
+      {model: Coa, as: "revenues"},
+      {model: Coa, as: "costs"},
+      {model: Coa, as: "incomings"},
+      {model: Coa, as: "outgoings"},
+      {model: Coa, as: "inventorys"},
+    ], raw: true, nest: true}).then(p2 => {
+      entries.push({label: req.body[x].products.name, debit: cost, debits: p2.outgoings, date: req.params.date});
+      entries.push({label: req.body[x].products.name, credit: cost, credits: p2.inventorys, date: req.params.date});
+      const inJournal = ({
+        date: req.body[x].date,
+        type: "stock",
+        origin: transid,
+        entry: entries,
+        amount: cost,
+        company: req.params.comp,
+        user: req.params.id
+      })
+      if(entries.length >= 2){
+        inputJournal(inJournal).then(inputJour => {
+          sequencing(req, res);
+        }).catch(err =>{console.error("saled0801",err.message);res.status(500).send({message:err.message}); });
+      }else{
+        insertAcc(req, res)
+      }
+    })
+  })
 }
 
 function sequencing(req, res){
-  x=x+1;
-  startProcess(req, res);
+  if(x==req.body.length-1){
+    Id.update({transfer_id: transfercount+1}, {where:{id:transferid}})
+      .then(datae => {
+          res.send({message: "DONE!"});
+        }).catch(err =>{console.error("purd0690",err.message);res.status(500).send({message:err.message}); });
+  }else{
+    x=x+1;
+    checkUom(req, res);
+  }
 }
 
 // Delete with the specified id in the request
@@ -232,16 +283,16 @@ exports.delete = (req, res) => {
     res.status(401).send({ message: "Unauthorized!" });
     return;
   }
-  Saledetail.findById(req.params.id)
-    .then(data => {
-      Sale.findOneAndUpdate({sale_id: data.sale_id}, {$pull: {sale_detail: data._id}}, { useFindAndModify: false })
-        .then(dataa => {
-          Saledetail.findByIdAndRemove(req.params.id, { useFindAndModify: false })
-            .then(datab => {
-              res.send(datab);
-            }).catch(err =>{console.error("saled0901",err.message);res.status(500).send({message:err.message}); });
-        }).catch(err =>{console.error("saled0902",err.message);res.status(500).send({message:err.message}); });
-    }).catch(err =>{console.error("saled0903",err.message);res.status(500).send({message:err.message}); });
+  Saledetail.destroy({where:{id:req.params.id}})
+    .then(num => {
+      console.log(num);
+      if(num === 1) {
+        res.send({message:'done'})
+      }
+      else {
+        res.send({message:'failed'})
+      }
+    }).catch(err =>{console.error("saled0901",err.message);res.status(500).send({message:err.message}); });
 };
 
 // Delete all from the database.
@@ -250,10 +301,10 @@ exports.deleteAll = (req, res) => {
     res.status(401).send({ message: "Unauthorized!" });
     return;
   }
-  Saledetail.deleteMany({})
+  Saledetail.destroy({})
     .then(data => {
       res.send({message: `${data.deletedCount} Data were deleted successfully!`});
-    }).catch(err =>{console.error("purd1001",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("saled1001",err.message);res.status(500).send({message:err.message}); });
 };
 
 // Find a single with an desc

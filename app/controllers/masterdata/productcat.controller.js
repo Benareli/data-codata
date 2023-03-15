@@ -1,8 +1,10 @@
 const db = require("../../models");
 const { compare } = require('../../function/key.function');
 const ProductCat = db.productcats;
+const ProductCatAcc = db.productcataccs;
 const Log = db.logs;
 const User = db.users;
+const Coa = db.coas;
 const duplicate = [];
 
 exports.create = (req, res) => {
@@ -91,6 +93,34 @@ exports.findOne = (req, res) => {
         res.status(404).send({ message: "Not found Data with id " + id });
       else res.send(data);
     }).catch(err =>{console.error("pcat0401",err.message);res.status(500).send({message:err.message}); });
+};
+
+exports.findOneAcc = (req, res) => {
+  if(!req.headers.apikey || compare(req, res)==0) {
+    res.status(401).send({ message: "Unauthorized!" });
+    return;
+  }
+  /*{ include: [
+      {model: Coa, as: "revenues"},
+      {model: Coa, as: "costs"},
+      {model: Coa, as: "incomings"},
+      {model: Coa, as: "outgoings"},
+    ], raw: true, nest: true}*/
+  ProductCat.findByPk(req.params.id)
+    .then(data => {
+      ProductCatAcc.findOne({where:{category_id: req.params.id, company_id: req.params.company}, include: [
+      {model: Coa, as: "revenues"},
+      {model: Coa, as: "costs"},
+      {model: Coa, as: "incomings"},
+      {model: Coa, as: "outgoings"},
+      {model: Coa, as: "inventorys"},
+    ], raw: true, nest: true})
+        .then(dataa => {
+          if (!dataa)
+            res.status(404).send({ message: "Not found Data with id " + id });
+          else res.send(dataa);
+      }).catch(err =>{console.error("pcat0402",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("pcat0403",err.message);res.status(500).send({message:err.message}); });
 };
 
 exports.findByDesc = (req, res) => {

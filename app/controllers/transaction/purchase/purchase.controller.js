@@ -36,7 +36,7 @@ exports.create = (req, res) => {
     company_id: req.body.company
   });
   Purchase.create(purchaseDat).then(dataa => { 
-    const log = ({message: "add", purchase: dataa._id, user: req.body.user,});
+    const log = ({message: "add", purchase: dataa.id, user: req.body.user,});
       Log.create(log).then(datab => {
         res.send(dataa);
       }).catch(err =>{console.error("pur0101",err.message);res.status(500).send({message:err.message}); });
@@ -139,7 +139,7 @@ exports.updateState = (req, res) => {
         const log = ({message: "update state", purchase: data._id, user: req.body.user,});
         Log.create(log).then(datab => {
           res.send(datab);
-        }).catch(err =>{console.error("pur0401",err.message);res.status(500).send({message:err.message}); });
+        }).catch(err =>{console.error("pur0701",err.message);res.status(500).send({message:err.message}); });
       }
-    }).catch(err =>{console.error("pur0402",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("pur0702",err.message);res.status(500).send({message:err.message}); });
 };

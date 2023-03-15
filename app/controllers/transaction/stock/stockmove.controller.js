@@ -5,6 +5,7 @@ const Stockmove = db.stockmoves;
 const Journal = db.journals;
 const Entry = db.entrys;
 const Product = db.products;
+const ProductCatAcc = db.productcataccs;
 const Partner = db.partners;
 const Uom = db.uoms;
 const Warehouse = db.warehouses;
@@ -14,7 +15,7 @@ const Id = db.ids;
 const Log = db.logs;
 var journid, journalid, journalcount;
 var xx, yy, qt;
-var qty, oriqty, uom_id, oriuom_id, cost, oricost;
+var qty, oriqty, uom_id, oriuom_id, cost, oricost, entries, type;
 
 async function getUpdateJournalId() {
   const res1 = await id.getUpdateJournalId();
@@ -36,13 +37,13 @@ async function updateProductCache() {
   return res4;
 }
 
-async function inputJournalStock(xx, yy, qt, req, reqcost, prodname) {
-  const jour1 = await journal.inputJournalStock(xx, yy, qt, req, reqcost, prodname);
+async function inputJournal(data) {
+  const jour1 = await journal.inputJournal(data);
   return jour1;
 }
 
-async function insertUpdateQop(productid, partnerid, whid, data) {
-  const qop1 = await qop.insertUpdateQop(productid, partnerid, whid, data);
+async function insertUpdateQop(type, productid, partnerid, whid, data) {
+  const qop1 = await qop.insertUpdateQop(type, productid, partnerid, whid, data);
   return qop1;
 }
 
@@ -106,7 +107,7 @@ function createSM(req, res, qty) {
     if(req.body.req){
       res.send(data);
     }else{
-      insertUpdateQop(req.body.product_id, req.body.partner_id, req.body.warehouse_id, req.body).then(qop => {
+      insertUpdateQop("in", req.body.product_id, req.body.partner_id, req.body.warehouse_id, req.body).then(qop => {
         updateProductCache().then(upc => {
           insertAcc(req.body, res, cost);
         }).catch(err => {console.error("sm0101",err.message);res.status(500).send({message:err.message}); });
@@ -116,15 +117,47 @@ function createSM(req, res, qty) {
 };
 
 function insertAcc(req, res, cost) {
-  if((req.qin && !req.qout) || (req.qin && req.qout == 0)) {xx = "1-3001"; yy = "1-3901"; qt = req.qin;}
-  else {xx = "1-3901"; yy = "1-3001"; qt = req.qout;}
-  Product.findByPk(req.product_id).then(prod => {
-    let prodname = prod.name;
-    inputJournalStock(xx, yy, qt, req, cost, prodname).then(inputJour => {
-      res.send(inputJour);
+  entries = [];
+  Product.findByPk(req.product_id).then(p1 => {
+    ProductCatAcc.findOne({where:{category_id: p1.productcat_id, company_id: req.company_id}, include: [
+      {model: Coa, as: "revenues"},
+      {model: Coa, as: "costs"},
+      {model: Coa, as: "incomings"},
+      {model: Coa, as: "outgoings"},
+      {model: Coa, as: "inventorys"},
+    ], raw: true, nest: true}).then(p2 => {
+      if (req.qin && (!req.qout || req.qout == 0)) {
+        var inventoryAccount = p2.inventorys;
+        var incomingAccount = p2.incomings;
+        var ncost = cost * req.qin;
+      } else {
+        var inventoryAccount = p2.incomings;
+        var incomingAccount = p2.inventorys;
+        var ncost = cost * req.quot;
+      }
+
+      entries.push({label: p1.name, debit: ncost, debits: inventoryAccount, date: req.date});
+      entries.push({label: p1.name, credit: ncost, credits: incomingAccount, date: req.date});
+
+      const inJournal = {
+        date: req.date,
+        type: "stock",
+        origin: req.trans_id,
+        entry: entries,
+        amount: ncost,
+        company: req.company_id,
+        user: req.user_id
+      };
+      if(entries.length >= 2){
+        inputJournal(inJournal).then(inputJour => {
+          res.send({message:"done"});
+        }).catch(err =>{console.error("sm0103",err.message);res.status(500).send({message:err.message}); });
+      }else{
+        insertAcc(req, res, cost)
+      }
     }).catch(err =>{console.error("sm0101",err.message);res.status(500).send({message:err.message}); });
   }).catch(err =>{console.error("sm0102",err.message);res.status(500).send({message:err.message}); });
-}
+  }
 
 exports.findAll = (req, res) => {
   if(!req.headers.apikey || compare(req, res)==0) {

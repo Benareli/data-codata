@@ -1,6 +1,6 @@
 const db = require("../../models");
 const { compare } = require('../../function/key.function');
-const {id,coa} = require("../../function");
+const {id,coa,journal} = require("../../function");
 const Journal = db.journals;
 const Journal_type = db.journal_type;
 const Entry = db.entrys;
@@ -11,6 +11,7 @@ const Log = db.logs;
 const Payment = db.payments;
 const Partner = db.partners;
 const Product = db.products;
+const ProductCatAcc = db.productcataccs;
 const Purchasedetail = db.purchasedetails;
 const Saledetail = db.saledetails;
 var billids, taxes, subtotal, entries = [], jnl;
@@ -18,6 +19,11 @@ var billids, taxes, subtotal, entries = [], jnl;
 async function getUpdateBillId() {
   const res1 = await id.getUpdateBillId();
   return res1;
+}
+
+async function getCoa(coa1) {
+  const res2 = await coa.getCoa2(coa1);
+  return res2;
 }
 
 async function getCoa2(coa1, coa2) {
@@ -34,6 +40,22 @@ async function getUpdateInvId() {
   const res4 = await id.getUpdateInvId();
   return res4;
 }
+
+async function inputJournal(data) {
+  const res5 = await journal.inputJournal(data);
+  return res5;
+}
+
+exports.create = (req, res) => {
+  if(!req.headers.apikey || compare(req, res)==0) {
+    res.status(401).send({ message: "Unauthorized!" });
+    return;
+  }
+  inputJournal(req.body)
+    .then(data => {
+      if(data == 'done') res.send({message:data});
+    }).catch(err =>{console.error("jour0001",err.message);res.status(500).send({message:err.message}); });
+};
 
 exports.findAll = (req, res) => {
   if(!req.headers.apikey || compare(req, res)==0) {
@@ -174,7 +196,69 @@ exports.createBill = (req, res) => {
   if(req.body.productbill.length > 1){
     playSequencing(0, req, res);
   }else{
-    xx = "2-1001"; yy = "1-3901"; zz = "1-2901";
+    entries = [];
+    getCoa2("2-1001", "1-2901").then(datacoa => {
+      let oo = datacoa[0];
+      let pp = datacoa[1];
+      Product.findByPk(req.body.productbill[0]).then(p1 => {
+        ProductCatAcc.findOne({where:{category_id: p1.productcat_id, company_id: req.body.company}, include: [
+          {model: Coa, as: "revenues"},
+          {model: Coa, as: "costs"},
+          {model: Coa, as: "incomings"},
+          {model: Coa, as: "outgoings"},
+          {model: Coa, as: "inventorys"},
+        ], raw: true, nest: true}).then(p2 => {
+          if(req.body.tax[0] > 0){
+            entries.push({
+              label: "Tax " + req.body.tax[0] + "%",
+              debits: pp.dataValues, 
+              debit: (req.body.tax[0]/100 * (req.body.qrec[0] * req.body.priceunit[0]) - (req.body.discount[0]/100 * (req.body.qrec[0] * req.body.priceunit[0]))), 
+              date: req.body.date
+            });
+          }
+          entries.push({
+            label: p1.name,
+            product_id: req.body.productbill[0],
+            date: req.body.date,
+            debit: (req.body.qrec[0] * req.body.priceunit[0]) - (req.body.discount[0]/100 * (req.body.qrec[0] * req.body.priceunit[0])),
+            debits: p2.incomings,
+            qty: req.body.qrec[0],
+            price_unit: req.body.priceunit[0],
+            tax: req.body.tax[0],
+            discount: req.body.discount[0],
+            subtotal: req.body.subtotal[0]
+          });
+          entries.push({
+            label: "Payable",
+            credits: oo.dataValues, 
+            credit: (req.body.tax[0]/100 * (req.body.qrec[0] * req.body.priceunit[0]) - (req.body.discount[0]/100 * (req.body.qrec[0] * req.body.priceunit[0]))) +
+              ((req.body.qrec[0] * req.body.priceunit[0]) - (req.body.discount[0]/100 * (req.body.qrec[0] * req.body.priceunit[0]))), 
+            date: req.body.date
+          })
+        console.log(entries);
+        const insJournal = {
+          date: req.body.date,
+          type: "bill",
+          origin: req.body.origin,
+          entry: entries,
+          amount: (req.body.tax[0]/100 * (req.body.qrec[0] * req.body.priceunit[0]) - (req.body.discount[0]/100 * (req.body.qrec[0] * req.body.priceunit[0]))) +
+              ((req.body.qrec[0] * req.body.priceunit[0]) - (req.body.discount[0]/100 * (req.body.qrec[0] * req.body.priceunit[0]))),
+          company: req.body.company,
+          user: req.body.user,
+          partner: req.body.partner,
+        };
+        console.log(insJournal);
+        if(entries.length >= 2){
+          inputJournal(insJournal).then(inputJour => {
+            res.send({message: "done"});
+          }).catch(err =>{console.error("sracc0103",err.message);res.status(500).send({message:err.message}); });
+        }else{
+          //insertAcc(x, alldata, res, type, data, cost);
+        }
+      }).catch(err =>{console.error("sracc0101",err.message); });
+    }).catch(err =>{console.error("sracc0102",err.message); });
+  }).catch(err =>{console.error("sracc0103",err.message); });
+    /*xx = "2-1001"; yy = "1-3901"; zz = "1-2901";
     getCoa3(xx, yy, zz).then(datacoa => {
       let oo = datacoa[0];
       let pp = datacoa[1];
@@ -228,7 +312,7 @@ exports.createBill = (req, res) => {
           }).catch(err =>{console.error("bill0107",err.message);res.status(500).send({message:err.message}); });
         }).catch(err =>{console.error("bill0108",err.message);res.status(500).send({message:err.message}); });
       }).catch(err =>{console.error("bill0109",err.message);res.status(500).send({message:err.message}); });
-    }).catch(err =>{console.error("bill0110",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("bill0110",err.message);res.status(500).send({message:err.message}); });*/
   }
 };
 

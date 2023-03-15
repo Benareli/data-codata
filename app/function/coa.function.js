@@ -6,7 +6,7 @@ function getCoa(coa1) {
   return new Promise((resolve, reject) => {
     Coa.findAll().then(data => {
       let o = data.findIndex((obj => obj.code == coa1));
-      result[0] = data[o].id;
+      result[0] = data[o];
       resolve (result);
     }).catch(err =>{console.error("coa0101",err.message); reject(err); });
   })
@@ -17,8 +17,8 @@ function getCoa2(coa1, coa2) {
     Coa.findAll().then(data => {
       let o = data.findIndex((obj => obj.code == coa1));
       let p = data.findIndex((pbj => pbj.code == coa2));
-      result[0] = data[o].id;
-      result[1] = data[p].id;
+      result[0] = data[o];
+      result[1] = data[p];
       resolve (result);
     }).catch(err =>{console.error("coa0201",err.message); reject(err); });
   })

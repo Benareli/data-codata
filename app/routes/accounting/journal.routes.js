@@ -25,6 +25,9 @@ module.exports = app => {
   routerJour.get("/bill", journals.findBill);
 
   // Create a new
+  routerJour.post("/jour", journals.create);
+
+  // Create a new
   routerJour.post("/bill", journals.createBill);
 
   // Retrieve all inv

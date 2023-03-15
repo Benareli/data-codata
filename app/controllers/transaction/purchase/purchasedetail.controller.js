@@ -7,6 +7,7 @@ const Qop = db.qops;
 const Id = db.ids;
 const Uom = db.uoms;
 const Product = db.products;
+const ProductCatAcc = db.productcataccs;
 const Partner = db.partners;
 const Warehouse = db.warehouses;
 const Qof = db.qofs;
@@ -18,7 +19,7 @@ const Company = db.companys;
 var transid, transferid, trasnfercount;
 var journid, journalid, journalcount;
 var y1, x, qin;
-var qty, oriqty, uom_id, oriuom_id, cost, oricost;
+var qty, oriqty, uom_id, oriuom_id, cost, oricost, entries;
 
 async function getTransId() {
   const res1 = await id.getTransId();
@@ -40,13 +41,13 @@ async function updateProductCache() {
   return res4;
 }
 
-async function inputJournal(xx, yy, debit, credit, amount, label1, label2, type, date) {
-  const jour1 = await journal.inputJournal(xx, yy, debit, credit, amount, label1, label2, type, date);
+async function inputJournal(data) {
+  const jour1 = await journal.inputJournal(data);
   return jour1;
 }
 
-async function insertUpdateQop(productid, partnerid, whid, data) {
-  const qop1 = await qop.insertUpdateQop(productid, partnerid, whid, data);
+async function insertUpdateQop(type, productid, partnerid, whid, data) {
+  const qop1 = await qop.insertUpdateQop(type, productid, partnerid, whid, data);
   return qop1;
 }
 
@@ -208,19 +209,19 @@ function startProcess(req, res){
         qin: qty,
         uom_id: uom_id,
         date: req.params.date,
-        company_id: req.body.company_id,
+        company_id: req.params.comp,
         cost: cost,
         oriqin: oriqty,
         oriuom_id: oriuom_id,
         oricost: oricost
       });
       Stockmove.create(stockmove).then(datad => {
-        insertUpdateQop(req.body[x].products.id, req.params.partner, req.params.wh, req.body[x]).then(qop => {
+        insertUpdateQop("in", req.body[x].products.id, req.params.partner, req.params.wh, req.body[x]).then(qop => {
           Purchasedetail.findByPk(req.body[x].id).then(pd => {
             if(oriqty) qty = oriqty;
             Purchasedetail.update({qty_done: pd.qty_done + qty}, {where:{id:req.body[x].id}}).then(pdu => {
               updateProductCache().then(upc => {
-                insertAcc(req, res);
+                insertAcc(req, res, transid);
               }).catch(err =>{console.error("purd0601",err.message);res.status(500).send({message:err.message}); });
             }).catch(err =>{console.error("purd0602",err.message);res.status(500).send({message:err.message}); });
           }).catch(err =>{console.error("purd0603",err.message);res.status(500).send({message:err.message}); });
@@ -232,11 +233,36 @@ function startProcess(req, res){
   }
 }
 
-function insertAcc(req, res) {
-  inputJournal("2-3001", "1-3001", cost, cost, cost,
-    req.body[x].products.name, req.body[x].products.name, "stock", req.params.date).then(inputJour => {
-      sequencing(req, res);
-    }).catch(err =>{console.error("purd0801",err.message);res.status(500).send({message:err.message}); });
+function insertAcc(req, res, transid) {
+  entries = [];
+  Product.findByPk(req.body[x].products.id).then(p1 => {
+    ProductCatAcc.findOne({where:{category_id: p1.productcat_id, company_id: req.body[0].company_id}, include: [
+      {model: Coa, as: "revenues"},
+      {model: Coa, as: "costs"},
+      {model: Coa, as: "incomings"},
+      {model: Coa, as: "outgoings"},
+      {model: Coa, as: "inventorys"},
+    ], raw: true, nest: true}).then(p2 => {
+      entries.push({label: req.body[x].products.name, debit: cost, debits: p2.inventorys, date: req.params.date});
+      entries.push({label: req.body[x].products.name, credit: cost, credits: p2.incomings, date: req.params.date});
+      const inJournal = ({
+        date: req.body[x].date,
+        type: "stock",
+        origin: transid,
+        entry: entries,
+        amount: cost,
+        company: req.params.comp,
+        user: req.params.id
+      })
+      if(entries.length >= 2){
+        inputJournal(inJournal).then(inputJour => {
+          sequencing(req, res);
+        }).catch(err =>{console.error("purd0801",err.message);res.status(500).send({message:err.message}); });
+      }else{
+        insertAcc(req, res)
+      }
+    })
+  })
 }
 
 function sequencing(req, res){

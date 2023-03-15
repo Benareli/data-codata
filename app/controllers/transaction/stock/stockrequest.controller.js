@@ -7,6 +7,7 @@ const Qop = db.qops;
 const Journal = db.journals;
 const Entry = db.entrys;
 const Product = db.products;
+const ProductCatAcc = db.productcataccs;
 const Partner = db.partners;
 const Uom = db.uoms;
 const Warehouse = db.warehouses;
@@ -14,7 +15,7 @@ const User = db.users;
 const Coa = db.coas;
 const Id = db.ids;
 var transid;
-var sqin, sqout, soriqin, soriqout, suom, soriuom, scost, soricost;
+var sqty_rec, soriqty_rec, suom, soriuom, scost, soricost, type;
 
 async function getUpdateTransId() {
   const res1 = await id.getUpdateTransId();
@@ -26,13 +27,13 @@ async function updateProductCache() {
   return res2;
 }
 
-async function inputJournalStock(xx, yy, qt, req, reqcost, prodname) {
-  const jour1 = await journal.inputJournalStock(xx, yy, qt, req, reqcost, prodname);
+async function inputJournal(data) {
+  const jour1 = await journal.inputJournal(data);
   return jour1;
 }
 
-async function insertUpdateQop(productid, partnerid, whid, data) {
-  const qop1 = await qop.insertUpdateQop(productid, partnerid, whid, data);
+async function insertUpdateQop(type, productid, partnerid, whid, data) {
+  const qop1 = await qop.insertUpdateQop(type, productid, partnerid, whid, data);
   return qop1;
 }
 
@@ -64,13 +65,14 @@ function startSequence(x, req, res){
         user: req.body[x].user,
         product_id: req.body[x].prodid,
         warehouse_id: req.body[x].to,
-        qin: req.body[x].qty,
+        qty_rec: req.body[x].qty,
         uom_id: req.body[x].uomid,
         date: req.body[x].date,
         company_id: req.body[x].company,
         user_id: req.body[x].user,
         cost: req.body[x].cost,
         req: true,
+        type: req.body[x].type.toLowerCase(),
       });
       Stockrequest.create(stockmove).then(data => {
         sequencing(x, req, res);
@@ -81,13 +83,14 @@ function startSequence(x, req, res){
         user: req.body[x].user,
         product_id: req.body[x].prodid,
         warehouse_id: req.body[x].from,
-        qout: req.body[x].qty,
+        qty_rec: req.body[x].qty,
         uom_id: req.body[x].uomid,
         date: req.body[x].date,
         company_id: req.body[x].company,
         user_id: req.body[x].user,
         cost: req.body[x].cost,
         req: true,
+        type: req.body[x].type.toLowerCase(),
       });
       Stockrequest.create(stockmove).then(data => {
           sequencing(x, req, res);
@@ -99,13 +102,14 @@ function startSequence(x, req, res){
         user: req.body[x].user,
         product_id: req.body[x].prodid,
         warehouse_id: req.body[x].from,
-        qout: req.body[x].qty,
+        qty_rec: req.body[x].qty,
         uom_id: req.body[x].uomid,
         date: req.body[x].date,
         company_id: req.body[x].company,
         user_id: req.body[x].user,
         cost: req.body[x].cost,
         req: true,
+        type: req.body[x].type.toLowerCase(),
       });
       Stockrequest.create(stockmove).then(data => {
         const stockmove = ({
@@ -113,13 +117,14 @@ function startSequence(x, req, res){
           user: req.body[x].user,
           product_id: req.body[x].prodid,
           warehouse_id: req.body[x].to,
-          qin: req.body[x].qty,
+          qty_rec: req.body[x].qty,
           uom_id: req.body[x].uomid,
           date: req.body[x].date,
           company_id: req.body[x].company,
           user_id: req.body[x].user,
           cost: req.body[x].cost,
           req: true,
+          type: req.body[x].type,
         });
         Stockrequest.create(stockmove).then(data => {
           sequencing(x, req, res);
@@ -287,54 +292,103 @@ function startValidate(x, data, res){
     }).catch(err => {console.error("str1201",err.message);res.status(500).send({message:err.message}); })
   }else{
     checkUom(data[x]).then(checker => {
-      if(checker[1]==data[x].uom_id){
-        soriqin = null; soriqout = null; soriuom = null; soricost = null;
-        sqin = data[x].qin; sqout = data[x].qout; suom = data[x].uom_id; scost = data[x].cost;
-      }else{
-        soriqin = data[x].qin; soriqout = data[x].qout; soriuom = data[x].uom_id; soricost = data[x].cost;
-        if(data[x].qin) sqin = checker[0];
-        if(data[x].qout) sqout = checker[0];
-        suom = checker[1]; scost = checker[2];
-      }
-      const stockmove = ({
+      let stockmoves = ({
         trans_id: data[x].trans_id,
-        user: data[x].user,
         product_id: data[x].product_id,
         partner_id: data[x].partner_id,
         warehouse_id: data[x].warehouse_id,
-        qin: sqin,
-        qout: sqout,
-        uom_id: suom,
+        uom_id: checker[1],
         company_id: data[x].company_id,
         date: data[x].date,
         user_id: data[x].user_id,
-        cost: scost,
-        oriqin: soriqin,
-        oriqout: soriqout,
+        cost: checker[2],
         oriuom_id: soriuom,
-        oricost: soricost
+        oricost: soricost,
       });
-      Stockmove.create(stockmove).then(dataa => {
-        Stockrequest.destroy({where:{id:data[x].id}}).then(datab => {
-          if((data[x].qin && !data[x].qout) || (data[x].qin && data[x].qout == 0)) {xx = "1-3001"; yy = "1-3901"; qt = sqin;}
-          else {xx = "1-3901"; yy = "1-3001"; qt = sqout;}
-          Product.findByPk(data[x].product_id).then(prod => {
-            let prodname = prod.name;
-            inputJournalStock(xx, yy, qt, data[x], scost, prodname).then(inputJour => {
-              insertUpdateQop(data[x].product_id, data[x].partner_id, data[x].warehouse_id, data[x]).then(qop => {
-                sequencingValidate(x, data, res)
-              }).catch(err => {console.error("str1202",err.message);res.status(500).send({message:err.message}); })
-            }).catch(err => {console.error("str1203",err.message);res.status(500).send({message:err.message}); })
-          }).catch(err => {console.error("str1204",err.message);res.status(500).send({message:err.message}); })
-        }).catch(err => {console.error("str1205",err.message);res.status(500).send({message:err.message}); })
-      }).catch(err => {console.error("str1206",err.message);res.status(500).send({message:err.message}); })
+      if(checker[1]==data[x].uom_id){
+        soriqin = null; soriqout = null; soriuom = null; soricost = null;
+        sqty_rec = data[x].qty_rec; suom = data[x].uom_id; scost = data[x].cost;
+        if(data[x].type == 'in'){
+          stockmoves['qin'] = data[x].qty_rec;
+          processValidate(x, data, res, stockmoves);
+        }else if(data[x].type == 'out') {
+          stockmoves['qout'] = data[x].qty_rec;
+          processValidate(x, data, res, stockmoves);
+        }
+      }else{
+        if(data[x].type == 'in'){
+          stockmoves['qin'] = checker[0];
+          stockmoves['oriqin'] = data[x].qty_rec;
+          stockmoves['oriuom'] = data[x].uom_id;
+          stockmoves['oricost'] = data[x].cost;
+          scost = data[x].cost;
+          processValidate(x, data, res, stockmoves);
+        }else if(data[x].type == 'out') {
+          stockmoves['qout'] = checker[0];
+          stockmoves['oriqout'] = data[x].qty_rec;
+          stockmoves['oriuom'] = data[x].uom_id;
+          stockmoves['oricost'] = data[x].cost;
+          scost = data[x].cost;
+          processValidate(x, data, res, stockmoves);
+        }
+      }
     }).catch(err => {console.error("str1207",err.message);res.status(500).send({message:err.message}); })
   }
+}
+
+function processValidate(x, data, res, stockmoves) {
+  Stockmove.create(stockmoves).then(dataa => {
+    //insertUpdateQop(data[x].type, data[x].product_id, data[x].partner_id, data[x].warehouse_id, data[x]).then(qop => {
+      Stockrequest.destroy({where:{id:data[x].id}}).then(datab => {
+        insertAcc(x, data, res, data[x].type, data[x], scost)          
+      }).catch(err => {console.error("str1202",err.message);res.status(500).send({message:err.message}); })
+    //}).catch(err => {console.error("str1203",err.message);res.status(500).send({message:err.message}); })
+  }).catch(err => {console.error("str1204",err.message);res.status(500).send({message:err.message}); })
 }
 
 function sequencingValidate(x, data, res){
   x=x+1;
   startValidate(x, data, res);
+}
+
+function insertAcc(x, alldata, res, type, data, cost) {
+  entries = [];
+  Product.findByPk(data.product_id).then(p1 => {
+    ProductCatAcc.findOne({where:{category_id: p1.productcat_id, company_id: data.company_id}, include: [
+      {model: Coa, as: "revenues"},
+      {model: Coa, as: "costs"},
+      {model: Coa, as: "incomings"},
+      {model: Coa, as: "outgoings"},
+      {model: Coa, as: "inventorys"},
+    ], raw: true, nest: true}).then(p2 => {
+      entries.push({
+        label: p1.name,
+        date: data.date,
+        ...(data.type=="in" ? {debits: p2.inventorys, debit: cost} : {debits: p2.outgoings, debit: cost}),
+      });
+      entries.push({
+        label: p1.name,
+        date: data.date,
+        ...(data.type=="in" ? {credits: p2.incomings, credit: cost} : {credits: p2.inventorys, credit: cost}),
+      });
+      const insJournal = {
+        date: data.date,
+        type: "stock",
+        origin: data.trans_id,
+        entry: entries,
+        amount: cost,
+        company: data.company_id,
+        user: data.user_id
+      };
+      if(entries.length >= 2){
+        inputJournal(insJournal).then(inputJour => {
+          sequencingValidate(x, alldata, res)
+        }).catch(err =>{console.error("sracc0103",err.message);res.status(500).send({message:err.message}); });
+      }else{
+        insertAcc(x, alldata, res, type, data, cost);
+      }
+    }).catch(err =>{console.error("sracc0101",err.message); });
+  }).catch(err =>{console.error("sracc0102",err.message); });
 }
 
 function checkUom(data) {
@@ -343,22 +397,18 @@ function checkUom(data) {
       if(data.uom_id != prod.uom_id){
         Uom.findByPk(data.uom_id).then(uomz => {
           let cost;
-          if(data.qin) {
-            data.qty = data.qin;
+          if(data.type == "in") {
             cost = data.cost / uomz.ratio;
           }
-          if(data.qout) {
-            data.qty = data.qout;
+          if(data.type == "out") {
             cost = data.cost * uomz.ratio;
           }
-          let qty = data.qty * uomz.ratio;
+          let qty = data.qty_rec * uomz.ratio;
           let uom_id = prod.uom_id;
           resolve ([qty, uom_id, cost]);
         })
       }else{
-        if(data.qin) data.qty = data.qin;
-          if(data.qout) data.qty = data.qout;
-        let qty = data.qty;
+        let qty = data.qty_rec;
         let uom_id = data.uom_id;
         let cost = data.cost;
         resolve ([qty, uom_id, cost]);

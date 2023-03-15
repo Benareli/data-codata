@@ -37,6 +37,7 @@ const Uom = db.uoms;
 const Tax = db.taxs;
 
 const Productcat = db.productcats;
+const Productcatacc = db.productcataccs;
 const Partner = db.partners;
 const Product = db.products;
 
@@ -92,25 +93,25 @@ function initial() {
   Role.create({id:19,name: "project_user"});
   Role.create({id:20,name: "project_manager"});
 
-  Coa.create({prefix: 1,setting_id: 1,code: "1-1001",name: "Kas",active: true});
-  Coa.create({prefix: 1,company_id: 1,code: "1-1101",name: "Bank",active: true});
-  Coa.create({prefix: 1,company_id: 1,code: "1-1111",name: "Settlement",active: true});
-  Coa.create({prefix: 1,company_id: 1,code: "1-2001",name: "Piutang",active: true});
-  Coa.create({prefix: 1,company_id: 1,code: "1-2901",name: "PPN Masukan",active: true});
-  Coa.create({prefix: 1,company_id: 1,code: "1-3001",name: "Persediaan",active: true});
-  Coa.create({prefix: 1,company_id: 1,code: "1-3901",name: "Persediaan Transit",active: true});
-  Coa.create({prefix: 1,company_id: 1,code: "1-5001",name: "Aktiva Tetap",active: true});
-  Coa.create({prefix: 2,company_id: 1,code: "2-1001",name: "Hutang Dagang",active: true});
-  Coa.create({prefix: 2,company_id: 1,code: "2-2001",name: "Hutang Lainnya",active: true});
-  Coa.create({prefix: 2,company_id: 1,code: "2-3001",name: "Hutang Dalam Perjalanan",active: true});
-  Coa.create({prefix: 2,company_id: 1,code: "2-4001",name: "PPN Keluaran",active: true});
-  Coa.create({prefix: 3,company_id: 1,code: "3-1001",name: "Modal",active: true});
-  Coa.create({prefix: 3,company_id: 1,code: "3-4001",name: "Laba Rugi",active: true});
-  Coa.create({prefix: 4,company_id: 1,code: "4-1001",name: "Pendapatan",active: true});
-  Coa.create({prefix: 5,company_id: 1,code: "5-1001",name: "HPP",active: true});
-  Coa.create({prefix: 6,company_id: 1,code: "6-1001",name: "Biaya Operasional",active: true});
-  Coa.create({prefix: 6,company_id: 1,code: "6-1001",name: "Biaya Variabel",active: true});
-  Coa.create({prefix: 6,company_id: 1,code: "6-9001",name: "Biaya Lain Lain",active: true});
+  Coa.create({id: 1,prefix: 1,setting_id: 1,code: "1-1001",name: "Kas",active: true});
+  Coa.create({id: 2,prefix: 1,company_id: 1,code: "1-1101",name: "Bank",active: true});
+  Coa.create({id: 3,prefix: 1,company_id: 1,code: "1-1111",name: "Settlement",active: true});
+  Coa.create({id: 4,prefix: 1,company_id: 1,code: "1-2001",name: "Piutang",active: true});
+  Coa.create({id: 5,prefix: 1,company_id: 1,code: "1-2901",name: "PPN Masukan",active: true});
+  Coa.create({id: 6,prefix: 1,company_id: 1,code: "1-3001",name: "Persediaan",active: true});
+  Coa.create({id: 7,prefix: 1,company_id: 1,code: "1-3901",name: "Persediaan Transit",active: true});
+  Coa.create({id: 8,prefix: 1,company_id: 1,code: "1-5001",name: "Aktiva Tetap",active: true});
+  Coa.create({id: 9,prefix: 2,company_id: 1,code: "2-1001",name: "Hutang Dagang",active: true});
+  Coa.create({id: 10,prefix: 2,company_id: 1,code: "2-2001",name: "Hutang Lainnya",active: true});
+  Coa.create({id: 11,prefix: 2,company_id: 1,code: "2-3001",name: "Hutang Dalam Perjalanan",active: true});
+  Coa.create({id: 12,prefix: 2,company_id: 1,code: "2-4001",name: "PPN Keluaran",active: true});
+  Coa.create({id: 13,prefix: 3,company_id: 1,code: "3-1001",name: "Modal",active: true});
+  Coa.create({id: 14,prefix: 3,company_id: 1,code: "3-4001",name: "Laba Rugi",active: true});
+  Coa.create({id: 15,prefix: 4,company_id: 1,code: "4-1001",name: "Pendapatan",active: true});
+  Coa.create({id: 16,prefix: 5,company_id: 1,code: "5-1001",name: "HPP",active: true});
+  Coa.create({id: 17,prefix: 6,company_id: 1,code: "6-1001",name: "Biaya Operasional",active: true});
+  Coa.create({id: 18,prefix: 6,company_id: 1,code: "6-1001",name: "Biaya Variabel",active: true});
+  Coa.create({id: 19,prefix: 6,company_id: 1,code: "6-9001",name: "Biaya Lain Lain",active: true});
 
   Warehouse.create({name: "Gudang Utama", short: "UTAMA", main: true, active: true, company_id: 1});
     Log.create({message: "dibuat oleh sistem", warehouse: 1});
@@ -140,6 +141,9 @@ function initial() {
   
   Productcat.create({id: 1, catid: "TEMP", description: "Template", active: true});
     Log.create({message: "dibuat oleh sistem", category: 1});
+
+  Productcatacc.create({id: 1, company_id: 1, category_id: 1, revenue_id: 15, 
+    cost_id: 16, incoming_id: 11, outgoing_id: 7, inventory_id: 6, auto: true})
 
   Product.create({sku: "TEMP", name: "Template", description: "Template Product", listprice: 1, uom_id: 1, puom_id: 1, qoh: 0,
       cost: 0, isStock: true, fg: false, rm: false, image: "default.png", productcat_id: 1, tax_id: 1, taxout_id: 1, active: true});
@@ -204,8 +208,8 @@ require("./app/routes/transaction/stock/stockrequest.routes")(app);
 //require("./app/routes/transaction/sale/pos.routes")(app);
 //require("./app/routes/transaction/sale/posdetail.routes")(app);
 //require("./app/routes/transaction/sale/possession.routes")(app);
-//require("./app/routes/transaction/sale/sale.routes")(app);
-//require("./app/routes/transaction/sale/saledetail.routes")(app);
+require("./app/routes/transaction/sale/sale.routes")(app);
+require("./app/routes/transaction/sale/saledetail.routes")(app);
 
 //Accounting
 require("./app/routes/accounting/coa.routes")(app);

@@ -25,7 +25,7 @@ module.exports = app => {
   routerSalDet.delete("/:id", saledetails.delete);
   
   // Update with id
-  routerSalDet.put("/sendAll/:id/:partner/:wh/:date", saledetails.updateSendAll);
+  routerSalDet.put("/sendAll/:id/:partner/:wh/:date/:comp", saledetails.updateSendAll);
 
   app.use("/api/saledetails", routerSalDet);
 };

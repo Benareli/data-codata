@@ -34,6 +34,7 @@ db.costings = require("./masterdata/costing.model.js")(sequelize, Sequelize);
 db.partners = require("./masterdata/partner.model.js")(sequelize, Sequelize);
 db.products = require("./masterdata/product.model.js")(sequelize, Sequelize);
 db.productcats = require("./masterdata/productcat.model.js")(sequelize, Sequelize);
+db.productcataccs = require("./masterdata/productcatacc.model.js")(sequelize, Sequelize);
 db.uoms = require("./masterdata/uom.model.js")(sequelize, Sequelize);
 db.uomcats = require("./masterdata/uomcat.model.js")(sequelize, Sequelize);
 db.warehouses = require("./masterdata/warehouse.model.js")(sequelize, Sequelize);
@@ -72,7 +73,6 @@ db.role = require("./userauth/role.model")(sequelize, Sequelize);
 /*db.projects = require("./project.model.js")(sequelize, Sequelize);
 db.tasks = require("./task.model.js")(sequelize, Sequelize);
 db.tickets = require("./ticket.model.js")(sequelize, Sequelize);*/
-
 
 //Role User
 db.role.belongsToMany(db.user, {
@@ -183,6 +183,49 @@ db.uoms.belongsTo(db.uomcats, {
   foreignKey: "uomcat_id",
   as: "uomcats",
 });
+
+//Product Category Acc Relation
+db.companys.hasMany(db.productcataccs);
+db.productcataccs.belongsTo(db.companys, {
+  foreignKey: "company_id",
+  as: "companys",
+})
+
+db.productcats.hasMany(db.productcataccs);
+db.productcataccs.belongsTo(db.productcats, {
+  foreignKey: "category_id",
+  as: "categorys",
+})
+
+db.coas.hasMany(db.productcataccs);
+db.productcataccs.belongsTo(db.coas, {
+  foreignKey: "revenue_id",
+  as: "revenues",
+})
+
+db.coas.hasMany(db.productcataccs);
+db.productcataccs.belongsTo(db.coas, {
+  foreignKey: "cost_id",
+  as: "costs",
+})
+
+db.coas.hasMany(db.productcataccs);
+db.productcataccs.belongsTo(db.coas, {
+  foreignKey: "incoming_id",
+  as: "incomings",
+})
+
+db.coas.hasMany(db.productcataccs);
+db.productcataccs.belongsTo(db.coas, {
+  foreignKey: "outgoing_id",
+  as: "outgoings",
+})
+
+db.coas.hasMany(db.productcataccs);
+db.productcataccs.belongsTo(db.coas, {
+  foreignKey: "inventory_id",
+  as: "inventorys",
+})
 
 //Product Relation
 db.productcats.hasMany(db.products);
@@ -431,6 +474,65 @@ db.purchasedetails.belongsTo(db.uoms, {
 })
 db.companys.hasMany(db.purchasedetails);
 db.purchasedetails.belongsTo(db.companys, {
+  foreignKey: "company_id",
+  as: "companys",
+})
+
+//Sale
+db.partners.hasMany(db.sales);
+db.sales.belongsTo(db.partners, {
+  foreignKey: "partner_id",
+  as: "partners",
+})
+db.warehouses.hasMany(db.sales);
+db.sales.belongsTo(db.warehouses, {
+  foreignKey: "warehouse_id",
+  as: "warehouses",
+})
+db.users.hasMany(db.sales);
+db.sales.belongsTo(db.users, {
+  foreignKey: "user_id",
+  as: "users",
+})
+db.companys.hasMany(db.sales);
+db.sales.belongsTo(db.companys, {
+  foreignKey: "company_id",
+  as: "companys",
+})
+
+//Sale Detail
+db.sales.hasMany(db.saledetails);
+db.saledetails.belongsTo(db.sales, {
+  foreignKey: "sale_id",
+  as: "sales",
+})
+db.partners.hasMany(db.saledetails);
+db.saledetails.belongsTo(db.partners, {
+  foreignKey: "partner_id",
+  as: "partners",
+})
+db.warehouses.hasMany(db.saledetails);
+db.saledetails.belongsTo(db.warehouses, {
+  foreignKey: "warehouse_id",
+  as: "warehouses",
+})
+db.products.hasMany(db.saledetails);
+db.saledetails.belongsTo(db.products, {
+  foreignKey: "product_id",
+  as: "products",
+})
+db.uoms.hasMany(db.saledetails);
+db.saledetails.belongsTo(db.uoms, {
+  foreignKey: "uom_id",
+  as: "uoms",
+})
+db.uoms.hasMany(db.saledetails);
+db.saledetails.belongsTo(db.uoms, {
+  foreignKey: "oriuom_id",
+  as: "oriuoms",
+})
+db.companys.hasMany(db.saledetails);
+db.saledetails.belongsTo(db.companys, {
   foreignKey: "company_id",
   as: "companys",
 })
