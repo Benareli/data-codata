@@ -19,7 +19,9 @@ exports.create = (req, res) => {
     else{
       const partner = ({
         code: req.body.code, name: req.body.name, phone: req.body.phone, isCustomer: req.body.isCustomer ? req.body.isCustomer : false,
-        isSupplier: req.body.isSupplier ? req.body.isSupplier : false, active: req.body.active ? req.body.active : false
+        isSupplier: req.body.isSupplier ? req.body.isSupplier : false, active: req.body.active ? req.body.active : false,
+        street: req.body.street, street2: req.body.street2, city: req.body.city, state: req.body.state,
+        country: req.body.country, zip: req.body.zip, email: req.body.email,
       });
       Partner.create(partner).then(dataa => {
         const log = ({message: "dibuat", partner: dataa.id, user: req.body.user,});

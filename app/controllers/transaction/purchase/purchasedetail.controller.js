@@ -1,9 +1,9 @@
 const db = require("../../../models");
-const {id,coa,cache,journal,qop} = require("../../../function");
+const {id,coa,cache,journal,stock} = require("../../../function");
 const { compare } = require('../../../function/key.function');
 const Purchase = db.purchases;
 const Purchasedetail = db.purchasedetails;
-const Qop = db.qops;
+const Lot = db.lots;
 const Id = db.ids;
 const Uom = db.uoms;
 const Product = db.products;
@@ -46,9 +46,9 @@ async function inputJournal(data) {
   return jour1;
 }
 
-async function insertUpdateQop(type, productid, partnerid, whid, data) {
-  const qop1 = await qop.insertUpdateQop(type, productid, partnerid, whid, data);
-  return qop1;
+async function insertUpdateStock(type, productid, partnerid, whid, data) {
+  const stock1 = await stock.insertUpdateStock(type, productid, partnerid, whid, data);
+  return stock1;
 }
 
 exports.create = (req, res) => {
@@ -216,7 +216,7 @@ function startProcess(req, res){
         oricost: oricost
       });
       Stockmove.create(stockmove).then(datad => {
-        insertUpdateQop("in", req.body[x].products.id, req.params.partner, req.params.wh, req.body[x]).then(qop => {
+        insertUpdateStock("in", req.body[x].products.id, req.params.partner, req.params.wh, req.body[x]).then(qop => {
           Purchasedetail.findByPk(req.body[x].id).then(pd => {
             if(oriqty) qty = oriqty;
             Purchasedetail.update({qty_done: pd.qty_done + qty}, {where:{id:req.body[x].id}}).then(pdu => {
@@ -284,7 +284,6 @@ exports.delete = (req, res) => {
   }
   Purchasedetail.destroy({where:{id:req.params.id}})
     .then(num => {
-      console.log(num);
       if(num === 1) {
         res.send({message:'done'})
       }

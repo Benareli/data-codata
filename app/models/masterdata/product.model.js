@@ -8,11 +8,7 @@ module.exports = (sequelize, Sequelize) => {
     rm: {type: Sequelize.BOOLEAN},
     listprice: {type: Sequelize.FLOAT},
     botprice: {type: Sequelize.FLOAT},
-    cost: {type: Sequelize.FLOAT},
-    min: {type: Sequelize.FLOAT},
-    max: {type: Sequelize.FLOAT},
     isStock: {type: Sequelize.BOOLEAN},
-    qoh: {type: Sequelize.FLOAT},
     image: {type: Sequelize.STRING},
     supplier: {type: Sequelize.INTEGER},
     active: {type: Sequelize.BOOLEAN}

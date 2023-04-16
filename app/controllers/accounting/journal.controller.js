@@ -193,19 +193,16 @@ exports.createBill = (req, res) => {
   }
   
   taxes = 0;
+  entries = [];
   if(req.body.productbill.length > 1){
     playSequencing(0, req, res);
   }else{
-    entries = [];
     getCoa2("2-1001", "1-2901").then(datacoa => {
       let oo = datacoa[0];
       let pp = datacoa[1];
       Product.findByPk(req.body.productbill[0]).then(p1 => {
         ProductCatAcc.findOne({where:{category_id: p1.productcat_id, company_id: req.body.company}, include: [
-          {model: Coa, as: "revenues"},
-          {model: Coa, as: "costs"},
           {model: Coa, as: "incomings"},
-          {model: Coa, as: "outgoings"},
           {model: Coa, as: "inventorys"},
         ], raw: true, nest: true}).then(p2 => {
           if(req.body.tax[0] > 0){
@@ -235,167 +232,122 @@ exports.createBill = (req, res) => {
               ((req.body.qrec[0] * req.body.priceunit[0]) - (req.body.discount[0]/100 * (req.body.qrec[0] * req.body.priceunit[0]))), 
             date: req.body.date
           })
-        console.log(entries);
-        const insJournal = {
-          date: req.body.date,
-          type: "bill",
-          origin: req.body.origin,
-          entry: entries,
-          amount: (req.body.tax[0]/100 * (req.body.qrec[0] * req.body.priceunit[0]) - (req.body.discount[0]/100 * (req.body.qrec[0] * req.body.priceunit[0]))) +
+          const insJournal = {
+            date: req.body.date,
+            type: "bill",
+            origin: req.body.origin,
+            entry: entries,
+            amount: (req.body.tax[0]/100 * (req.body.qrec[0] * req.body.priceunit[0]) - (req.body.discount[0]/100 * (req.body.qrec[0] * req.body.priceunit[0]))) +
               ((req.body.qrec[0] * req.body.priceunit[0]) - (req.body.discount[0]/100 * (req.body.qrec[0] * req.body.priceunit[0]))),
-          company: req.body.company,
-          user: req.body.user,
-          partner: req.body.partner,
-        };
-        console.log(insJournal);
-        if(entries.length >= 2){
-          inputJournal(insJournal).then(inputJour => {
-            res.send({message: "done"});
-          }).catch(err =>{console.error("sracc0103",err.message);res.status(500).send({message:err.message}); });
-        }else{
-          //insertAcc(x, alldata, res, type, data, cost);
-        }
-      }).catch(err =>{console.error("sracc0101",err.message); });
-    }).catch(err =>{console.error("sracc0102",err.message); });
-  }).catch(err =>{console.error("sracc0103",err.message); });
-    /*xx = "2-1001"; yy = "1-3901"; zz = "1-2901";
-    getCoa3(xx, yy, zz).then(datacoa => {
-      let oo = datacoa[0];
-      let pp = datacoa[1];
-      let qq = datacoa[2];
-      getUpdateBillId().then(dataid => {
-        billid = dataid;
-        const journal = ({name: billid, origin: req.body.origin, type: "bill", state: 0, partner_id: req.body.partner, lock: false,
-          amount: req.body.amount, amountdue: req.body.amount, date: req.body.date, duedate: req.body.duedate})
-        Journal.create(journal).then(dataz => {
-          const ent1 = ({label: req.body.productname[0], product_id: req.body.productbill[0], tax: req.body.tax[0], discount: req.body.discount[0],
-            debit_id: pp, debit: (req.body.qrec[0] * req.body.priceunit[0]) - (req.body.discount[0]/100 * (req.body.qrec[0] * req.body.priceunit[0])), 
-            date: req.body.date, qty: req.body.qrec[0], price_unit: req.body.priceunit[0], subtotal: req.body.subtotal[0]})
-          Entry.create(ent1).then(dataa => {
-            Purchasedetail.update({qty_inv: req.body.qinv[0] + req.body.qrec[0]}, {where: {id:req.body.pdetail[0]}})
-              .then(dataf => {
-                if(req.body.tax[0] > 0){
-                  const ent2 = ({label: "Tax " + req.body.tax[0] + "%",
-                    debit_id: qq, debit: (req.body.tax[0]/100 * (req.body.qrec[0] * req.body.priceunit[0]) - (req.body.discount[0]/100 * (req.body.qrec[0] * req.body.priceunit[0]))), 
-                    date: req.body.date})
-                  Entry.create(ent2).then(datab => {
-                    const ent3 = ({label: "Payable",
-                      credit_id: oo, credit: (req.body.tax[0]/100 * (req.body.qrec[0] * req.body.priceunit[0]) - (req.body.discount[0]/100 * (req.body.qrec[0] * req.body.priceunit[0]))) +
-                      ((req.body.qrec[0] * req.body.priceunit[0]) - (req.body.discount[0]/100 * (req.body.qrec[0] * req.body.priceunit[0]))), 
-                      date: req.body.date}) 
-                    Entry.create(ent3).then(datac => {
-                      xx=null;yy=null;zz=null;oo=null;pp=null;qq=null;
-                      dataz.addEntrys(dataa);
-                      dataz.addEntrys(datab);
-                      dataz.addEntrys(datac);
-                      const log = ({message: "dibuat", journal: datac._id, user: req.user,});
-                      Log.create(log).then(datae => {
-                        res.send(dataa);
-                      }).catch(err =>{console.error("bill0101",err.message);res.status(500).send({message:err.message}); });
-                    }).catch(err =>{console.error("bill0102",err.message);res.status(500).send({message:err.message}); });
-                  }).catch(err =>{console.error("bill0103",err.message);res.status(500).send({message:err.message}); });
-                }else{
-                const ent3 = ({label: "Payable",
-                  credit_id: oo, credit: ((req.body.qrec[0] * req.body.priceunit[0]) - (req.body.discount[0]/100 * (req.body.qrec[0] * req.body.priceunit[0]))), 
-                  date: req.body.date}) 
-                Entry.create(ent3).then(datac => {
-                  xx=null;yy=null;zz=null;oo=null;pp=null;qq=null;
-                  dataz.addEntrys(dataa);
-                  dataz.addEntrys(datac);
-                  const log = ({message: "dibuat", journal: dataz.id, user: req.user,});
-                  Log.create(log).then(datae => {
-                    res.send(dataa);
-                  }).catch(err =>{console.error("bill0104",err.message);res.status(500).send({message:err.message}); });
-                }).catch(err =>{console.error("bill0105",err.message);res.status(500).send({message:err.message}); });
-              }
-            }).catch(err =>{console.error("bill0106",err.message);res.status(500).send({message:err.message}); });
-          }).catch(err =>{console.error("bill0107",err.message);res.status(500).send({message:err.message}); });
-        }).catch(err =>{console.error("bill0108",err.message);res.status(500).send({message:err.message}); });
-      }).catch(err =>{console.error("bill0109",err.message);res.status(500).send({message:err.message}); });
-    }).catch(err =>{console.error("bill0110",err.message);res.status(500).send({message:err.message}); });*/
+            company: req.body.company,
+            user: req.body.user,
+            partner: req.body.partner,
+          };
+          if(entries.length >= 2){
+            inputJournal(insJournal).then(inputJour => {
+              Purchasedetail.findByPk(req.body.pdetail[0]).then(pdet1 => {
+                Purchasedetail.update({qty_inv:(pdet1.qty_inv+req.body.qrec[0])},{where:{id:req.body.pdetail[0]}}).then(pdet2 => {
+                  res.send({message: "done"});
+                })
+              })
+            }).catch(err =>{console.error("sracc0103",err.message);res.status(500).send({message:err.message}); });
+          }else{
+            //insertAcc(x, alldata, res, type, data, cost);
+          }
+        }).catch(err =>{console.error("sracc0101",err.message); });
+      }).catch(err =>{console.error("sracc0102",err.message); });
+    }).catch(err =>{console.error("sracc0103",err.message); });
   }
 };
 
 function playSequencing(x, req, res){
-  xx = "2-1001"; yy = "1-3901"; zz = "1-2901";
-  getCoa3(xx, yy, zz).then(datacoa => {
-    let oo = datacoa[0];
-    let pp = datacoa[1];
-    let qq = datacoa[2];
-    if(req.body.productbill[x]){
-      if(x == 0){
-        getUpdateBillId().then(dataid => {
-          billids = dataid;
-          const journal = ({name: billids, origin: req.body.origin, type: "bill", state: 0, partner_id: req.body.partner, lock: false,
-            amount: req.body.amount, date: req.body.date, duedate: req.body.duedate})
-          Journal.create(journal).then(dataz => {
-            jnl = dataz;
-            const ent1 = ({label: req.body.productname[x], product_id: req.body.productbill[x], tax: req.body.tax[x], discount: req.body.discount[x],
-              debit_id: pp, debit: (req.body.qrec[x] * req.body.priceunit[x]) - (req.body.discount[x]/100 * (req.body.qrec[x] * req.body.priceunit[x])), 
-              date: req.body.date, qty: req.body.qrec[x], price_unit: req.body.priceunit[x], subtotal: req.body.subtotal[x]})
-            Entry.create(ent1).then(dataa => {
-              Purchasedetail.update({qty_inv: req.body.qinv[x] + req.body.qrec[x]}, {where:{id:req.body.pdetail[x]}})
-                .then(dataf => {
-                  taxes = taxes + (req.body.tax[x]/100 * ((req.body.qrec[x] * req.body.priceunit[x]) - (req.body.discount[x]/100 * (req.body.qrec[x] * req.body.priceunit[x]))));
-                  entries.push(dataa);
-                  sequencing(x, req, res);
-              }).catch(err =>{console.error("bill0201",err.message);res.status(500).send({message:err.message}); });
-            }).catch(err =>{console.error("bill0202",err.message);res.status(500).send({message:err.message}); });
-          }).catch(err =>{console.error("bill0203",err.message);res.status(500).send({message:err.message}); });
-        }).catch(err =>{console.error("bill0204",err.message);res.status(500).send({message:err.message}); });
-      }else{
-        const ent1 = ({label: req.body.productname[x], product_id: req.body.productbill[x], tax: req.body.tax[x], discount: req.body.discount[x],
-          debit_id: pp, debit: (req.body.qrec[x] * req.body.priceunit[x]) - (req.body.discount[x]/100 * (req.body.qrec[x] * req.body.priceunit[x])), 
-          date: req.body.date, qty: req.body.qrec[x], price_unit: req.body.priceunit[x], subtotal: req.body.subtotal[x]})
-        Entry.create(ent1).then(dataa => {
-          Purchasedetail.update({qty_inv: req.body.qinv[x] + req.body.qrec[x]}, {where:{id: req.body.pdetail[x]}})
-            .then(dataf => {
-              taxes = taxes + (req.body.tax[x]/100 * ((req.body.qrec[x] * req.body.priceunit[x]) - (req.body.discount[x]/100 * (req.body.qrec[x] * req.body.priceunit[x]))));
-              entries.push(dataa);
-              sequencing(x, req, res);
-          }).catch(err =>{console.error("bill0205",err.message);res.status(500).send({message:err.message}); });
-        }).catch(err =>{console.error("bill0206",err.message);res.status(500).send({message:err.message}); });
-      }
-    }else{
-      if(taxes>0){
-        const ent2 = ({label: "Tax", debit_id: qq, debit: taxes, date: req.body.date})
-        Entry.create(ent2).then(datab => {
-          entries.push(datab);
-          const ent3 = ({label: "Payable", credit_id: oo, credit: req.body.amount ,date: req.body.date}) 
-          Entry.create(ent3).then(datac => {
-            entries.push(datac);
-            xx=null;yy=null;zz=null;oo=null;pp=null;qq=null;
-            const log = ({message: "dibuat", journal: jnl.id, user: req.user,});
-            Log.create(log).then(datad => {
-              for(let x=0;x<entries.length;x++){
-                jnl.addEntrys(entries[x]);
-                if(x == entries.length-1){
-                  entries=[];
-                  res.send(datad);
-                }
-              }
-            }).catch(err =>{console.error("bill0207",err.message);res.status(500).send({message:err.message}); });
-          }).catch(err =>{console.error("bill0208",err.message);res.status(500).send({message:err.message}); });
-        }).catch(err =>{console.error("bill0209",err.message);res.status(500).send({message:err.message}); });
-      }else{
-        const ent3 = ({label: "Payable", credit_id: oo, credit: req.body.amount, date: req.body.date}) 
-        Entry.create(ent3).then(datac => {
-          entries.push(datac);
-          xx=null;yy=null;zz=null;oo=null;pp=null;qq=null;
-          const log = ({message: "dibuat", journal: jnl.id, user: req.user,});
-          Log.create(log).then(datad => {
-            for(let x=0;x<entries.length;x++){
-              jnl.addEntrys(entries[x]);
-              if(x == entries.length-1){
-                entries=[];
-                res.send(datad);
-              }
+  if(req.body.productbill[x]){
+    if(x == 0){
+      getCoa2("2-1001", "1-2901").then(datacoa => {
+        let oo = datacoa[0];
+        let pp = datacoa[1];
+        Product.findByPk(req.body.productbill[x]).then(p1 => {
+          ProductCatAcc.findOne({where:{category_id: p1.productcat_id, company_id: req.body.company}, include: [
+            {model: Coa, as: "incomings"},
+            {model: Coa, as: "inventorys"},
+          ], raw: true, nest: true}).then(p2 => {
+            if(req.body.tax[x] > 0){
+              entries.push({
+                label: "Tax " + req.body.tax[x] + "%",
+                debits: pp.dataValues, 
+                debit: (req.body.tax[x]/100 * (req.body.qrec[x] * req.body.priceunit[x]) - (req.body.discount[x]/100 * (req.body.qrec[x] * req.body.priceunit[x]))), 
+                date: req.body.date
+              });
             }
-          }).catch(err =>{console.error("bill0210",err.message);res.status(500).send({message:err.message}); });
-        }).catch(err =>{console.error("bill0211",err.message);res.status(500).send({message:err.message}); });
-      }
+            entries.push({
+              label: p1.name,
+              product_id: req.body.productbill[x],
+              date: req.body.date,
+              debit: (req.body.qrec[x] * req.body.priceunit[x]) - (req.body.discount[x]/100 * (req.body.qrec[x] * req.body.priceunit[x])),
+              debits: p2.incomings,
+              qty: req.body.qrec[x],
+              price_unit: req.body.priceunit[x],
+              tax: req.body.tax[x],
+              discount: req.body.discount[x],
+              subtotal: req.body.subtotal[x]
+            });
+            entries.push({
+              label: "Payable",
+              credits: oo.dataValues, 
+              credit: (req.body.tax[x]/100 * (req.body.qrec[x] * req.body.priceunit[x]) - (req.body.discount[x]/100 * (req.body.qrec[x] * req.body.priceunit[x]))) +
+                ((req.body.qrec[x] * req.body.priceunit[x]) - (req.body.discount[x]/100 * (req.body.qrec[x] * req.body.priceunit[x]))), 
+              date: req.body.date
+            })
+            sequencing(x, req, res);
+          }).catch(err =>{console.error("sracc0201",err.message); });
+        }).catch(err =>{console.error("sracc0202",err.message); });
+      }).catch(err =>{console.error("sracc0203",err.message); });
+    }else{
+      Product.findByPk(req.body.productbill[x]).then(p1 => {
+          ProductCatAcc.findOne({where:{category_id: p1.productcat_id, company_id: req.body.company}, include: [
+            {model: Coa, as: "incomings"},
+            {model: Coa, as: "inventorys"},
+          ], raw: true, nest: true}).then(p2 => {
+            entries.push({
+              label: p1.name,
+              product_id: req.body.productbill[x],
+              date: req.body.date,
+              debit: (req.body.qrec[x] * req.body.priceunit[x]) - (req.body.discount[x]/100 * (req.body.qrec[x] * req.body.priceunit[x])),
+              debits: p2.incomings,
+              qty: req.body.qrec[x],
+              price_unit: req.body.priceunit[x],
+              tax: req.body.tax[x],
+              discount: req.body.discount[x],
+              subtotal: req.body.subtotal[x]
+            });
+            sequencing(x, req, res);
+        }).catch(err =>{console.error("sracc0203",err.message); });
+      }).catch(err =>{console.error("sracc0204",err.message); });
     }
-  }).catch(err =>{console.error("bill0212",err.message);res.status(500).send({message:err.message}); });
+  }else{
+    const insJournal = {
+      date: req.body.date,
+      type: "bill",
+      origin: req.body.origin,
+      entry: entries,
+      amount: (req.body.tax[0]/100 * (req.body.qrec[0] * req.body.priceunit[0]) - (req.body.discount[0]/100 * (req.body.qrec[0] * req.body.priceunit[0]))) +
+        ((req.body.qrec[0] * req.body.priceunit[0]) - (req.body.discount[0]/100 * (req.body.qrec[0] * req.body.priceunit[0]))),
+      company: req.body.company,
+      user: req.body.user,
+      partner: req.body.partner,
+    };
+    if(entries.length >= 2){
+      inputJournal(insJournal).then(inputJour => {
+        Purchasedetail.findByPk(req.body.pdetail[0]).then(pdet1 => {
+          Purchasedetail.update({qty_inv:(pdet1.qty_inv+req.body.qrec[0])},{where:{id:req.body.pdetail[0]}}).then(pdet2 => {
+            res.send({message: "done"});
+          })
+        })
+      }).catch(err =>{console.error("sracc0103",err.message);res.status(500).send({message:err.message}); });
+    }else{
+      //insertAcc(x, alldata, res, type, data, cost);
+    }
+  } 
 }
 
 function sequencing(x, req, res){
@@ -458,133 +410,164 @@ exports.createInv = (req, res) => {
   }
 
   taxes = 0;
-  if(req.body.productinv.length > 1){
+  entries = [];
+  if(req.body.productbill.length > 1){
     playSequencingInv(0, req, res);
   }else{
-    xx = "4-1001"; yy = "1-2001"; zz = "2-4001";
-    getCoa3(xx, yy, zz).then(datacoa => {
+    getCoa2("1-2001", "2-4001").then(datacoa => {
       let oo = datacoa[0];
       let pp = datacoa[1];
-      let qq = datacoa[2];
-      getUpdateInvId().then(dataid => {
-        invid = dataid;
-        const ent1 = ({journal_id: invid, label: req.body.productname[0], product: req.body.sdetail[0], tax: req.body.tax[0], discount: req.body.discount[0],
-          credit_acc: oo, credit: (req.body.qrec[0] * req.body.priceunit[0]) - (req.body.discount[0]/100 * (req.body.qrec[0] * req.body.priceunit[0])), 
-          date: req.body.date, qty: req.body.qrec[0], price_unit: req.body.priceunit[0], subtotal: req.body.subtotal[0]})
-        Entry.create(ent1).then(dataa => {
-          Saledetail.findOneAndUpdate({_id: req.body.sdetail[0]}, {qty_inv: req.body.qinv[0] + req.body.qrec[0]}, {useFindAndModify: false})
-            .then(dataf => {
-              if(req.body.tax[0] > 0){
-                const ent2 = ({journal_id: invid, label: "Tax " + req.body.tax[0] + "%",
-                  credit_acc: qq, credit: (req.body.tax[0]/100 * ((req.body.qrec[0] * req.body.priceunit[0]) - (req.body.discount[0]/100 * (req.body.qrec[0] * req.body.priceunit[0])))), 
-                  date: req.body.date})
-                Entry.create(ent2).then(datab => {
-                  const ent3 = ({journal_id: invid, label: "Receivable", debit_acc: oo, debit: req.body.amount,  date: req.body.date}) 
-                  Entry.create(ent3).then(datac => {
-                    const journal = ({journal_id: invid, origin: req.body.origin, type: "invoice", state: 0, partner: req.body.partner, lock: false,
-                      amount: req.body.amount, entries:[dataa._id, datab._id, datac._id], date: req.body.date, duedate: req.body.duedate})
-                    Journal.create(journal).then(datac => {
-                      xx=null;yy=null;zz=null;oo=null;pp=null;qq=null;
-                      const log = ({message: "dibuat", journal: datac._id, user: req.user,});
-                      Log.create(log).then(datad => {
-                        res.send(dataa);
-                      }).catch(err =>{console.error("inv0101",err.message);res.status(500).send({message:err.message}); });
-                    }).catch(err =>{console.error("inv0102",err.message);res.status(500).send({message:err.message}); });
-                  }).catch(err =>{console.error("inv0103",err.message);res.status(500).send({message:err.message}); });
-                }).catch(err =>{console.error("inv0104",err.message);res.status(500).send({message:err.message}); });
-              }else{
-                const ent3 = ({journal_id: invid, label: "Receivable", debit_acc: oo, debit: req.body.amount,  date: req.body.date}) 
-                Entry.create(ent3).then(datac => {
-                  const journal = ({journal_id: invid, origin: req.body.origin, type: "invoice", state: 0, partner: req.body.partner, lock: false,
-                    amount: req.body.amount, entries:[dataa._id, datac._id], date: req.body.date, duedate: req.body.duedate})
-                  Journal.create(journal).then(datac => {
-                    xx=null;yy=null;zz=null;oo=null;pp=null;qq=null;
-                    const log = ({message: "dibuat", journal: datac._id, user: req.user,});
-                    Log.create(log).then(datad => {
-                      res.send(dataa);
-                    }).catch(err =>{console.error("inv0105",err.message);res.status(500).send({message:err.message}); });
-                  }).catch(err =>{console.error("inv0106",err.message);res.status(500).send({message:err.message}); });
-                }).catch(err =>{console.error("inv0107",err.message);res.status(500).send({message:err.message}); });
-              }
-          }).catch(err =>{console.error("inv0108",err.message);res.status(500).send({message:err.message}); });
-        }).catch(err =>{console.error("inv0109",err.message);res.status(500).send({message:err.message}); });
-      }).catch(err =>{console.error("inv0110",err.message);res.status(500).send({message:err.message}); });
-    }).catch(err =>{console.error("inv0111",err.message);res.status(500).send({message:err.message}); });
+      Product.findByPk(req.body.productbill[0]).then(p1 => {
+        ProductCatAcc.findOne({where:{category_id: p1.productcat_id, company_id: req.body.company}, include: [
+          {model: Coa, as: "inventorys"},
+          {model: Coa, as: "outgoings"},
+          {model: Coa, as: "revenues"},
+        ], raw: true, nest: true}).then(p2 => {
+          if(req.body.tax[0] > 0){
+            entries.push({
+              label: "Tax " + req.body.tax[0] + "%",
+              credits: pp.dataValues, 
+              credit: (req.body.tax[0]/100 * (req.body.qrec[0] * req.body.priceunit[0]) - (req.body.discount[0]/100 * (req.body.qrec[0] * req.body.priceunit[0]))), 
+              date: req.body.date
+            });
+          }
+          entries.push({
+            label: p1.name,
+            product_id: req.body.productbill[0],
+            date: req.body.date,
+            credit: (req.body.qrec[0] * req.body.priceunit[0]) - (req.body.discount[0]/100 * (req.body.qrec[0] * req.body.priceunit[0])),
+            credits: p2.revenues,
+            qty: req.body.qrec[0],
+            price_unit: req.body.priceunit[0],
+            tax: req.body.tax[0],
+            discount: req.body.discount[0],
+            subtotal: req.body.subtotal[0]
+          });
+          entries.push({
+            label: "Receivable",
+            debits: oo.dataValues, 
+            debit: (req.body.tax[0]/100 * (req.body.qrec[0] * req.body.priceunit[0]) - (req.body.discount[0]/100 * (req.body.qrec[0] * req.body.priceunit[0]))) +
+              ((req.body.qrec[0] * req.body.priceunit[0]) - (req.body.discount[0]/100 * (req.body.qrec[0] * req.body.priceunit[0]))), 
+            date: req.body.date
+          })
+          const insJournal = {
+            date: req.body.date,
+            type: "invoice",
+            origin: req.body.origin,
+            entry: entries,
+            amount: (req.body.tax[0]/100 * (req.body.qrec[0] * req.body.priceunit[0]) - (req.body.discount[0]/100 * (req.body.qrec[0] * req.body.priceunit[0]))) +
+              ((req.body.qrec[0] * req.body.priceunit[0]) - (req.body.discount[0]/100 * (req.body.qrec[0] * req.body.priceunit[0]))),
+            company: req.body.company,
+            user: req.body.user,
+            partner: req.body.partner,
+          };
+          if(entries.length >= 2){
+            inputJournal(insJournal).then(inputJour => {
+              Saledetail.findByPk(req.body.pdetail[0]).then(pdet1 => {
+                Saledetail.update({qty_inv:(pdet1.qty_inv+req.body.qrec[0])},{where:{id:req.body.pdetail[0]}}).then(pdet2 => {
+                  res.send({message: "done"});
+                })
+              })
+            }).catch(err =>{console.error("inv0101",err.message);res.status(500).send({message:err.message}); });
+          }else{
+            //insertAcc(x, alldata, res, type, data, cost);
+          }
+        }).catch(err =>{console.error("inv0102",err.message); });
+      }).catch(err =>{console.error("inv0103",err.message); });
+    }).catch(err =>{console.error("inv0104",err.message); });
   }
 };
 
 function playSequencingInv(x, req, res){
-  xx = "4-1001"; yy = "1-2001"; zz = "2-4001";
-  getCoa3(xx, yy, zz).then(datacoa => {
-    let oo = datacoa[0];
-    let pp = datacoa[1];
-    let qq = datacoa[2];
-    if(req.body.productinv[x]){
-      if(x == 0){
-        getUpdateInvId().then(dataid => {
-          invids = dataid;
-          const ent1 = ({journal_id: invids, label: req.body.productname[x], product: req.body.sdetail[x], tax: req.body.tax[x], discount: req.body.discount[x],
-            credit_acc: oo, credit: (req.body.qrec[x] * req.body.priceunit[x]) - (req.body.discount[x]/100 * (req.body.qrec[x] * req.body.priceunit[x])), 
-            date: req.body.date, qty: req.body.qrec[x], price_unit: req.body.priceunit[x], subtotal: req.body.subtotal[x]})
-          Entry.create(ent1).then(dataa => {
-            Saledetail.findOneAndUpdate({_id: req.body.sdetail[x]}, {qty_inv: req.body.qinv[x] + req.body.qrec[x]}, {useFindAndModify: false})
-              .then(dataf => {
-                taxes = taxes + (req.body.tax[x]/100 * ((req.body.qrec[x] * req.body.priceunit[x]) - (req.body.discount[x]/100 * (req.body.qrec[x] * req.body.priceunit[x]))));
-                entries.push(dataa._id);
-                sequencingInv(x, req, res);
-            }).catch(err =>{console.error("inv0201",err.message);res.status(500).send({message:err.message}); });
-          }).catch(err =>{console.error("inv0202",err.message);res.status(500).send({message:err.message}); });
-        }).catch(err =>{console.error("inv0203",err.message);res.status(500).send({message:err.message}); });
-      }else{
-        const ent1 = ({journal_id: invids, label: req.body.productname[x], product: req.body.sdetail[x], tax: req.body.tax[x], discount: req.body.discount[x],
-          credit_acc: oo, credit: (req.body.qrec[x] * req.body.priceunit[x]) - (req.body.discount[x]/100 * (req.body.qrec[x] * req.body.priceunit[x])), 
-          date: req.body.date, qty: req.body.qrec[x], price_unit: req.body.priceunit[x], subtotal: req.body.subtotal[x]})
-        Entry.create(ent1).then(dataa => {
-          Saledetail.findOneAndUpdate({_id: req.body.sdetail[x]}, {qty_inv: req.body.qinv[x] + req.body.qrec[x]}, {useFindAndModify: false})
-            .then(dataf => {
-              taxes = taxes + (req.body.tax[x]/100 * ((req.body.qrec[x] * req.body.priceunit[x]) - (req.body.discount[x]/100 * (req.body.qrec[x] * req.body.priceunit[x]))));
-              entries.push(dataa._id);
-              sequencingInv(x, req, res);
-          }).catch(err =>{console.error("inv0204",err.message);res.status(500).send({message:err.message}); });
-        }).catch(err =>{console.error("inv0205",err.message);res.status(500).send({message:err.message}); });
-      }
+  if(req.body.productbill[x]){
+    if(x == 0){
+      getCoa2("1-2001", "2-4001").then(datacoa => {
+        let oo = datacoa[0];
+        let pp = datacoa[1];
+        Product.findByPk(req.body.productbill[x]).then(p1 => {
+          ProductCatAcc.findOne({where:{category_id: p1.productcat_id, company_id: req.body.company}, include: [
+            {model: Coa, as: "inventorys"},
+            {model: Coa, as: "outgoings"},
+            {model: Coa, as: "revenues"},
+          ], raw: true, nest: true}).then(p2 => {
+            if(req.body.tax[x] > 0){
+              entries.push({
+                label: "Tax " + req.body.tax[x] + "%",
+                credits: pp.dataValues, 
+                credit: (req.body.tax[x]/100 * (req.body.qrec[x] * req.body.priceunit[x]) - (req.body.discount[x]/100 * (req.body.qrec[x] * req.body.priceunit[x]))), 
+                date: req.body.date
+              });
+            }
+            entries.push({
+              label: p1.name,
+              product_id: req.body.productbill[x],
+              date: req.body.date,
+              credit: (req.body.qrec[x] * req.body.priceunit[x]) - (req.body.discount[x]/100 * (req.body.qrec[x] * req.body.priceunit[x])),
+              credits: p2.revenues,
+              qty: req.body.qrec[x],
+              price_unit: req.body.priceunit[x],
+              tax: req.body.tax[x],
+              discount: req.body.discount[x],
+              subtotal: req.body.subtotal[x]
+            });
+            entries.push({
+              label: "Receivable",
+              debits: oo.dataValues, 
+              debit: (req.body.tax[x]/100 * (req.body.qrec[x] * req.body.priceunit[x]) - (req.body.discount[x]/100 * (req.body.qrec[x] * req.body.priceunit[x]))) +
+                ((req.body.qrec[x] * req.body.priceunit[x]) - (req.body.discount[x]/100 * (req.body.qrec[x] * req.body.priceunit[x]))), 
+              date: req.body.date
+            })
+            sequencing(x, req, res);
+          }).catch(err =>{console.error("inv0105",err.message); });
+        }).catch(err =>{console.error("inv0106",err.message); });
+      }).catch(err =>{console.error("inv0107",err.message); });
     }else{
-      if(taxes>0){
-        const ent2 = ({journal_id: invids, label: "Tax",
-          credit_acc: qq, credit: taxes, date: req.body.date})
-        Entry.create(ent2).then(datab => {
-          entries.push(datab._id);
-          const ent3 = ({journal_id: invids, label: "Receivable", debit_acc: pp, debit: req.body.amount ,date: req.body.date}) 
-          Entry.create(ent3).then(datac => {
-            entries.push(datac._id);
-            const journal = ({journal_id: invids, origin: req.body.origin, type: "invoice", state: 0, partner: req.body.partner, lock: false,
-              amount: req.body.amount, entries:entries, date: req.body.date, duedate: req.body.duedate})
-            Journal.create(journal).then(datac => {
-              xx=null;yy=null;zz=null;oo=null;pp=null;qq=null;
-              const log = ({message: "dibuat", journal: datac._id, user: req.user,});
-              Log.create(log).then(datad => {
-                res.send(datad);
-              }).catch(err =>{console.error("inv0206",err.message);res.status(500).send({message:err.message}); });
-            }).catch(err =>{console.error("inv0207",err.message);res.status(500).send({message:err.message}); });
-          }).catch(err =>{console.error("inv0208",err.message);res.status(500).send({message:err.message}); });
-        }).catch(err =>{console.error("inv0209",err.message);res.status(500).send({message:err.message}); });
-      }else{
-        const ent3 = ({journal_id: invids, label: "Receivable", debit_acc: pp, debit: req.body.amount, date: req.body.date}) 
-        Entry.create(ent3).then(datac => {
-          entries.push(datac._id);
-          const journal = ({journal_id: invids, origin: req.body.origin, type: "invoice", state: 0, partner: req.body.partner, lock: false,
-            amount: req.body.amount, entries:entries, date: req.body.date, duedate: req.body.duedate})
-          Journal.create(journal).then(datac => {
-            xx=null;yy=null;zz=null;oo=null;pp=null;qq=null;
-            const log = ({message: "dibuat", journal: datac._id, user: req.user,});
-            Log.create(log).then(datad => {
-              res.send(datad);
-            }).catch(err =>{console.error("inv0210",err.message);res.status(500).send({message:err.message}); });
-          }).catch(err =>{console.error("inv0211",err.message);res.status(500).send({message:err.message}); });
-        }).catch(err =>{console.error("inv0212",err.message);res.status(500).send({message:err.message}); });
-      }
+      Product.findByPk(req.body.productbill[x]).then(p1 => {
+          ProductCatAcc.findOne({where:{category_id: p1.productcat_id, company_id: req.body.company}, include: [
+            {model: Coa, as: "inventorys"},
+            {model: Coa, as: "outgoings"},
+            {model: Coa, as: "revenues"},
+          ], raw: true, nest: true}).then(p2 => {
+            entries.push({
+              label: p1.name,
+              product_id: req.body.productbill[x],
+              date: req.body.date,
+              credit: (req.body.qrec[x] * req.body.priceunit[x]) - (req.body.discount[x]/100 * (req.body.qrec[x] * req.body.priceunit[x])),
+              credits: p2.revenues,
+              qty: req.body.qrec[x],
+              price_unit: req.body.priceunit[x],
+              tax: req.body.tax[x],
+              discount: req.body.discount[x],
+              subtotal: req.body.subtotal[x]
+            });
+            sequencing(x, req, res);
+        }).catch(err =>{console.error("inv0108",err.message); });
+      }).catch(err =>{console.error("inv0109",err.message); });
     }
-  }).catch(err =>{console.error("inv0213",err.message);res.status(500).send({message:err.message}); });
+  }else{
+    const insJournal = {
+      date: req.body.date,
+      type: "invoice",
+      origin: req.body.origin,
+      entry: entries,
+      amount: (req.body.tax[0]/100 * (req.body.qrec[0] * req.body.priceunit[0]) - (req.body.discount[0]/100 * (req.body.qrec[0] * req.body.priceunit[0]))) +
+        ((req.body.qrec[0] * req.body.priceunit[0]) - (req.body.discount[0]/100 * (req.body.qrec[0] * req.body.priceunit[0]))),
+      company: req.body.company,
+      user: req.body.user,
+      partner: req.body.partner,
+    };
+    if(entries.length >= 2){
+      inputJournal(insJournal).then(inputJour => {
+        Saledetail.findByPk(req.body.pdetail[0]).then(pdet1 => {
+          Saledetail.update({qty_inv:(pdet1.qty_inv+req.body.qrec[0])},{where:{id:req.body.pdetail[0]}}).then(pdet2 => {
+            res.send({message: "done"});
+          })
+        })
+      }).catch(err =>{console.error("inv0110",err.message);res.status(500).send({message:err.message}); });
+    }else{
+      //insertAcc(x, alldata, res, type, data, cost);
+    }
+  }
 }
 
 function sequencingInv(x, req, res){

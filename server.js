@@ -38,6 +38,7 @@ const Tax = db.taxs;
 
 const Productcat = db.productcats;
 const Productcatacc = db.productcataccs;
+const Productcostcomp = db.productcostcomps;
 const Partner = db.partners;
 const Product = db.products;
 
@@ -145,8 +146,11 @@ function initial() {
   Productcatacc.create({id: 1, company_id: 1, category_id: 1, revenue_id: 15, 
     cost_id: 16, incoming_id: 11, outgoing_id: 7, inventory_id: 6, auto: true})
 
-  Product.create({sku: "TEMP", name: "Template", description: "Template Product", listprice: 1, uom_id: 1, puom_id: 1, qoh: 0,
-      cost: 0, isStock: true, fg: false, rm: false, image: "default.png", productcat_id: 1, tax_id: 1, taxout_id: 1, active: true});
+  Product.create({sku: "TEMP", name: "Template", description: "Template Product", listprice: 1, uom_id: 1, puom_id: 1,
+      isStock: true, fg: false, rm: false, image: "default.png", productcat_id: 1, tax_id: 1, taxout_id: 1, active: true})
+      .then(prod => {
+        Productcostcomp.create({id: 1, qoh: 0, cost: 0, product_id: 1, company_id: 1});
+      });
     Log.create({message: "dibuat oleh sistem", product: 1});
 }
 
@@ -193,6 +197,7 @@ require("./app/routes/masterdata/productcat.routes")(app);
 require("./app/routes/masterdata/uom.routes")(app);
 require("./app/routes/masterdata/uomcat.routes")(app);
 require("./app/routes/masterdata/warehouse.routes")(app);
+require("./app/routes/masterdata/lot.routes")(app);
 
 //Transaction - Purchase
 require("./app/routes/transaction/purchase/purchase.routes")(app);
@@ -200,7 +205,6 @@ require("./app/routes/transaction/purchase/purchasedetail.routes")(app);
 
 //Transaction - Stock
 require("./app/routes/transaction/stock/qof.routes")(app);
-require("./app/routes/transaction/stock/qop.routes")(app);
 require("./app/routes/transaction/stock/stockmove.routes")(app);
 require("./app/routes/transaction/stock/stockrequest.routes")(app);
 

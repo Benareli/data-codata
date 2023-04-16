@@ -142,7 +142,7 @@ function getUpdateInvId() {
     Id.findAll().then(ids => {
       const prefixLength = Math.max(0, 6 - ids[0].invoice_id.toString().length);
       const prefix = '0'.repeat(prefixLength);
-      const billid = `${ids[0].pre_invoice_id}-${new Date().getFullYear().toString().substr(-2)}0${(new Date().getMonth() + 1).toString().slice(-2)}${prefix}${ids[0].invoice_id}`;
+      const invid = `${ids[0].pre_invoice_id}-${new Date().getFullYear().toString().substr(-2)}0${(new Date().getMonth() + 1).toString().slice(-2)}${prefix}${ids[0].invoice_id}`;
       Id.update({invoice_id: ids[0].invoice_id+1}, {where:{id: ids[0].id}})
       .then(res => {
         resolve (invid);

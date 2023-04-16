@@ -2,6 +2,7 @@ const db = require("../models");
 const { productCache } = require('../global/cache.global');
 const Product = db.products;
 const Productcat = db.productcats;
+const ProductCostComp = db.productcostcomps;
 const Brand = db.brands;
 const Uom = db.uoms;
 const Tax = db.taxs;
@@ -16,6 +17,7 @@ function updateProductCache() {
       {model: Uom, as: "puoms"},
       {model: Tax, as: "taxs"},
       {model: Tax, as: "taxouts"},
+      {model: ProductCostComp, as: "productcostcomps", where: { company_id: 1 }},
     ], raw: true, nest: true})
     .then(data => {
         productCache.set('productsAll', data);

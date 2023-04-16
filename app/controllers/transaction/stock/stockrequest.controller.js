@@ -1,9 +1,9 @@
 const db = require("../../../models");
-const {id,coa,cache,journal,qop} = require("../../../function");
+const {id,coa,cache,journal,stock} = require("../../../function");
 const { compare } = require('../../../function/key.function');
 const Stockrequest = db.stockrequests;
 const Stockmove = db.stockmoves;
-const Qop = db.qops;
+const Lot = db.lots;
 const Journal = db.journals;
 const Entry = db.entrys;
 const Product = db.products;
@@ -32,9 +32,9 @@ async function inputJournal(data) {
   return jour1;
 }
 
-async function insertUpdateQop(type, productid, partnerid, whid, data) {
-  const qop1 = await qop.insertUpdateQop(type, productid, partnerid, whid, data);
-  return qop1;
+async function insertUpdateStock(type, productid, partnerid, whid, data) {
+  const stock1 = await stock.insertUpdateStock(type, productid, partnerid, whid, data);
+  return stock1;
 }
 
 exports.create = (req, res) => {
@@ -338,11 +338,11 @@ function startValidate(x, data, res){
 
 function processValidate(x, data, res, stockmoves) {
   Stockmove.create(stockmoves).then(dataa => {
-    //insertUpdateQop(data[x].type, data[x].product_id, data[x].partner_id, data[x].warehouse_id, data[x]).then(qop => {
+    insertUpdateStock(data[x].type, data[x].product_id, data[x].partner_id, data[x].warehouse_id, data[x]).then(qop => {
       Stockrequest.destroy({where:{id:data[x].id}}).then(datab => {
         insertAcc(x, data, res, data[x].type, data[x], scost)          
       }).catch(err => {console.error("str1202",err.message);res.status(500).send({message:err.message}); })
-    //}).catch(err => {console.error("str1203",err.message);res.status(500).send({message:err.message}); })
+    }).catch(err => {console.error("str1203",err.message);res.status(500).send({message:err.message}); })
   }).catch(err => {console.error("str1204",err.message);res.status(500).send({message:err.message}); })
 }
 
@@ -413,6 +413,6 @@ function checkUom(data) {
         let cost = data.cost;
         resolve ([qty, uom_id, cost]);
       }
-    }).catch(err =>{console.error("qopf0116",err.message);reject(err); });
+    }).catch(err =>{console.error("stockf0116",err.message);reject(err); });
   })
 }

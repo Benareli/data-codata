@@ -4,7 +4,7 @@ module.exports = app => {
   var routerSM = require("express").Router();
 
   // Create a new
-  routerSM.post("/", stockmoves.create);
+  routerSM.post("/quick", stockmoves.quickAdd);
 
   // Retrieve all
   routerSM.get("/", stockmoves.findAll);

@@ -10,34 +10,40 @@ module.exports = app => {
   routerProduct.post("/many", products.createMany);
 
   // Retrieve all
-  routerProduct.get("/", products.findAll);
+  routerProduct.get("/all/:comp", products.findAll);
 
   // Retrieve all active
-  routerProduct.get("/active", products.findAllActive);
+  routerProduct.get("/active/:comp", products.findAllActive);
 
   // Retrieve all stock
-  routerProduct.get("/stock", products.findAllStock);
+  routerProduct.get("/stock/:comp", products.findAllStock);
 
   // Retrieve all active stock
-  routerProduct.get("/activestock", products.findAllActiveStock);
+  routerProduct.get("/activestock/:comp", products.findAllActiveStock);
 
   // Retrieve all ready stock
-  routerProduct.get("/ready", products.findAllReady);
+  routerProduct.get("/ready/:comp", products.findAllReady);
 
   // Retrieve all inactive fg
-  routerProduct.get("/fgready", products.findAllFGStock);
+  routerProduct.get("/fgready/:comp", products.findAllFGStock);
 
   // Retrieve all inactive fg
-  routerProduct.get("/rmready", products.findAllRMStock);
+  routerProduct.get("/rmready/:comp", products.findAllRMStock);
 
   // Retrieve all inactive fg
-  routerProduct.get("/rmtrue", products.findAllRMTrue);
+  routerProduct.get("/rmtrue/:comp", products.findAllRMTrue);
 
   // Retrieve all rm
-  routerProduct.get("/rm", products.findAllRM);
+  routerProduct.get("/rm/:comp", products.findAllRM);
 
   // Retrieve all PO ready
-  routerProduct.get("/poready", products.findAllPOReady);
+  routerProduct.get("/poready/:comp", products.findAllPOReady);
+
+  // Retrieve all PO ready
+  routerProduct.get("/soready/:comp", products.findAllSOReady);
+
+  // Get Cost Company
+  routerProduct.get("/costcomp/:prod/:comp", products.getCostComp);
 
   // Retrieve a single
   routerProduct.get("/:id", products.findOne);

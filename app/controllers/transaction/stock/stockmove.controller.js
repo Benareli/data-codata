@@ -1,11 +1,12 @@
 const db = require("../../../models");
-const {id,coa,cache,journal,qop} = require("../../../function");
+const {id,coa,cache,journal,stock} = require("../../../function");
 const { compare } = require('../../../function/key.function');
 const Stockmove = db.stockmoves;
 const Journal = db.journals;
 const Entry = db.entrys;
 const Product = db.products;
 const ProductCatAcc = db.productcataccs;
+const ProductCostComp = db.productcostcomps;
 const Partner = db.partners;
 const Uom = db.uoms;
 const Warehouse = db.warehouses;
@@ -42,12 +43,12 @@ async function inputJournal(data) {
   return jour1;
 }
 
-async function insertUpdateQop(type, productid, partnerid, whid, data) {
-  const qop1 = await qop.insertUpdateQop(type, productid, partnerid, whid, data);
-  return qop1;
+async function insertUpdateStock(type, productid, partnerid, whid, data) {
+  const stock1 = await stock.insertUpdateStock(type, productid, partnerid, whid, data);
+  return stock1;
 }
 
-exports.create = (req, res) => {
+exports.quickAdd = (req, res) => {
   if(!req.headers.apikey || compare(req, res)==0) {
     res.status(401).send({ message: "Unauthorized!" });
     return;
@@ -107,7 +108,7 @@ function createSM(req, res, qty) {
     if(req.body.req){
       res.send(data);
     }else{
-      insertUpdateQop("in", req.body.product_id, req.body.partner_id, req.body.warehouse_id, req.body).then(qop => {
+      insertUpdateStock("in", req.body.product_id, req.body.partner_id, req.body.warehouse_id, req.body).then(qop => {
         updateProductCache().then(upc => {
           insertAcc(req.body, res, cost);
         }).catch(err => {console.error("sm0101",err.message);res.status(500).send({message:err.message}); });

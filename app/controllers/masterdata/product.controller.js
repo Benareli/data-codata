@@ -3,6 +3,7 @@ const { compare } = require('../../function/key.function');
 const { productCache } = require('../../global/cache.global');
 const Product = db.products;
 const Productcat = db.productcats;
+const ProductCostComp = db.productcostcomps;
 const Brand = db.brands;
 const Partner = db.partners;
 const Uom = db.uoms;
@@ -27,21 +28,29 @@ exports.create = (req, res) => {
       const product = ({
         sku: req.body.sku, name: req.body.name, description: req.body.description, barcode: req.body.barcode,
         fg: req.body.fg ? req.body.fg : false, rm: req.body.rm ? req.body.rm : false, listprice: req.body.listprice,
-        botprice: req.body.botprice, uom_id: req.body.uom_id, puom_id: req.body.puom_id, cost: req.body.cost ? req.body.cost: 0,
-        qoh: req.body.qoh, image: req.body.image, isStock: req.body.isStock ? req.body.isStock : false,
+        botprice: req.body.botprice, uom_id: req.body.uom_id, puom_id: req.body.puom_id, 
+        image: req.body.image, isStock: req.body.isStock ? req.body.isStock : false,
         productcat_id: req.body.productcat_id, tax_id: req.body.tax_id, taxout_id: req.body.taxout_id, brand_id: req.body.brand_id,
-        min: req.body.min, max: req.body.max, supplier: req.body.supplier, active: req.body.active ? req.body.active : false
+        supplier: req.body.supplier, active: req.body.active ? req.body.active : false
       });
       Product.create(product).then(dataa => {
         const log = ({message: "dibuat", product: dataa.id, user: req.body.user,});
         Log.create(log).then(datab => {
-          updateCache();
-          res.send(datab);
-        }).catch(err =>{console.error("prod0107",err.message);res.status(500).send({message:err.message}); });
-      }).catch(err =>{console.error("prod0108",err.message);res.status(500).send({message:err.message}); });
-      
+          ProductCostComp.create({
+            product_id: dataa.id,
+            company_id: req.body.company,
+            qoh: 0,
+            cost: req.body.cost ? req.body.cost: 0,
+            min: req.body.min,
+            max: req.body.max,
+          }).then(datab => {
+            updateCache();
+            res.send(datab);
+          }).catch(err =>{console.error("prod0107",err.message);res.status(500).send({message:err.message}); });
+        }).catch(err =>{console.error("prod0108",err.message);res.status(500).send({message:err.message}); });
+      }).catch(err =>{console.error("prod0109",err.message);res.status(500).send({message:err.message}); });
     }
-  }).catch(err =>{console.error("prod01009",err.message);res.status(500).send({message:err.message}); });
+  }).catch(err =>{console.error("prod01010",err.message);res.status(500).send({message:err.message}); });
 };
 
 exports.createMany = (req, res) => {
@@ -82,46 +91,30 @@ function startSequence(x, reqs, users, res){
                   if(datae) Psuom = datae[0].id;
                   Uom.findAll({where:{uom_name: reqs[x].satuan_beli}}).then(dataf => {
                     if(dataf) Ppuom = dataf[0].id;
-                
-                if(reqs[x].tipe=='barang'||reqs[x].tipe=='Barang'||reqs[x].tipe=="BARANG"){
-                  const product = ({
-                    sku:reqs[x].sku,name:reqs[x].nama,description:reqs[x].deskripsi,
-                    barcode:reqs[x].barcode,fg:false,rm:false,listprice:reqs[x].hargajual,qoh:0,
-                    botprice:reqs[x].hargabatas,cost:reqs[x].hpp?cost:0,image:"default.png",
-                    isStock:true,productcat_id:Pcateg,tax_id:Ptaxin,taxout_id:Ptaxout,
-                    brand_id:Pbrand,active:true,min:reqs[x].min,max:reqs[x].max,
-                    supplier:reqs[x].supplier,uom_id:Psuom,puom_id:Ppuom
-                  })
-                  Product.create(product).then(datae => {
-                  const log = ({message: "upload", product: datae.id, user: users,});
-                    Log.create(log).then(dataf => {
-                      sequencing(x, reqs, users, res);
-                    }).catch(err =>{console.error("prod0201",err.message);res.status(500).send({message:err.message}); });
-                  }).catch(err =>{console.error("prod0202",err.message);res.status(500).send({message:err.message}); });
-                }else{
-                  const product = ({
-                    sku:reqs[x].sku,name:reqs[x].nama,description:reqs[x].deskripsi,
-                    barcode:reqs[x].barcode,fg:false,rm:false,listprice:reqs[x].hargajual,qoh:0,
-                    botprice:reqs[x].hargabatas,cost:reqs[x].hpp?cost:0,image:"default.png",
-                    isStock:false,productcat_id:Pcateg,tax_id:Ptaxin,taxout_id:Ptaxout,
-                    brand_id:Pbrand,active:true,min:reqs[x].min,max:reqs[x].max,
-                    supplier:reqs[x].supplier,uom_id:Psuom,puom_id:Ppuom
-                  })
-                  Product.create(product).then(datae => {
-                  const log = ({message: "upload", product: datae.id, user: users,});
-                    Log.create(log).then(dataf => {
-                      sequencing(x, reqs, users, res);
+                    const product = ({
+                      sku: reqs[x].sku, name: reqs[x].nama, description: reqs[x].deskripsi,
+                      barcode: reqs[x].barcode, fg: false, rm: false, listprice: reqs[x].hargajual,
+                      botprice:reqs[x]. hargabatas, image: "default.png",
+                      ...((reqs[x].tipe=='barang'||reqs[x].tipe=='Barang'||reqs[x].tipe=="BARANG") ? {isStock: true} : {isStock: false}),
+                      productcat_id: Pcateg, tax_id: Ptaxin, taxout_id: Ptaxout, brand_id: Pbrand,
+                      active: true, supplier: reqs[x].supplier, uom_id: Psuom,puom_id:Ppuom
+                    })
+                    Product.create(product).then(datae => {
+                    const log = ({message: "upload", product: datae.id, user: users,});
+                      Log.create(log).then(dataf => {
+                        ProductCostComp.create({
+                          product_id: datae.id, company_id: req.body.company, qoh: 0, 
+                          cost: reqs[x].hpp ? cost:0, min: reqs[x].min, max: reqs[x].max}).then(datag => {
+                          sequencing(x, reqs, users, res);
+                        }).catch(err =>{console.error("prod0201",err.message);res.status(500).send({message:err.message}); });
+                      }).catch(err =>{console.error("prod0202",err.message);res.status(500).send({message:err.message}); });
                     }).catch(err =>{console.error("prod0203",err.message);res.status(500).send({message:err.message}); });
                   }).catch(err =>{console.error("prod0204",err.message);res.status(500).send({message:err.message}); });
-                }
-
-                  }).catch(err =>{console.error("prod0205",err.message);res.status(500).send({message:err.message}); });
-                }).catch(err =>{console.error("prod0206",err.message);res.status(500).send({message:err.message}); });
-              }).catch(err =>{console.error("prod0207",err.message);res.status(500).send({message:err.message}); });
-            }).catch(err =>{console.error("prod0208",err.message);res.status(500).send({message:err.message}); });
-          }).catch(err =>{console.error("prod0209",err.message);res.status(500).send({message:err.message}); });
-        }).catch(err =>{console.error("prod0210",err.message);res.status(500).send({message:err.message}); });
-        
+                }).catch(err =>{console.error("prod0205",err.message);res.status(500).send({message:err.message}); });
+              }).catch(err =>{console.error("prod0206",err.message);res.status(500).send({message:err.message}); });
+            }).catch(err =>{console.error("prod0207",err.message);res.status(500).send({message:err.message}); });
+          }).catch(err =>{console.error("prod0208",err.message);res.status(500).send({message:err.message}); });
+        }).catch(err =>{console.error("prod0209",err.message);res.status(500).send({message:err.message}); });
       }
     });
   }else{
@@ -143,7 +136,6 @@ function sequencing(x, reqs, users, res){
 }
 
 function updateCache() {
-  console.log(productCache.get('productsAll'));
   Product.findAll({ include: [
       {model: Productcat, as: "productcats"},
       {model: Brand, as: "brands"},
@@ -151,6 +143,7 @@ function updateCache() {
       {model: Uom, as: "puoms"},
       {model: Tax, as: "taxs"},
       {model: Tax, as: "taxouts"},
+      {model: ProductCostComp, as: "productcostcomps", where: { company_id: req.params.comp }},
     ], raw: true, nest: true})
     .then(data => {
       productCache.set('productsAll', data);
@@ -175,75 +168,13 @@ exports.findAll = (req, res) => {
       {model: Uom, as: "puoms"},
       {model: Tax, as: "taxs"},
       {model: Tax, as: "taxouts"},
+      {model: ProductCostComp, as: "productcostcomps", where: { company_id: req.params.comp }},
     ], raw: true, nest: true})
     .then(product => {
       productCache.set('productsAll', product);
       res.send(product);
     }).catch(err =>{console.error("prod0301",err.message);res.status(500).send({message:err.message}); });
   }
-
-
-  /*if(productCache.has('productsAll')){
-    res.send(productCache.get('productsAll'));
-  }else{
-    Product.aggregate([
-      { $lookup: {
-        from: "productcats",
-        localField: "category",
-        foreignField: "_id",
-        as: "map_category"
-      }},
-      { $unwind: "$map_category" },
-      { $lookup: {
-        from: "brands",
-        localField: "brand",
-        foreignField: "_id",
-        as: "map_brand"
-      }},
-      { $unwind: {path: "$map_brand", preserveNullAndEmptyArrays: true }},
-      { $lookup: {
-        from: "uoms",
-        localField: "suom",
-        foreignField: "_id",
-        as: "map_suom"
-      }},
-      { $unwind: "$map_suom" },
-      {
-        $project: {
-          _id: 1,
-          "sku": "$sku",
-          "name": "$name",
-          "description": { $ifNull: [ "$description", null ] },
-          "barcode": { $ifNull: [ "$barcode", null ] },
-          "fg": "$fg",
-          "rm": "$rm",
-          "listprice": "$listprice",
-          "botprice": { $ifNull: [ "$botprice", null ] },
-          "cost": { $ifNull: [ "$cost", 0 ] },
-          "min": { $ifNull: [ "$min", null ] },
-          "max": { $ifNull: [ "$max", null ] },
-          "isStock": "$isStock",
-          "qoh": "$qoh",
-          "image": "$image",
-          "category": "$category",
-          "suom": "$suom",
-          "puom": "$puom",
-          "taxin": { $ifNull: [ "$taxin", null ] },
-          "taxout": { $ifNull: [ "$taxout", null ] },
-          "brand": { $ifNull: [ "$brand", null ] },
-          "supplier": { $ifNull: [ "$supplier", null ] },
-          "active": "$active",
-          "categoryName": "$map_category.description",
-          "brandName": { $ifNull: [ "$map_brand.description", "" ] },
-          "suomName": "$map_suom.uom_name",
-        }
-      },
-    ])
-    .then(data => {
-        productCache.set('productsAll', data);
-        res.send(productCache.get('productsAll'));
-      }).catch(err =>{console.error("prod0301",err.message);res.status(500).send({message:err.message}); });
-  }*/
 };
 
 exports.findOne = (req, res) => {
@@ -260,13 +191,6 @@ exports.findOne = (req, res) => {
       {model: Tax, as: "taxs"},
       {model: Tax, as: "taxouts"},
     ] })
-    /*.populate({ path: 'category', model: ProductCat })
-    .populate({ path: 'brand', model: Brand })
-    .populate({ path: 'taxin', model: Tax })
-    .populate({ path: 'taxout', model: Tax })
-    .populate({ path: 'supplier', model: Partner })
-    .populate({ path: 'suom', model: Uom })
-    .populate({ path: 'puom', model: Uom })*/
     .then(data => {
       if (!data)
         res.status(404).send({ message: "Not found Data with id " + id });
@@ -307,11 +231,18 @@ exports.update = (req, res) => {
           } else {
             const log4 = ({message: req.body.message, product: req.params.id, user: req.body.user,});
             Log.create(log4).then(datab => {
-              updateCache();
-              res.send({ message: "Updated successfully." });
-            }).catch(err =>{console.error("prod0607",err.message);res.status(500).send({message:err.message}); });
+              ProductCostComp.findOne({where:{product_id: req.params.id, company_id: req.body.company}}).then(datac => {
+                if (!datac) {
+                  return ProductCostComp.create({product_id: req.params.id, company_id: req.body.company, cost: req.body.cost});
+                }
+                return ProductCostComp.update({ cost: req.body.cost }, { where: { id: datac.id } });
+              }).then(() => {
+                updateCache();
+                res.send({ message: 'Updated successfully.' });
+              }).catch(err =>{console.error("prod0609",err.message);res.status(500).send({message:err.message}); });
+            }).catch(err =>{console.error("prod0610",err.message);res.status(500).send({message:err.message}); });
           }
-        }).catch(err =>{console.error("prod0608",err.message);res.status(500).send({message:err.message}); });
+        }).catch(err =>{console.error("prod0611",err.message);res.status(500).send({message:err.message}); });
       
     }
   }).catch(err =>{console.error("prod0609",err.message);res.status(500).send({message:err.message}); });
@@ -330,6 +261,7 @@ exports.findAllActive = (req, res) => {
       {model: Uom, as: "puoms"},
       {model: Tax, as: "taxs"},
       {model: Tax, as: "taxouts"},
+      {model: ProductCostComp, as: "productcostcomps", where: { company_id: req.params.comp }},
     ] })
     .then(data => {
       res.send(data);
@@ -349,6 +281,7 @@ exports.findAllStock = (req, res) => {
       {model: Uom, as: "puoms"},
       {model: Tax, as: "taxs"},
       {model: Tax, as: "taxouts"},
+      {model: ProductCostComp, as: "productcostcomps", where: { company_id: req.params.comp }},
     ] })
     .then(data => {
       res.send(data);
@@ -368,6 +301,7 @@ exports.findAllActiveStock = (req, res) => {
       {model: Uom, as: "puoms"},
       {model: Tax, as: "taxs"},
       {model: Tax, as: "taxouts"},
+      {model: ProductCostComp, as: "productcostcomps", where: { company_id: req.params.comp }},
     ] })
     .then(data => {
       res.send(data);
@@ -387,6 +321,7 @@ exports.findAllReady = (req, res) => {
       {model: Uom, as: "puoms"},
       {model: Tax, as: "taxs"},
       {model: Tax, as: "taxouts"},
+      {model: ProductCostComp, as: "productcostcomps", where: { company_id: req.params.comp }},
     ] })
     .then(data => {
       res.send(data);
@@ -406,6 +341,7 @@ exports.findAllFGStock = (req, res) => {
       {model: Uom, as: "puoms"},
       {model: Tax, as: "taxs"},
       {model: Tax, as: "taxouts"},
+      {model: ProductCostComp, as: "productcostcomps", where: { company_id: req.params.comp }},
     ] })
     .then(data => {
       res.send(data);
@@ -425,6 +361,7 @@ exports.findAllRMStock = (req, res) => {
       {model: Uom, as: "puoms"},
       {model: Tax, as: "taxs"},
       {model: Tax, as: "taxouts"},
+      {model: ProductCostComp, as: "productcostcomps", where: { company_id: req.params.comp }},
     ] })
     .then(data => {
       res.send(data);
@@ -444,6 +381,7 @@ exports.findAllRM = (req, res) => {
       {model: Uom, as: "puoms"},
       {model: Tax, as: "taxs"},
       {model: Tax, as: "taxouts"},
+      {model: ProductCostComp, as: "productcostcomps", where: { company_id: req.params.comp }},
     ] })
     .then(data => {
       res.send(data);
@@ -463,6 +401,7 @@ exports.findAllRMTrue = (req, res) => {
       {model: Uom, as: "puoms"},
       {model: Tax, as: "taxs"},
       {model: Tax, as: "taxouts"},
+      {model: ProductCostComp, as: "productcostcomps", where: { company_id: req.params.comp }},
     ] })
     .then(data => {
       res.send(data);
@@ -482,8 +421,40 @@ exports.findAllPOReady = (req, res) => {
       {model: Uom, as: "puoms"},
       {model: Tax, as: "taxs"},
       {model: Tax, as: "taxouts"},
+      {model: ProductCostComp, as: "productcostcomps", where: { company_id: req.params.comp }},
     ] })
     .then(data => {
       res.send(data);
     }).catch(err =>{console.error("prod1201",err.message);res.status(500).send({message:err.message}); });
+};
+
+exports.findAllSOReady = (req, res) => {
+  if(!req.headers.apikey || compare(req, res)==0) {
+    res.status(401).send({ message: "Unauthorized!" });
+    return;
+  }
+  Product.findAll({where:{ fg: true, isStock: true },
+    include: [
+      {model: Productcat, as: "productcats"},
+      {model: Brand, as: "brands"},
+      {model: Uom, as: "uoms"},
+      {model: Uom, as: "puoms"},
+      {model: Tax, as: "taxs"},
+      {model: Tax, as: "taxouts"},
+      {model: ProductCostComp, as: "productcostcomps", where: { company_id: req.params.comp }},
+    ] })
+    .then(data => {
+      res.send(data);
+    }).catch(err =>{console.error("prod1301",err.message);res.status(500).send({message:err.message}); });
+};
+
+exports.getCostComp = (req, res) => {
+  if(!req.headers.apikey || compare(req, res)==0) {
+    res.status(401).send({ message: "Unauthorized!" });
+    return;
+  }
+  ProductCostComp.findOne({where:{product_id: req.params.prod, company_id: req.params.comp}})
+    .then(data => {
+      res.send(data);
+    }).catch(err =>{console.error("prod1401",err.message);res.status(500).send({message:err.message}); });
 };

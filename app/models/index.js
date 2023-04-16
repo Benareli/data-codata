@@ -35,9 +35,11 @@ db.partners = require("./masterdata/partner.model.js")(sequelize, Sequelize);
 db.products = require("./masterdata/product.model.js")(sequelize, Sequelize);
 db.productcats = require("./masterdata/productcat.model.js")(sequelize, Sequelize);
 db.productcataccs = require("./masterdata/productcatacc.model.js")(sequelize, Sequelize);
+db.productcostcomps = require("./masterdata/productcostcomp.model.js")(sequelize, Sequelize);
 db.uoms = require("./masterdata/uom.model.js")(sequelize, Sequelize);
 db.uomcats = require("./masterdata/uomcat.model.js")(sequelize, Sequelize);
 db.warehouses = require("./masterdata/warehouse.model.js")(sequelize, Sequelize);
+db.lots = require("./masterdata/lot.model.js")(sequelize, Sequelize);
 
 //Transaction - Purchase
 db.purchases = require("./transaction/purchase/purchase.model.js")(sequelize, Sequelize);
@@ -52,7 +54,6 @@ db.saledetails = require("./transaction/sale/saledetail.model.js")(sequelize, Se
 
 //Transaction - Stock
 db.qofs = require("./transaction/stock/qof.model.js")(sequelize, Sequelize);
-db.qops = require("./transaction/stock/qop.model.js")(sequelize, Sequelize);
 db.stockmoves = require("./transaction/stock/stockmove.model.js")(sequelize, Sequelize);
 db.stockrequests = require("./transaction/stock/stockrequest.model.js")(sequelize, Sequelize);
 
@@ -183,6 +184,19 @@ db.uoms.belongsTo(db.uomcats, {
   foreignKey: "uomcat_id",
   as: "uomcats",
 });
+
+//Product Cost per Company
+db.companys.hasMany(db.productcostcomps);
+db.productcostcomps.belongsTo(db.companys, {
+  foreignKey: "company_id",
+  as: "companys",
+})
+
+db.products.hasMany(db.productcostcomps);
+db.productcostcomps.belongsTo(db.products, {
+  foreignKey: "product_id",
+  as: "products",
+})
 
 //Product Category Acc Relation
 db.companys.hasMany(db.productcataccs);
@@ -375,24 +389,9 @@ db.stockmoves.belongsTo(db.users, {
   as: "users",
 })
 
-//QOP
-db.products.hasMany(db.qops);
-db.qops.belongsTo(db.products, {
-  foreignKey: "product_id",
-  as: "products",
-})
-db.uoms.hasMany(db.qops);
-db.qops.belongsTo(db.uoms, {
-  foreignKey: "uom_id",
-  as: "uoms",
-})
-db.partners.hasMany(db.qops);
-db.qops.belongsTo(db.partners, {
-  foreignKey: "partner_id",
-  as: "partners",
-})
-db.warehouses.hasMany(db.qops);
-db.qops.belongsTo(db.warehouses, {
+//Lot
+db.warehouses.hasMany(db.lots);
+db.lots.belongsTo(db.warehouses, {
   foreignKey: "warehouse_id",
   as: "warehouses",
 })

@@ -30,8 +30,8 @@ async function getUpdateBillId() {
   return id2;
 }
 
-async function getUpdateInvoiceId() {
-  const id3 = await id.getUpdateInvoiceId();
+async function getUpdateInvId() {
+  const id3 = await id.getUpdateInvId();
   return id3;
 }
 
@@ -42,7 +42,7 @@ function inputJournal(data) {
       'miscellaneous': getUpdateJournalId,
       'stock': getUpdateJournalId,
       'bill': getUpdateBillId,
-      'invoice': getUpdateInvoiceId
+      'invoice': getUpdateInvId
     };
     if (data.type in getIdFunction) {
       getIdFunction[data.type]()
@@ -86,10 +86,9 @@ function inEntry(data, inJour) {
     ...(entryData.qty ? {qty: entryData.qty} : {}),
     ...(entryData.price_unit ? {price_unit: entryData.price_unit} : {}),
     ...(entryData.tax ? {tax: entryData.tax} : {}),
-    ...(entryData.discount ? {tax: entryData.discount} : {}),
-    ...(entryData.subtotal ? {tax: entryData.subtotal} : {}),
+    ...(entryData.discount ? {discount: entryData.discount} : {}),
+    ...(entryData.subtotal ? {subtotal: entryData.subtotal} : {}),
   };
-  //console.log(inJour.id);
   Entry.create(ent).then(ents => {
     entries.push(ents);
     checker(data, inJour);

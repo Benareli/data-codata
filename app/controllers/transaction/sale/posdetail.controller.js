@@ -9,7 +9,7 @@ const Product = db.products;
 const Bundle = db.bundles;
 const Warehouse = db.warehouses;
 const Uom = db.uoms;
-const Qop = db.qops;
+const Lot = db.lots;
 const Qof = db.qofs;
 const Coa = db.coas;
 const Journal = db.journals;
@@ -279,7 +279,7 @@ function findCost(req, res) {
       insertAcc(req, res);
     })
   }else{
-    Qop.findById(req.qop).then(datax => {
+    Lot.findById(req.qop).then(datax => {
       costA = datax.cost;
       insertAcc(req, res);
     })

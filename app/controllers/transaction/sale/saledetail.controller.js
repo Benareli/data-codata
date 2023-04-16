@@ -1,13 +1,14 @@
 const db = require("../../../models");
-const {id,coa,cache,journal,qop} = require("../../../function");
+const {id,coa,cache,journal,stock} = require("../../../function");
 const { compare } = require('../../../function/key.function');
 const Sale = db.sales;
 const Saledetail = db.saledetails;
-const Qop = db.qops;
+const Lot = db.lots;
 const Id = db.ids;
 const Uom = db.uoms;
 const Product = db.products;
 const ProductCatAcc = db.productcataccs;
+const ProductCostComp = db.productcostcomps;
 const Partner = db.partners;
 const Warehouse = db.warehouses;
 const Qof = db.qofs;
@@ -46,9 +47,9 @@ async function inputJournal(data) {
   return jour1;
 }
 
-async function insertUpdateQop(type, productid, partnerid, whid, data) {
-  const qop1 = await qop.insertUpdateQop(type, productid, partnerid, whid, data);
-  return qop1;
+async function insertUpdateStock(type, productid, partnerid, whid, data) {
+  const stock1 = await stock.insertUpdateStock(type, productid, partnerid, whid, data);
+  return stock1;
 }
 
 exports.create = (req, res) => {
@@ -205,7 +206,7 @@ function startProcess(req, res){
         user_id: req.params.id,
         product_id: req.body[x].products.id,
         warehouse_id: req.params.wh,
-        origin: req.body[x].purchases.purchase_id,
+        origin: req.body[x].sales.sale_id,
         qout: qty,
         uom_id: uom_id,
         date: req.params.date,
@@ -216,7 +217,7 @@ function startProcess(req, res){
         oricost: oricost
       });
       Stockmove.create(stockmove).then(datad => {
-        insertUpdateQop("out", req.body[x].products.id, req.params.partner, req.params.wh, req.body[x]).then(qop => {
+        insertUpdateStock("out", req.body[x].products.id, req.params.partner, req.params.wh, req.body[x]).then(qop => {
           Saledetail.findByPk(req.body[x].id).then(pd => {
             if(oriqty) qty = oriqty;
             Saledetail.update({qty_done: pd.qty_done + qty}, {where:{id:req.body[x].id}}).then(pdu => {
@@ -236,31 +237,33 @@ function startProcess(req, res){
 function insertAcc(req, res, transid) {
   entries = [];
   Product.findByPk(req.body[x].products.id).then(p1 => {
-    ProductCatAcc.findOne({where:{category_id: p1.productcat_id, company_id: req.body[0].company_id}, include: [
+    ProductCatAcc.findOne({where:{category_id: p1.productcat_id, company_id: req.body[x].company_id}, include: [
       {model: Coa, as: "revenues"},
       {model: Coa, as: "costs"},
       {model: Coa, as: "incomings"},
       {model: Coa, as: "outgoings"},
       {model: Coa, as: "inventorys"},
     ], raw: true, nest: true}).then(p2 => {
-      entries.push({label: req.body[x].products.name, debit: cost, debits: p2.outgoings, date: req.params.date});
-      entries.push({label: req.body[x].products.name, credit: cost, credits: p2.inventorys, date: req.params.date});
-      const inJournal = ({
-        date: req.body[x].date,
-        type: "stock",
-        origin: transid,
-        entry: entries,
-        amount: cost,
-        company: req.params.comp,
-        user: req.params.id
+      ProductCostComp.findOne({where:{product_id: req.body[x].products.id, company_id: req.body[x].company_id}}).then(p3 => {
+        entries.push({label: req.body[x].products.name, debit: p3.cost, debits: p2.outgoings, date: req.params.date});
+        entries.push({label: req.body[x].products.name, credit: p3.cost, credits: p2.inventorys, date: req.params.date});
+        const inJournal = ({
+          date: req.body[x].date,
+          type: "stock",
+          origin: transid,
+          entry: entries,
+          amount: p3.cost,
+          company: req.params.comp,
+          user: req.params.id
+        })
+        if(entries.length >= 2){
+          inputJournal(inJournal).then(inputJour => {
+            sequencing(req, res);
+          }).catch(err =>{console.error("saled0801",err.message);res.status(500).send({message:err.message}); });
+        }else{
+          insertAcc(req, res)
+        }
       })
-      if(entries.length >= 2){
-        inputJournal(inJournal).then(inputJour => {
-          sequencing(req, res);
-        }).catch(err =>{console.error("saled0801",err.message);res.status(500).send({message:err.message}); });
-      }else{
-        insertAcc(req, res)
-      }
     })
   })
 }
@@ -285,7 +288,6 @@ exports.delete = (req, res) => {
   }
   Saledetail.destroy({where:{id:req.params.id}})
     .then(num => {
-      console.log(num);
       if(num === 1) {
         res.send({message:'done'})
       }
