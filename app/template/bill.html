@@ -1,0 +1,82 @@
+`<div style="width:100%;display:flex;flex-direction:column;font-size:13px;padding:20pt;">
+    <h4 style="font-size: 13px">Bill ${billNum} </h4>
+    <table style="width:90%;">
+      <tr>
+        <td style="width:50%;">
+          <strong>Supplier</strong><br/>
+          ${partnerName}<br/>
+          ${partnerStreet}<br/>
+          ${partnerStreet2}<br/>
+          ${partnerCity} ${partnerState}<br/>
+          ${partnerCountry} ${partnerZip}
+        </td>
+        <td style="width:50%; text-align: right;">
+          <strong>Bill to</strong><br/>
+          ${compName}<br/>
+          ${compStreet}<br/>
+          ${compStreet2}<br/>
+          ${compCity} ${compState}<br/>
+          ${compCountry} ${compZip}
+        </td>
+      </tr>
+    </table>
+    <div style="display: flex; flex-direction: row; width: 100%">
+      <div style="flex: 25%; display: flex; flex-direction: column;">
+        <span>Date</span>
+        ${date}
+      </div>
+      <div style="flex: 25%; display: flex; flex-direction: column;">
+        <span>Due Date</span>
+        ${duedate}
+      </div>
+    </div>
+    <table style="width:90%; margin-top:20px;">
+      <tr style="background:#eee; padding:10px;">
+        <td><b>Product</b></td>
+        <td style="border-left:1px solid #ddd; text-align:center;"><b>Qty</b></td>
+        <td style="border-left:1px solid #ddd; text-align:center;"><b>Uom</b></td>
+        <td style="border-left:1px solid #ddd; text-align:center;"><b>Price Unit</b></td>
+        <td style="border-left:1px solid #ddd; text-align:center;"><b>Disc(%)</b></td>
+        <td style="border-left:1px solid #ddd; text-align:center;"><b>Tax(%)</b></td>
+        <td style="border-left:1px solid #ddd; text-align:center;"><b>Subtotal</b></td>
+      </tr>
+      <tr>
+        <td>${products}</td>
+        <td style="border-left:1px solid #222; text-align:right;">${qtys}</td>
+        <td style="border-left:1px solid #222; text-align:right;">${uoms}</td>
+        <td style="border-left:1px solid #222; text-align:right;">${priceUnits}</td>
+        <td style="border-left:1px solid #222; text-align:right;">${discs}</td>
+        <td style="border-left:1px solid #222; text-align:right;">${taxs}</td>
+        <td style="border-left:1px solid #222; text-align:right;">${subtotals}</td>
+      </tr>
+      <tr style="border-top:1px solid #000;">
+        <td rowspan="4" colspan="5">
+          Notes:<br/>
+        </td>
+        <td style="text-align:right;">Subtotal</td>
+        <td style="text-align:right;">${totalUntaxed}</td>
+      </tr>
+      <tr>
+        <td style="text-align:right;">Disc</td>
+        <td style="text-align:right;">${totalDisc}</td>
+      </tr>
+      <tr>
+        <td style="text-align:right;">Tax</td>
+        <td style="text-align:right;">${totalTax}</td>
+      </tr>
+      <tr>
+        <td style="text-align:right; border-top:1px solid #000;"><b>Total</b></td>
+        <td style="text-align:right; border-top:1px solid #000;"><b>${total}</b></td>
+      </tr>
+    </table>
+    <div style="width: 100%; margin-top: 40px; display:flex; flex-direction:row; justify-content:space-around;">
+      <div>
+        Regards,<br/><br/><br/><br/><br/>
+        ${compName}
+      </div>
+      <div>
+        Authorized by,<br/><br/><br/><br/><br/>
+        Finance
+      </div>
+    </div>
+  </div>`

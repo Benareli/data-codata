@@ -10,6 +10,9 @@ module.exports = app => {
   routerSR.get("/", stockrequests.findAll);
 
   // Retrieve all
+  routerSR.get("/comp/:comp", stockrequests.findAllByComp);
+
+  // Retrieve all
   routerSR.get("/transin/:product", stockrequests.findTransIn);
 
   // Retrieve all

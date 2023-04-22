@@ -67,6 +67,7 @@ function inJournal(data, journid) {
     ...((data.type=="bill" || data.type=="invoice") ? {partner_id: data.partner} : {}),
     lock: false,
     date: data.date,
+    ...((data.type=="bill" || data.type=="invoice") ? {duedate: data.duedate} : {}),
     company_id: data.company,
   };
   Journal.create(journal).then(inJour => {
@@ -84,6 +85,7 @@ function inEntry(data, inJour) {
     ...(entryData.credit ? {credit_id: entryData.credits.id, credit: entryData.credit} : {}),
     ...(entryData.product_id ? {product_id: entryData.product_id} : {}),
     ...(entryData.qty ? {qty: entryData.qty} : {}),
+    ...(entryData.uom_id ? {uom_id: entryData.uom_id} : {}),
     ...(entryData.price_unit ? {price_unit: entryData.price_unit} : {}),
     ...(entryData.tax ? {tax: entryData.tax} : {}),
     ...(entryData.discount ? {discount: entryData.discount} : {}),

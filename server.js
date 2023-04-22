@@ -6,6 +6,7 @@ const baseurl = require("./app/config/url.config");
 const cron = require('node-cron');
 const app = express();
 const db = require("./app/models");
+const fs = require("fs");
 
 var corsOptions = {
   origin: `${baseurl.baseurl}`
@@ -29,6 +30,7 @@ const Company = db.companys;
 const Ids = db.ids;
 const Coa = db.coas;
 const Log = db.logs;
+const Print = db.prints;
 
 const Warehouse = db.warehouses;
 const Store = db.stores;
@@ -59,6 +61,35 @@ function initial() {
     cost_general: true, comp_name: "Codata", comp_addr: "", comp_phone: "", comp_email: "",
     image: "default.png", nav_color: "#1ABC9C", title_color: "#9B59B6", pos_shift: false, retail: true,
   });
+
+  fs.readFile('./app/template/purchase.html', 'utf8', (err, dataPur) => {
+    if (err) {console.error('Error reading the file:', err);}
+    else {
+      Print.create({module: "purchase", company_id: 1, template: dataPur});
+    }
+  });
+
+  fs.readFile('./app/template/sale.html', 'utf8', (err, dataSal) => {
+    if (err) {console.error('Error reading the file:', err);}
+    else {
+      Print.create({module: "sale", company_id: 1, template: dataSal});
+    }
+  });
+
+  fs.readFile('./app/template/invoice.html', 'utf8', (err, dataInv) => {
+    if (err) {console.error('Error reading the file:', err);}
+    else {
+      Print.create({module: "invoice", company_id: 1, template: dataInv});
+    }
+  });
+
+  fs.readFile('./app/template/bill.html', 'utf8', (err, dataBill) => {
+    if (err) {console.error('Error reading the file:', err);}
+    else {
+      Print.create({module: "bill", company_id: 1, template: dataBill});
+    }
+  });
+
   Ids.create({
     pos_id: 1, pre_pos_id: "POS",
     pos_session: 1, pre_pos_session: "POS-SESS",
@@ -178,6 +209,7 @@ require("./app/routes/settings/file.routes")(app);
 require("./app/routes/settings/id.routes")(app);
 require("./app/routes/settings/log.routes")(app);
 //require("./app/routes/settings/pref.routes")(app);
+require("./app/routes/settings/print.routes")(app);
 require("./app/routes/settings/store.routes")(app);
 
 //User Auth

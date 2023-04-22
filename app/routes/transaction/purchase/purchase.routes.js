@@ -9,6 +9,9 @@ module.exports = app => {
   // Retrieve all
   routerPur.get("/", purchases.findAll);
 
+  // Retrieve all
+  routerPur.get("/comp/:comp", purchases.findAllByComp);
+
   // Retrieve a single
   routerPur.get("/:id", purchases.findOne);
 

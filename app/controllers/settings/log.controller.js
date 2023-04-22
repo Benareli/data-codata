@@ -24,8 +24,8 @@ exports.create = (req, res) => {
   if(req.body.brand != "null"){
     const log = ({
       message: req.body.message,
-      brand: mongoose.Types.ObjectId(req.body.brand),
-      user: mongoose.Types.ObjectId(req.body.user),
+      brand: req.body.brand,
+      user: req.body.user,
     });
     Log.create(log).then(data => {res.send(data);
       }).catch(err => {console.error("log0101",err.message);res.status(500).send({message:err.message});
@@ -34,8 +34,8 @@ exports.create = (req, res) => {
   else if(req.body.category != "null"){
     const log = ({
       message: req.body.message,
-      category: mongoose.Types.ObjectId(req.body.category),
-      user: mongoose.Types.ObjectId(req.body.user),
+      category: req.body.category,
+      user: req.body.user,
     });
     Log.create(log).then(data => {res.send(data);
       }).catch(err => {console.error("log0102",err.message);res.status(500).send({message:err.message});
@@ -44,8 +44,8 @@ exports.create = (req, res) => {
   else if(req.body.product != "null"){
     const log = ({
       message: req.body.message,
-      product: mongoose.Types.ObjectId(req.body.product),
-      user: mongoose.Types.ObjectId(req.body.user),
+      product: req.body.product,
+      user: req.body.user,
     });
     Log.create(log).then(data => {res.send(data);
       }).catch(err => {console.error("log0103",err.message);res.status(500).send({message:err.message});
@@ -54,8 +54,8 @@ exports.create = (req, res) => {
   else if(req.body.uom_cat != "null"){
     const log = ({
       message: req.body.message,
-      uom_cat: mongoose.Types.ObjectId(req.body.uom_cat),
-      user: mongoose.Types.ObjectId(req.body.user),
+      uom_cat: req.body.uom_cat,
+      user: req.body.user,
     });
     Log.create(log).then(data => {res.send(data);
       }).catch(err => {console.error("log0104",err.message);res.status(500).send({message:err.message});
@@ -64,8 +64,8 @@ exports.create = (req, res) => {
   else if(req.body.uom != "null"){
     const log = ({
       message: req.body.message,
-      uom: mongoose.Types.ObjectId(req.body.uom),
-      user: mongoose.Types.ObjectId(req.body.user),
+      uom: req.body.uom,
+      user: req.body.user,
     });
     Log.create(log).then(data => {res.send(data);
       }).catch(err => {console.error("log0105",err.message);res.status(500).send({message:err.message});
@@ -74,8 +74,8 @@ exports.create = (req, res) => {
   else if(req.body.partner != "null"){
     const log = ({
       message: req.body.message,
-      partner: mongoose.Types.ObjectId(req.body.partner),
-      user: mongoose.Types.ObjectId(req.body.user),
+      partner: req.body.partner,
+      user: req.body.user,
     });
     Log.create(log).then(data => {res.send(data);
       }).catch(err => {console.error("log0106",err.message);res.status(500).send({message:err.message});
@@ -84,8 +84,8 @@ exports.create = (req, res) => {
   else if(req.body.warehouse != "null"){
     const log = ({
       message: req.body.message,
-      warehouse: mongoose.Types.ObjectId(req.body.warehouse),
-      user: mongoose.Types.ObjectId(req.body.user),
+      warehouse: req.body.warehouse,
+      user: req.body.user,
     });
     Log.create(log).then(data => {res.send(data);
       }).catch(err => {console.error("log0107",err.message);res.status(500).send({message:err.message});
@@ -94,8 +94,8 @@ exports.create = (req, res) => {
   else if(req.body.store != "null"){
     const log = Log.create({
       message: req.body.message,
-      store: mongoose.Types.ObjectId(req.body.store),
-      user: mongoose.Types.ObjectId(req.body.user),
+      store: req.body.store,
+      user: req.body.user,
     });
     Log.create(log).then(data => {res.send(data);
       }).catch(err => {console.error("log0108",err.message);res.status(500).send({message:err.message});

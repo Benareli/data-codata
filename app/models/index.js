@@ -62,6 +62,7 @@ db.companys = require("./settings/company.model.js")(sequelize, Sequelize);
 db.ids = require("./settings/id.model.js")(sequelize, Sequelize);
 db.logs = require("./settings/log.model.js")(sequelize, Sequelize);
 db.prefs = require("./settings/pref.model.js")(sequelize, Sequelize);
+db.prints = require("./settings/print.model.js")(sequelize, Sequelize);
 db.stores = require("./settings/store.model.js")(sequelize, Sequelize);
 
 //User - Auth
@@ -94,6 +95,13 @@ db.ids.belongsTo(db.companys, {
   as: "companys",
 });
 
+//Print
+db.companys.hasMany(db.prints);
+db.prints.belongsTo(db.companys, {
+  foreignKey: "company_id",
+  as: "companys",
+});
+
 //Coa
 db.companys.hasMany(db.coas);
 db.coas.belongsTo(db.companys, {
@@ -111,6 +119,11 @@ db.products.hasMany(db.entrys);
 db.entrys.belongsTo(db.products, {
   foreignKey: "product_id",
   as: "products",
+});
+db.uoms.hasMany(db.entrys);
+db.entrys.belongsTo(db.uoms, {
+  foreignKey: "uom_id",
+  as: "uoms",
 });
 db.coas.hasMany(db.entrys);
 db.entrys.belongsTo(db.coas, {

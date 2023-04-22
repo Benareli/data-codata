@@ -177,6 +177,23 @@ exports.findAll = (req, res) => {
     }).catch(err =>{console.error("sm0201",err.message);res.status(500).send({message:err.message}); });
 };
 
+exports.findAllByComp = (req, res) => {
+  if(!req.headers.apikey || compare(req, res)==0) {
+    res.status(401).send({ message: "Unauthorized!" });
+    return;
+  }
+  Stockmove.findAll({where:{company_id:req.params.comp}, include: [
+      {model: Product, as: "products"},
+      {model: Partner, as: "partners"},
+      {model: Warehouse, as: "warehouses"},
+      {model: Uom, as: "uoms"},
+      {model: Uom, as: "oriuoms"}
+    ] })
+    .then(data => {
+      res.send(data);
+    }).catch(err =>{console.error("sm0201",err.message);res.status(500).send({message:err.message}); });
+};
+
 exports.findOne = (req, res) => {
   if(!req.headers.apikey || compare(req, res)==0) {
     res.status(401).send({ message: "Unauthorized!" });
@@ -260,6 +277,7 @@ exports.findTransIn = (req, res) => {
   db.sequelize.query
     ('SELECT COUNT(public.stockmoves.id) as totalLine, SUM(public.stockmoves.qin) as totalQin FROM public.stockmoves ' +
       'WHERE public.stockmoves.product_id = ' + req.params.product +
+      'AND public.stockmoves.company_id = ' + req.params.comp +
       'AND public.stockmoves.qin > 0',{raw: true, nest: true})
     .then(result => {
       res.send(result);
@@ -275,6 +293,7 @@ exports.findTransOut = (req, res) => {
   db.sequelize.query
     ('SELECT COUNT(public.stockmoves.id) as totalLine, SUM(public.stockmoves.qout) as totalQout FROM public.stockmoves ' +
       'WHERE public.stockmoves.product_id = ' + req.params.product +
+      'AND public.stockmoves.company_id = ' + req.params.comp +
       'AND public.stockmoves.qout > 0',{raw: true, nest: true})
     .then(result => {
       res.send(result);

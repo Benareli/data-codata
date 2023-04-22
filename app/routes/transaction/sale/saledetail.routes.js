@@ -16,7 +16,7 @@ module.exports = app => {
   routerSalDet.get("/so/:so", saledetails.findBySOId);
 
   // Retrieve by PO id
-  routerSalDet.get("/poo/:product", saledetails.findByProduct);
+  routerSalDet.get("/soo/:product/:comp", saledetails.findByProduct);
 
   // Update with id
   routerSalDet.put("/:id", saledetails.update);

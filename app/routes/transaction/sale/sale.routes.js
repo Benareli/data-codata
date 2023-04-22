@@ -9,6 +9,9 @@ module.exports = app => {
   // Retrieve all
   routerSal.get("/", sales.findAll);
 
+  // Retrieve all
+  routerSal.get("/comp/:comp", sales.findAllByComp);
+
   // Retrieve a single
   routerSal.get("/:id", sales.findOne);
 

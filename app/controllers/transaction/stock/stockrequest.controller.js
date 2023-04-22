@@ -157,6 +157,22 @@ exports.findAll = (req, res) => {
     }).catch(err =>{console.error("str0401",err.message);res.status(500).send({message:err.message}); });
 };
 
+exports.findAllByComp = (req, res) => {
+  if(!req.headers.apikey || compare(req, res)==0) {
+    res.status(401).send({ message: "Unauthorized!" });
+    return;
+  }
+  Stockrequest.findAll({where:{company_id:req.params.comp}, include: [
+      {model: Product, as: "products"},
+      {model: Partner, as: "partners"},
+      {model: Warehouse, as: "warehouses"},
+      {model: Uom, as: "uoms"}
+    ] })
+    .then(data => {
+      res.send(data);
+    }).catch(err =>{console.error("str0401",err.message);res.status(500).send({message:err.message}); });
+};
+
 exports.findOne = (req, res) => {
   if(!req.headers.apikey || compare(req, res)==0) {
     res.status(401).send({ message: "Unauthorized!" });

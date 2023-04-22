@@ -44,7 +44,7 @@ exports.create = (req, res) => {
             min: req.body.min,
             max: req.body.max,
           }).then(datab => {
-            updateCache();
+            updateCache(req.body.company);
             res.send(datab);
           }).catch(err =>{console.error("prod0107",err.message);res.status(500).send({message:err.message}); });
         }).catch(err =>{console.error("prod0108",err.message);res.status(500).send({message:err.message}); });
@@ -120,11 +120,11 @@ function startSequence(x, reqs, users, res){
   }else{
     if(duplicate.length>0||skipped.length>0){res.status(500).send(duplicate, skipped);
       duplicate.splice(0,duplicate.length);skipped.splice(0,skipped.length);
-      updateCache();
+      updateCache(1);
       Pcateg='';Pbrand='';Ptaxin='';Ptaxout='';Psuom='';Ppuom='';}
     else {
       Pcateg='';Pbrand='';Ptaxin='';Ptaxout='';Psuom='';Ppuom='';
-      updateCache();
+      updateCache(1);
       res.status(200).send({message:"Semua data telah diinput!"});
     }
   }
@@ -135,7 +135,7 @@ function sequencing(x, reqs, users, res){
   startSequence(x, reqs, users, res);
 }
 
-function updateCache() {
+function updateCache(company) {
   Product.findAll({ include: [
       {model: Productcat, as: "productcats"},
       {model: Brand, as: "brands"},
@@ -143,7 +143,7 @@ function updateCache() {
       {model: Uom, as: "puoms"},
       {model: Tax, as: "taxs"},
       {model: Tax, as: "taxouts"},
-      {model: ProductCostComp, as: "productcostcomps", where: { company_id: req.params.comp }},
+      {model: ProductCostComp, as: "productcostcomps", where: { company_id: company }},
     ], raw: true, nest: true})
     .then(data => {
       productCache.set('productsAll', data);
@@ -237,7 +237,7 @@ exports.update = (req, res) => {
                 }
                 return ProductCostComp.update({ cost: req.body.cost }, { where: { id: datac.id } });
               }).then(() => {
-                updateCache();
+                updateCache(1);
                 res.send({ message: 'Updated successfully.' });
               }).catch(err =>{console.error("prod0609",err.message);res.status(500).send({message:err.message}); });
             }).catch(err =>{console.error("prod0610",err.message);res.status(500).send({message:err.message}); });

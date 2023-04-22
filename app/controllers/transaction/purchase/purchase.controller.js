@@ -61,6 +61,22 @@ exports.findAll = (req, res) => {
     }).catch(err =>{console.error("pur0201",err.message);res.status(500).send({message:err.message}); });
 };
 
+exports.findAllByComp = (req, res) => {
+  if(!req.headers.apikey || compare(req, res)==0) {
+    res.status(401).send({ message: "Unauthorized!" });
+    return;
+  }
+  Purchase.findAll({where:{company_id:req.params.comp}, include: [
+      {model: Partner, as: "partners"},
+      {model: Warehouse, as: "warehouses"},
+      {model: User, as: "users"},
+      {model: Company, as: "companys"},
+    ] })
+    .then(data => {
+      res.send(data);
+    }).catch(err =>{console.error("pur0201",err.message);res.status(500).send({message:err.message}); });
+};
+
 exports.findOne = (req, res) => {
   if(!req.headers.apikey || compare(req, res)==0) {
     res.status(401).send({ message: "Unauthorized!" });

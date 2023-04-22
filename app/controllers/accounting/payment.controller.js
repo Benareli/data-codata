@@ -31,9 +31,7 @@ async function getCoaPayout(x, req) {
   return res4;
 }
 
-// Create and Save new
 exports.create = (req, res) => {
-  // Validate request
   pays1 = 0;
   if(!req.headers.apikey || compare(req, res)==0) {
     res.status(401).send({ message: "Unauthorized!" });
@@ -64,7 +62,8 @@ exports.create = (req, res) => {
     payments = dataa;
     if(req.body.type == 1){
       Journal.findOne({where:{name:req.body.order_id}}).then(fj => {
-        Journal.update({amountdue:fj.amountdue-req.body.payment},{where:{id:fj.id}}).then(ufj => {
+        var stateNew = fj.amountdue-req.body.payment == 0 ? 2 : 1;
+        Journal.update({amountdue:fj.amountdue-req.body.payment, state: stateNew},{where:{id:fj.id}}).then(ufj => {
           insertPayOut(req.body, res);
         })
       })

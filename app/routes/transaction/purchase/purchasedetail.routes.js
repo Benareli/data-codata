@@ -16,7 +16,7 @@ module.exports = app => {
   routerPurDet.get("/po/:po", purchasedetails.findByPOId);
 
   // Retrieve by PO id
-  routerPurDet.get("/poo/:product", purchasedetails.findByProduct);
+  routerPurDet.get("/poo/:product/:comp", purchasedetails.findByProduct);
 
   // Update with id
   routerPurDet.put("/:id", purchasedetails.update);

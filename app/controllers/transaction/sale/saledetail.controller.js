@@ -316,19 +316,11 @@ exports.findByProduct = (req, res) => {
     return;
   }
   
-  Saledetail.aggregate([
-    { $match: {
-      product: ObjectId(req.params.product)
-    }},
-    {
-      $group:
-      {
-        _id: { product: "$product" },
-        totalLine: { $sum: 1 },
-        totalQty: { $sum: "$qty_done" }
-      }
-    }
-    ])
+  db.sequelize.query
+    ('SELECT COUNT(public.saledetails.id) as totalLine, SUM(public.saledetails.qty_done) as totalQty FROM public.saledetails ' +
+      'WHERE public.saledetails.product_id = ' + req.params.product +
+      'AND public.saledetails.company_id = ' + req.params.comp +
+      'AND public.saledetails.qty_done > 0',{raw: true, nest: true})
     .then(result => {
         res.send(result)
     }).catch(err =>{console.error("purd1101",err.message);res.status(500).send({message:err.message}); });

@@ -16,7 +16,9 @@ exports.create = (req, res) => {
     else{
       const setting = ({
         cost_general: req.body.cost_general ? req.body.cost_general : false,
-        comp_name: req.body.comp_name, comp_addr: req.body.comp_addr,
+        comp_name: req.body.comp_name, street: req.body.street,
+        street2: req.body.street2, city: req.body.city,
+        state: req.body.state, country: req.body.country, zip: req.body.zip,
         comp_phone: req.body.comp_phone, comp_email: req.body.comp_email,
         nav_color: req.body.nav_color ? req.body.nav_color : '#dddddd',
         title_color: req.body.nav_color ? req.body.nav_color : '#333333',

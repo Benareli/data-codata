@@ -7,10 +7,12 @@ const Entry = db.entrys;
 const User = db.users;
 const Coa = db.coas;
 const Id = db.ids;
+const Company = db.companys;
 const Log = db.logs;
 const Payment = db.payments;
 const Partner = db.partners;
 const Product = db.products;
+const Uom = db.uoms;
 const ProductCatAcc = db.productcataccs;
 const Purchasedetail = db.purchasedetails;
 const Saledetail = db.saledetails;
@@ -80,13 +82,13 @@ exports.findOne = (req, res) => {
     return;
   }
   Journal.findByPk(req.params.id, {include: [
-      {model: Entry, as: "entrys", include: [{model: Coa, as: "debits"}, {model: Coa, as: "credits"}
+      {model: Entry, as: "entrys", include: [{model: Coa, as: "debits"}, {model: Coa, as: "credits"}, {model: Uom, as: "uoms"}
         , {model: Product, as: "products"}],
         attributes: ["id", "label", "debit", "credit", "qty", "price_unit", "discount", "tax", "subtotal"],
         through: {attributes: ["entry_id", "journal_id"]}
       },
       {model: Payment, as: "payments", through: {attributes: ["payment_id", "journal_id"]}},
-      {model: Partner, as: "partners"},
+      {model: Partner, as: "partners"}, {model: Company, as: "companys"}
     ] })
     .then(data => {
       if (!data)
@@ -220,6 +222,7 @@ exports.createBill = (req, res) => {
             debit: (req.body.qrec[0] * req.body.priceunit[0]) - (req.body.discount[0]/100 * (req.body.qrec[0] * req.body.priceunit[0])),
             debits: p2.incomings,
             qty: req.body.qrec[0],
+            uom_id: req.body.uom[0],
             price_unit: req.body.priceunit[0],
             tax: req.body.tax[0],
             discount: req.body.discount[0],
@@ -234,6 +237,7 @@ exports.createBill = (req, res) => {
           })
           const insJournal = {
             date: req.body.date,
+            duedate: req.body.duedate,
             type: "bill",
             origin: req.body.origin,
             entry: entries,
@@ -286,6 +290,7 @@ function playSequencing(x, req, res){
               debit: (req.body.qrec[x] * req.body.priceunit[x]) - (req.body.discount[x]/100 * (req.body.qrec[x] * req.body.priceunit[x])),
               debits: p2.incomings,
               qty: req.body.qrec[x],
+              uom_id: req.body.uom[x],
               price_unit: req.body.priceunit[x],
               tax: req.body.tax[x],
               discount: req.body.discount[x],
@@ -315,6 +320,7 @@ function playSequencing(x, req, res){
               debit: (req.body.qrec[x] * req.body.priceunit[x]) - (req.body.discount[x]/100 * (req.body.qrec[x] * req.body.priceunit[x])),
               debits: p2.incomings,
               qty: req.body.qrec[x],
+              uom_id: req.body.uom[x],
               price_unit: req.body.priceunit[x],
               tax: req.body.tax[x],
               discount: req.body.discount[x],
@@ -327,6 +333,7 @@ function playSequencing(x, req, res){
   }else{
     const insJournal = {
       date: req.body.date,
+      duedate: req.body.duedate,
       type: "bill",
       origin: req.body.origin,
       entry: entries,
@@ -438,6 +445,7 @@ exports.createInv = (req, res) => {
             credit: (req.body.qrec[0] * req.body.priceunit[0]) - (req.body.discount[0]/100 * (req.body.qrec[0] * req.body.priceunit[0])),
             credits: p2.revenues,
             qty: req.body.qrec[0],
+            uom_id: req.body.uom[0],
             price_unit: req.body.priceunit[0],
             tax: req.body.tax[0],
             discount: req.body.discount[0],
@@ -452,6 +460,7 @@ exports.createInv = (req, res) => {
           })
           const insJournal = {
             date: req.body.date,
+            duedate: req.body.duedate,
             type: "invoice",
             origin: req.body.origin,
             entry: entries,
@@ -505,6 +514,7 @@ function playSequencingInv(x, req, res){
               credit: (req.body.qrec[x] * req.body.priceunit[x]) - (req.body.discount[x]/100 * (req.body.qrec[x] * req.body.priceunit[x])),
               credits: p2.revenues,
               qty: req.body.qrec[x],
+              uom_id: req.body.uom[x],
               price_unit: req.body.priceunit[x],
               tax: req.body.tax[x],
               discount: req.body.discount[x],
@@ -535,6 +545,7 @@ function playSequencingInv(x, req, res){
               credit: (req.body.qrec[x] * req.body.priceunit[x]) - (req.body.discount[x]/100 * (req.body.qrec[x] * req.body.priceunit[x])),
               credits: p2.revenues,
               qty: req.body.qrec[x],
+              uom_id: req.body.uom[x],
               price_unit: req.body.priceunit[x],
               tax: req.body.tax[x],
               discount: req.body.discount[x],
@@ -547,6 +558,7 @@ function playSequencingInv(x, req, res){
   }else{
     const insJournal = {
       date: req.body.date,
+      duedate: req.body.duedate,
       type: "invoice",
       origin: req.body.origin,
       entry: entries,
