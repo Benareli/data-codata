@@ -24,6 +24,7 @@ db.coas = require("./accounting/coa.model.js")(sequelize, Sequelize);
 db.entrys = require("./accounting/entry.model.js")(sequelize, Sequelize);
 db.journals = require("./accounting/journal.model.js")(sequelize, Sequelize);
 db.payments = require("./accounting/payment.model.js")(sequelize, Sequelize);
+db.paymentmethods = require("./accounting/paymentmethod.model.js")(sequelize, Sequelize);
 db.taxs = require("./accounting/tax.model.js")(sequelize, Sequelize);
 
 //Masterdata
@@ -170,6 +171,13 @@ db.journals.belongsToMany(db.payments, {
   through: "reconcile",
   foreignKey: "journal_id",
   otherKey: "payment_id"
+});
+
+//Payment Method
+db.coas.hasMany(db.paymentmethods);
+db.paymentmethods.belongsTo(db.coas, {
+  foreignKey: "coa_id",
+  as: "coas",
 });
 
 //Warehouse

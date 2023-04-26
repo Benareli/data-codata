@@ -15,5 +15,8 @@ module.exports = app => {
   // Retrieve a single
   routerCoa.get("/prefix/:prefix", coas.findByPrefix);
 
+  // Retrieve a single
+  routerCoa.get("/type/:type", coas.findByType);
+
   app.use("/api/coas", routerCoa);
 };

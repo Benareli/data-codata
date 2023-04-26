@@ -4,7 +4,7 @@ module.exports = (sequelize, Sequelize) => {
     code: {type: Sequelize.STRING},
     name: {type: Sequelize.STRING},
     active: {type: Sequelize.BOOLEAN},
-    company: {type: Sequelize.INTEGER},
+    type: {type: Sequelize.INTEGER}, // 0 - General, 1 - Payment, 2 - Receivable, 3 - Payable
   }, {underscored: true});
 
   return Coa;

@@ -37,6 +37,7 @@ const Store = db.stores;
 const Uomcat = db.uomcats;
 const Uom = db.uoms;
 const Tax = db.taxs;
+const Paymentmethod = db.paymentmethods;
 
 const Productcat = db.productcats;
 const Productcatacc = db.productcataccs;
@@ -62,6 +63,7 @@ function initial() {
     image: "default.png", nav_color: "#1ABC9C", title_color: "#9B59B6", pos_shift: false, retail: true,
   });
 
+setTimeout(() => {
   fs.readFile('./app/template/purchase.html', 'utf8', (err, dataPur) => {
     if (err) {console.error('Error reading the file:', err);}
     else {
@@ -104,85 +106,67 @@ function initial() {
     company_id: 1,
   });
 
-  Role.create({id:1,name: "admin"});
-  Role.create({id:2,name: "inventory_user"});
-  Role.create({id:3,name: "inventory_manager"});
-  Role.create({id:4,name: "partner_user"});
-  Role.create({id:5,name: "partner_manager"});
-  Role.create({id:6,name: "acc_user"});
-  Role.create({id:7,name: "acc_manager"});
-  Role.create({id:8,name: "purchase_user"});
-  Role.create({id:9,name: "purchase_manager"});
-  Role.create({id:10,name: "sale_user"});
-  Role.create({id:11,name: "sale_manager"});
-  Role.create({id:12,name: "pos_user"});
-  Role.create({id:13,name: "pos_manager"});
-  Role.create({id:14,name: "pos_disc_add"});
-  Role.create({id:15,name: "production_user"});
-  Role.create({id:16,name: "production_manager"});
-  Role.create({id:17,name: "ticket_user"});
-  Role.create({id:18,name: "ticket_manager"});
-  Role.create({id:19,name: "project_user"});
-  Role.create({id:20,name: "project_manager"});
+  Role.bulkCreate([{name: "admin"},{name: "inventory_user"},{name: "inventory_manager"},{name: "partner_user"},{name: "partner_manager"},
+    {name: "acc_user"},{name: "acc_manager"},{name: "purchase_user"},{name: "purchase_manager"},{name: "sale_user"},{name: "sale_manager"},
+    {name: "pos_user"},{name: "pos_manager"},{name: "pos_disc_add"},{name: "production_user"},{name: "production_manager"},{name: "ticket_user"},
+    {name: "ticket_manager"},{name: "project_user"},{name: "project_manager"}]);
 
-  Coa.create({id: 1,prefix: 1,setting_id: 1,code: "1-1001",name: "Kas",active: true});
-  Coa.create({id: 2,prefix: 1,company_id: 1,code: "1-1101",name: "Bank",active: true});
-  Coa.create({id: 3,prefix: 1,company_id: 1,code: "1-1111",name: "Settlement",active: true});
-  Coa.create({id: 4,prefix: 1,company_id: 1,code: "1-2001",name: "Piutang",active: true});
-  Coa.create({id: 5,prefix: 1,company_id: 1,code: "1-2901",name: "PPN Masukan",active: true});
-  Coa.create({id: 6,prefix: 1,company_id: 1,code: "1-3001",name: "Persediaan",active: true});
-  Coa.create({id: 7,prefix: 1,company_id: 1,code: "1-3901",name: "Persediaan Transit",active: true});
-  Coa.create({id: 8,prefix: 1,company_id: 1,code: "1-5001",name: "Aktiva Tetap",active: true});
-  Coa.create({id: 9,prefix: 2,company_id: 1,code: "2-1001",name: "Hutang Dagang",active: true});
-  Coa.create({id: 10,prefix: 2,company_id: 1,code: "2-2001",name: "Hutang Lainnya",active: true});
-  Coa.create({id: 11,prefix: 2,company_id: 1,code: "2-3001",name: "Hutang Dalam Perjalanan",active: true});
-  Coa.create({id: 12,prefix: 2,company_id: 1,code: "2-4001",name: "PPN Keluaran",active: true});
-  Coa.create({id: 13,prefix: 3,company_id: 1,code: "3-1001",name: "Modal",active: true});
-  Coa.create({id: 14,prefix: 3,company_id: 1,code: "3-4001",name: "Laba Rugi",active: true});
-  Coa.create({id: 15,prefix: 4,company_id: 1,code: "4-1001",name: "Pendapatan",active: true});
-  Coa.create({id: 16,prefix: 5,company_id: 1,code: "5-1001",name: "HPP",active: true});
-  Coa.create({id: 17,prefix: 6,company_id: 1,code: "6-1001",name: "Biaya Operasional",active: true});
-  Coa.create({id: 18,prefix: 6,company_id: 1,code: "6-1001",name: "Biaya Variabel",active: true});
-  Coa.create({id: 19,prefix: 6,company_id: 1,code: "6-9001",name: "Biaya Lain Lain",active: true});
+  Coa.bulkCreate([{prefix: 1,code: "1-1001",name: "Kas",active: true,type: 1,company_id: 1},
+  {prefix: 1,code: "1-1101",name: "Bank",active: true,type: 1,company_id: 1},
+  {prefix: 1,code: "1-1201",name: "E-wallet",active: true,type: 1,company_id: 1},
+  {prefix: 1,code: "1-1111",name: "Settlement",active: true,type: 0,company_id: 1},
+  {prefix: 1,code: "1-2001",name: "Piutang",active: true,type: 2,company_id: 1},
+  {prefix: 1,code: "1-2901",name: "PPN Masukan",active: true,type: 0,company_id: 1},
+  {prefix: 1,code: "1-3001",name: "Persediaan",active: true,type: 0,company_id: 1},
+  {prefix: 1,code: "1-3901",name: "Persediaan Transit",active: true,type: 0,company_id: 1},
+  {prefix: 1,code: "1-5001",name: "Aktiva Tetap",active: true,type: 0,company_id: 1},
+  {prefix: 2,code: "2-1001",name: "Hutang Dagang",active: true,type: 3,company_id: 1},
+  {prefix: 2,code: "2-2001",name: "Hutang Lainnya",active: true,type: 0,company_id: 1},
+  {prefix: 2,code: "2-3001",name: "Hutang Dalam Perjalanan",active: true,type: 0,company_id: 1},
+  {prefix: 2,code: "2-4001",name: "PPN Keluaran",active: true,type: 0,company_id: 1},
+  {prefix: 3,code: "3-1001",name: "Modal",active: true,type: 0,company_id: 1},
+  {prefix: 3,code: "3-4001",name: "Laba Rugi",active: true,type: 0,company_id: 1},
+  {prefix: 4,code: "4-1001",name: "Pendapatan",active: true,type: 0,company_id: 1},
+  {prefix: 5,code: "5-1001",name: "HPP",active: true,type: 0,company_id: 1},
+  {prefix: 6,code: "6-1001",name: "Biaya Operasional",active: true,type: 0,company_id: 1},
+  {prefix: 6,code: "6-1001",name: "Biaya Variabel",active: true,type: 0,company_id: 1},
+  {prefix: 6,code: "6-9001",name: "Biaya Lain Lain",active: true,type: 0,company_id: 1}]);
 
   Warehouse.create({name: "Gudang Utama", short: "UTAMA", main: true, active: true, company_id: 1});
     Log.create({message: "dibuat oleh sistem", warehouse: 1});
   Store.create({store_name: "Codata", warehouse: 1, company_id: 1, active: true}); 
     Log.create({message: "dibuat oleh sistem", store: 1});
 
-  Uomcat.create({id: 1, uom_cat: "Unit"});  Log.create({message: "dibuat oleh sistem", uom_cat: 1});
-  Uomcat.create({id: 2, uom_cat: "Berat"}); Log.create({message: "dibuat oleh sistem", uom_cat: 2});
-  Uomcat.create({id: 3, uom_cat: "Cair"});  Log.create({message: "dibuat oleh sistem", uom_cat: 3});
-  Uom.create({id: 1, uom_name: "Pcs", uomcat_id: 1, ratio: 1}); Log.create({message: "dibuat oleh sistem", uom: 1});
-  Uom.create({id: 2, uom_name: "Lusin", uomcat_id: 1, ratio: 12}); Log.create({message: "dibuat oleh sistem", uom: 2});
-  Uom.create({id: 3, uom_name: "Gr", uomcat_id: 2, ratio: 1}); Log.create({message: "dibuat oleh sistem", uom: 3});
-  Uom.create({id: 4, uom_name: "Kg", uomcat_id: 2, ratio: 1000}); Log.create({message: "dibuat oleh sistem", uom: 4});
-  Uom.create({id: 5, uom_name: "L", uomcat_id: 3, ratio: 1}); Log.create({message: "dibuat oleh sistem", uom: 5});
-  Uom.create({id: 6, uom_name: "mL", uomcat_id: 3, ratio: 1/1000}); Log.create({message: "dibuat oleh sistem", uom: 6});
+  Uomcat.create({uom_cat: "Unit"});  Log.create({message: "dibuat oleh sistem", uom_cat: 1});
+  Uomcat.create({uom_cat: "Berat"}); Log.create({message: "dibuat oleh sistem", uom_cat: 2});
+  Uomcat.create({uom_cat: "Cair"});  Log.create({message: "dibuat oleh sistem", uom_cat: 3});
+  Uom.create({uom_name: "Pcs", uomcat_id: 1, ratio: 1}); Log.create({message: "dibuat oleh sistem", uom: 1});
+  Uom.create({uom_name: "Lusin", uomcat_id: 1, ratio: 12}); Log.create({message: "dibuat oleh sistem", uom: 2});
+  Uom.create({uom_name: "Gr", uomcat_id: 2, ratio: 1}); Log.create({message: "dibuat oleh sistem", uom: 3});
+  Uom.create({uom_name: "Kg", uomcat_id: 2, ratio: 1000}); Log.create({message: "dibuat oleh sistem", uom: 4});
+  Uom.create({uom_name: "L", uomcat_id: 3, ratio: 1}); Log.create({message: "dibuat oleh sistem", uom: 5});
+  Uom.create({uom_name: "mL", uomcat_id: 3, ratio: 1/1000}); Log.create({message: "dibuat oleh sistem", uom: 6});
 
-  Partner.create({
-    code: "TEMP",
-    name: "Template",
-    isCustomer: true,
-    isSupplier: true,
-    active: true
-  }); Log.create({message: "dibuat oleh sistem", partner: 1});
+  Partner.create({code: "TEMP", name: "Template", isCustomer: true, isSupplier: true, active: true});
+  Log.create({message: "dibuat oleh sistem", partner: 1});
 
-  Tax.create({id: 1,tax: 11, name: "PPN-11 (Inc)", include: true});
-  Tax.create({id: 2,tax: 11, name: "PPN-11", include: false});
+  Tax.bulkCreate([{tax: 11, name: "PPN-11 (Inc)", include: true}, {tax: 11, name: "PPN-11", include: false}]);
+
+  Paymentmethod.bulkCreate([{coa_id: 1, name: "Kas"}, {coa_id: 2, name: "Bank"}]);
   
-  Productcat.create({id: 1, catid: "TEMP", description: "Template", active: true});
+  Productcat.create({catid: "TEMP", description: "Template", active: true});
     Log.create({message: "dibuat oleh sistem", category: 1});
 
-  Productcatacc.create({id: 1, company_id: 1, category_id: 1, revenue_id: 15, 
+  Productcatacc.create({company_id: 1, category_id: 1, revenue_id: 15, 
     cost_id: 16, incoming_id: 11, outgoing_id: 7, inventory_id: 6, auto: true})
 
   Product.create({sku: "TEMP", name: "Template", description: "Template Product", listprice: 1, uom_id: 1, puom_id: 1,
       isStock: true, fg: false, rm: false, image: "default.png", productcat_id: 1, tax_id: 1, taxout_id: 1, active: true})
       .then(prod => {
-        Productcostcomp.create({id: 1, qoh: 0, cost: 0, product_id: 1, company_id: 1});
+        Productcostcomp.create({qoh: 0, cost: 0, product_id: 1, company_id: 1});
       });
     Log.create({message: "dibuat oleh sistem", product: 1});
+  }, 2000);
 }
 
 /*db.mongoose
@@ -252,6 +236,7 @@ require("./app/routes/accounting/coa.routes")(app);
 require("./app/routes/accounting/entry.routes")(app);
 require("./app/routes/accounting/journal.routes")(app);
 require("./app/routes/accounting/payment.routes")(app);
+require("./app/routes/accounting/paymentmethod.routes")(app);
 require("./app/routes/accounting/tax.routes")(app);
 
 //__other

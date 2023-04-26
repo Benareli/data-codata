@@ -36,19 +36,20 @@ exports.create = (req, res) => {
       Product.create(product).then(dataa => {
         const log = ({message: "dibuat", product: dataa.id, user: req.body.user,});
         Log.create(log).then(datab => {
-          ProductCostComp.create({
+          const pcc = ({
             product_id: dataa.id,
-            company_id: req.body.company,
+            company_id: Number(req.body.company),
+            cost: req.body.cost ? req.body.cost : 0,
             qoh: 0,
-            cost: req.body.cost ? req.body.cost: 0,
             min: req.body.min,
-            max: req.body.max,
-          }).then(datab => {
+            max: req.body.max
+          });
+          ProductCostComp.create(pcc).then(datab => {
             updateCache(req.body.company);
             res.send(datab);
-          }).catch(err =>{console.error("prod0107",err.message);res.status(500).send({message:err.message}); });
-        }).catch(err =>{console.error("prod0108",err.message);res.status(500).send({message:err.message}); });
-      }).catch(err =>{console.error("prod0109",err.message);res.status(500).send({message:err.message}); });
+          }).catch(err => {console.error("prod0107",err.message); res.status(500).send({message:err.message}); });
+        }).catch(err => {console.error("prod0108",err.message); res.status(500).send({message:err.message}); });
+      }).catch(err => {console.error("prod0109",err.message); res.status(500).send({message:err.message}); });      
     }
   }).catch(err =>{console.error("prod01010",err.message);res.status(500).send({message:err.message}); });
 };

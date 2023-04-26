@@ -41,6 +41,7 @@ function inputJournal(data) {
     const getIdFunction = {
       'miscellaneous': getUpdateJournalId,
       'stock': getUpdateJournalId,
+      'payment': getUpdateJournalId,
       'bill': getUpdateBillId,
       'invoice': getUpdateInvId
     };
