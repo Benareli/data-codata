@@ -1,43 +1,16 @@
 const db = require("../../models");
 const { compare } = require('../../function/key.function');
 const {id,coa,journal} = require("../../function");
-const { getCoa2 } = require("../../function/coa.function");
 const Paymentmethod = db.paymentmethods;
 const Coa = db.coas;
-var journid, journalid, journalcount, payments, pays1, entries = [];
-
-async function getJournalId1() {
-  const res1 = await id.getJournalId1();
-  return res1;
-}
-
-async function getCoaPayment(x, req) {
-  const res2 = await coa.getCoaPayment(x, req);
-  return res2;
-}
-
-async function getUpdateJournalId() {
-  const res3 = await id.getUpdateJournalId();
-  return res3;
-}
-
-async function getCoaPayout(x, req) {
-  const res4 = await coa.getCoaPayout(x, req);
-  return res4;
-}
-
-async function inputJournal(data) {
-  const res5 = await journal.inputJournal(data);
-  return res5;
-}
+var entries = [];
 
 exports.create = (req, res) => {
-  pays1 = 0;
   if(!req.headers.apikey || compare(req, res)==0) {
     res.status(401).send({ message: "Unauthorized!" });
     return;
   }
-  if (!req.body.order_id) {
+  if (!req.body.name) {
     res.status(400).send({ message: "Content can not be empty!" });
     return;
   }

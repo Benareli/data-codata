@@ -68,6 +68,7 @@ exports.create = (req, res) => {
     payments = dataa;
     if(req.body.type == 1){
       Journal.findOne({where:{name:req.body.order_id}}).then(fj => {
+        fj.addPayment(dataa);
         var stateNew = fj.amountdue-req.body.payment == 0 ? 2 : 1;
         Journal.update({amountdue:fj.amountdue-req.body.payment, state: stateNew},{where:{id:fj.id}}).then(ufj => {
           insertJournal(req, res); 

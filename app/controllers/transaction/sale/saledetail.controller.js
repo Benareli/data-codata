@@ -11,30 +11,15 @@ const ProductCatAcc = db.productcataccs;
 const ProductCostComp = db.productcostcomps;
 const Partner = db.partners;
 const Warehouse = db.warehouses;
-const Qof = db.qofs;
 const Stockmove = db.stockmoves;
 const Coa = db.coas;
-const Entry = db.entrys;
-const Journal = db.journals;
 const Company = db.companys;
-var transid, transferid, trasnfercount;
-var journid, journalid, journalcount;
-var y1, x, qin;
-var qty, oriqty, uom_id, oriuom_id, cost, oricost, entries;
+var transid, transferid;
+var x, qty, oriqty, uom_id, oriuom_id, cost, oricost, entries;
 
 async function getTransId() {
   const res1 = await id.getTransId();
   return res1;
-}
-
-async function getUpdateJournalId() {
-  const res2 = await id.getUpdateJournalId();
-  return res2;
-}
-
-async function getCoa2(coa1, coa2) {
-  const res3 = await coa.getCoa2(coa1, coa2);
-  return res3;
 }
 
 async function updateProductCache() {
@@ -132,7 +117,20 @@ exports.findBySOId = (req, res) => {
       {model: Sale, as: "sales"},
       {model: Partner, as: "partners"},
       {model: Warehouse, as: "warehouses"},
-      {model: Product, as: "products"},
+      {
+        model: Product,
+        as: "products",
+        include: [
+          {
+            model: ProductCostComp,
+            as: "productcostcomps",
+            where: {
+              company_id: 1, // Replace "some parameter" with the actual value or variable
+            },
+            required: false, // Use this if you want to include products even if they don't have a matching ProductCostcomp
+          },
+        ],
+      },
       {model: Uom, as: "uoms"},
       {model: Company, as: "companys"},
     ] })
