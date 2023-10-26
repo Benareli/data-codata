@@ -16,7 +16,7 @@ exports.create = (req, res) => {
     labor: req.body.labor, laType: req.body.laType, laTime: req.body.laTime});
   Costing.create(costing).then(dataa => {
       res.send(dataa);
-    }).catch(err =>{console.error("cost0101",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("cost0101",err);res.status(500).send({message:err}); });
 };
 
 exports.findAll = (req, res) => {
@@ -31,7 +31,7 @@ exports.findAll = (req, res) => {
     ] })
     .then(data => {
       res.send(data);
-    }).catch(err =>{console.error("cost0201",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("cost0201",err);res.status(500).send({message:err}); });
 };
 
 exports.findOne = (req, res) => {
@@ -44,7 +44,7 @@ exports.findOne = (req, res) => {
       if (!data)
         res.status(404).send({ message: "Not found Data with id " + id });
       else res.send(data);
-    }).catch(err =>{console.error("cost0301",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("cost0301",err);res.status(500).send({message:err}); });
 };
 
 exports.update = (req, res) => {
@@ -66,7 +66,7 @@ exports.update = (req, res) => {
       } else {
         res.send({ message: "Updated successfully." });
       }
-    }).catch(err =>{console.error("cost0401",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("cost0401",err);res.status(500).send({message:err}); });
 };
 
 exports.delete = (req, res) => {
@@ -83,7 +83,7 @@ exports.delete = (req, res) => {
       } else {
         res.send({message: "Done"});
       }
-    }).catch(err =>{console.error("cost501",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("cost501",err);res.status(500).send({message:err}); });
 };
 
 exports.findByProduct = (req, res) => {
@@ -97,5 +97,5 @@ exports.findByProduct = (req, res) => {
     ] })
     .then(data => {
       res.send(data);
-    }).catch(err =>{console.error("cost0601",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("cost0601",err);res.status(500).send({message:err}); });
 };

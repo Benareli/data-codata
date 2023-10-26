@@ -112,30 +112,37 @@ setTimeout(() => {
     {name: "ticket_manager"},{name: "project_user"},{name: "project_manager"}]);
 
   Coa.bulkCreate([{prefix: 1,code: "1-1001",name: "Kas",active: true,type: 1,company_id: 1},
-  {prefix: 1,code: "1-1101",name: "Bank",active: true,type: 1,company_id: 1},
-  {prefix: 1,code: "1-1201",name: "E-wallet",active: true,type: 1,company_id: 1},
-  {prefix: 1,code: "1-1111",name: "Settlement",active: true,type: 0,company_id: 1},
-  {prefix: 1,code: "1-2001",name: "Piutang",active: true,type: 2,company_id: 1},
-  {prefix: 1,code: "1-2901",name: "PPN Masukan",active: true,type: 0,company_id: 1},
-  {prefix: 1,code: "1-3001",name: "Persediaan",active: true,type: 0,company_id: 1},
-  {prefix: 1,code: "1-3901",name: "Persediaan Transit",active: true,type: 0,company_id: 1},
-  {prefix: 1,code: "1-5001",name: "Aktiva Tetap",active: true,type: 0,company_id: 1},
-  {prefix: 2,code: "2-1001",name: "Hutang Dagang",active: true,type: 3,company_id: 1},
-  {prefix: 2,code: "2-2001",name: "Hutang Lainnya",active: true,type: 0,company_id: 1},
-  {prefix: 2,code: "2-3001",name: "Hutang Dalam Perjalanan",active: true,type: 0,company_id: 1},
-  {prefix: 2,code: "2-4001",name: "PPN Keluaran",active: true,type: 0,company_id: 1},
-  {prefix: 3,code: "3-1001",name: "Modal",active: true,type: 0,company_id: 1},
-  {prefix: 3,code: "3-4001",name: "Laba Rugi",active: true,type: 0,company_id: 1},
-  {prefix: 4,code: "4-1001",name: "Pendapatan",active: true,type: 0,company_id: 1},
-  {prefix: 5,code: "5-1001",name: "HPP",active: true,type: 0,company_id: 1},
-  {prefix: 6,code: "6-1001",name: "Biaya Operasional",active: true,type: 0,company_id: 1},
-  {prefix: 6,code: "6-1001",name: "Biaya Variabel",active: true,type: 0,company_id: 1},
-  {prefix: 6,code: "6-9001",name: "Biaya Lain Lain",active: true,type: 0,company_id: 1}]);
-
-  Warehouse.create({name: "Gudang Utama", short: "UTAMA", main: true, active: true, company_id: 1});
-    Log.create({message: "dibuat oleh sistem", warehouse: 1});
-  Store.create({store_name: "Codata", warehouse: 1, company_id: 1, active: true}); 
-    Log.create({message: "dibuat oleh sistem", store: 1});
+    {prefix: 1,code: "1-1101",name: "Bank",active: true,type: 1,company_id: 1},
+    {prefix: 1,code: "1-1201",name: "E-wallet",active: true,type: 1,company_id: 1},
+    {prefix: 1,code: "1-1111",name: "Settlement",active: true,type: 0,company_id: 1},
+    {prefix: 1,code: "1-2001",name: "Piutang",active: true,type: 2,company_id: 1},
+    {prefix: 1,code: "1-2901",name: "PPN Masukan",active: true,type: 0,company_id: 1},
+    {prefix: 1,code: "1-3001",name: "Persediaan",active: true,type: 0,company_id: 1},
+    {prefix: 1,code: "1-3901",name: "Persediaan Transit",active: true,type: 0,company_id: 1},
+    {prefix: 1,code: "1-5001",name: "Aktiva Tetap",active: true,type: 0,company_id: 1},
+    {prefix: 2,code: "2-1001",name: "Hutang Dagang",active: true,type: 3,company_id: 1},
+    {prefix: 2,code: "2-2001",name: "Hutang Lainnya",active: true,type: 0,company_id: 1},
+    {prefix: 2,code: "2-3001",name: "Hutang Dalam Perjalanan",active: true,type: 0,company_id: 1},
+    {prefix: 2,code: "2-4001",name: "PPN Keluaran",active: true,type: 0,company_id: 1},
+    {prefix: 3,code: "3-1001",name: "Modal",active: true,type: 0,company_id: 1},
+    {prefix: 3,code: "3-4001",name: "Laba Rugi",active: true,type: 0,company_id: 1},
+    {prefix: 4,code: "4-1001",name: "Pendapatan",active: true,type: 0,company_id: 1},
+    {prefix: 5,code: "5-1001",name: "HPP",active: true,type: 0,company_id: 1},
+    {prefix: 6,code: "6-1001",name: "Biaya Operasional",active: true,type: 0,company_id: 1},
+    {prefix: 6,code: "6-1001",name: "Biaya Variabel",active: true,type: 0,company_id: 1},
+    {prefix: 6,code: "6-9001",name: "Biaya Lain Lain",active: true,type: 0,company_id: 1}])
+    .then(data1 => {
+      Paymentmethod.bulkCreate([{coa_id: 1, name: "Kas"}, {coa_id: 2, name: "Bank"}]);
+      Warehouse.create({name: "Gudang Utama", short: "UTAMA", main: true, active: true, company_id: 1})
+        .then(data2 => {
+          Log.create({message: "dibuat oleh sistem", warehouse: 1});
+          Store.create({store_name: "Codata", warehouse_id: 1, company_id: 1, receivable_id: 5, payable_id: 10, active: true}); 
+          Log.create({message: "dibuat oleh sistem", store: 1});
+          Tax.bulkCreate([
+            {tax: 11, name: "PPN-11 (Inc)", include: true, company_id: 1, coa_in_id: 6, coa_out_id: 13}, 
+            {tax: 11, name: "PPN-11", include: false, company_id: 1, coa_in_id: 6, coa_out_id: 13}]);
+      });
+    });
 
   Uomcat.create({uom_cat: "Unit"});  Log.create({message: "dibuat oleh sistem", uom_cat: 1});
   Uomcat.create({uom_cat: "Berat"}); Log.create({message: "dibuat oleh sistem", uom_cat: 2});
@@ -147,26 +154,24 @@ setTimeout(() => {
   Uom.create({uom_name: "L", uomcat_id: 3, ratio: 1}); Log.create({message: "dibuat oleh sistem", uom: 5});
   Uom.create({uom_name: "mL", uomcat_id: 3, ratio: 1/1000}); Log.create({message: "dibuat oleh sistem", uom: 6});
 
-  Partner.create({code: "TEMP", name: "Template", isCustomer: true, isSupplier: true, active: true});
+  Partner.create({code: "TEMP", name: "Template", isCustomer: true, isSupplier: true, active: true, receivable_id: 5, payable_id: 10});
   Log.create({message: "dibuat oleh sistem", partner: 1});
 
-  Tax.bulkCreate([{tax: 11, name: "PPN-11 (Inc)", include: true}, {tax: 11, name: "PPN-11", include: false}]);
+  Productcat.create({catid: "TEMP", description: "Template", active: true})
+    .then(data3 => {
+      Log.create({message: "dibuat oleh sistem", category: 1});
 
-  Paymentmethod.bulkCreate([{coa_id: 1, name: "Kas"}, {coa_id: 2, name: "Bank"}]);
-  
-  Productcat.create({catid: "TEMP", description: "Template", active: true});
-    Log.create({message: "dibuat oleh sistem", category: 1});
-
-  Productcatacc.create({company_id: 1, category_id: 1, revenue_id: 15, 
-    cost_id: 16, incoming_id: 11, outgoing_id: 7, inventory_id: 6, auto: true})
-
-  Product.create({sku: "TEMP", name: "Template", description: "Template Product", listprice: 1, uom_id: 1, puom_id: 1,
-      isStock: true, fg: false, rm: false, image: "default.png", productcat_id: 1, tax_id: 1, taxout_id: 1, active: true})
-      .then(prod => {
-        Productcostcomp.create({qoh: 0, cost: 0, product_id: 1, company_id: 1});
-      });
-    Log.create({message: "dibuat oleh sistem", product: 1});
-  }, 2000);
+      Productcatacc.create({company_id: 1, category_id: 1, revenue_id: 16, 
+        cost_id: 17, incoming_id: 12, outgoing_id: 8, inventory_id: 7, auto: true})
+    
+      Product.create({sku: "TEMP", name: "Template", description: "Template Product", listprice: 1, uom_id: 1, puom_id: 1,
+        isStock: true, bund: false, prod: false, image: "default.png", productcat_id: 1, tax_id: 1, taxout_id: 1, active: true, nosell: false})
+        .then(prod => {
+          Productcostcomp.create({qoh: 0, cost: 0, product_id: 1, company_id: 1});
+        });
+        Log.create({message: "dibuat oleh sistem", product: 1});
+      }, 2000);
+    }); 
 }
 
 /*db.mongoose
@@ -225,8 +230,8 @@ require("./app/routes/transaction/stock/stockmove.routes")(app);
 require("./app/routes/transaction/stock/stockrequest.routes")(app);
 
 //Transaction - Sale
-//require("./app/routes/transaction/sale/pos.routes")(app);
-//require("./app/routes/transaction/sale/posdetail.routes")(app);
+require("./app/routes/transaction/sale/pos.routes")(app);
+require("./app/routes/transaction/sale/posdetail.routes")(app);
 //require("./app/routes/transaction/sale/possession.routes")(app);
 require("./app/routes/transaction/sale/sale.routes")(app);
 require("./app/routes/transaction/sale/saledetail.routes")(app);

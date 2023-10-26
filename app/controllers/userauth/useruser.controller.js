@@ -19,7 +19,7 @@ exports.create = (req, res) => {
   User.create(user)
     .then(data => {
       res.send(data);
-    }).catch(err =>{console.error("user0101",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("user0101",err);res.status(500).send({message:err}); });
 };
 
 exports.findAll = (req, res) => {
@@ -32,7 +32,7 @@ exports.findAll = (req, res) => {
   User.findAll({where:condition})
     .then(data => {
       res.send(data);
-    }).catch(err =>{console.error("user0201",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("user0201",err);res.status(500).send({message:err}); });
 };
 
 exports.findOne = (req, res) => {
@@ -45,7 +45,7 @@ exports.findOne = (req, res) => {
       if (!data)
         res.status(404).send({ message: "Not found Data with id " + id });
       else res.send(data);
-    }).catch(err =>{console.error("user0301",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("user0301",err);res.status(500).send({message:err}); });
 };
 
 exports.findByDesc = (req, res) => {
@@ -58,7 +58,7 @@ exports.findByDesc = (req, res) => {
   User.findAll({where:condition})
     .then(data => {
       res.send(data);
-    }).catch(err =>{console.error("user0401",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("user0401",err);res.status(500).send({message:err}); });
 };
 
 exports.update = (req, res) => {
@@ -78,7 +78,7 @@ exports.update = (req, res) => {
           message: `Cannot update with id=${id}. Maybe Data was not found!`
         });
       } else res.send({ message: "Updated successfully." });
-    }).catch(err =>{console.error("user0501",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("user0501",err);res.status(500).send({message:err}); });
 };
 
 exports.findAllActive = (req, res) => {
@@ -89,5 +89,5 @@ exports.findAllActive = (req, res) => {
   User.findAll({ where: {active: true} })
     .then(data => {
       res.send(data);
-    }).catch(err =>{console.error("user0601",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("user0601",err);res.status(500).send({message:err}); });
 };

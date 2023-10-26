@@ -8,7 +8,7 @@ function getCoa(coa1) {
       let o = data.findIndex((obj => obj.code == coa1));
       result[0] = data[o];
       resolve (result);
-    }).catch(err =>{console.error("coa0101",err.message); reject(err); });
+    }).catch(err =>{console.error("coa0101",err); reject(err); });
   })
 };
 
@@ -20,7 +20,7 @@ function getCoa2(coa1, coa2) {
       result[0] = data[o];
       result[1] = data[p];
       resolve (result);
-    }).catch(err =>{console.error("coa0201",err.message); reject(err); });
+    }).catch(err =>{console.error("coa0201",err); reject(err); });
   })
 };
 
@@ -34,7 +34,7 @@ function getCoa3(coa1, coa2, coa3) {
       result[1] = data[p].id;
       result[2] = data[q].id;
       resolve (result);
-    }).catch(err =>{console.error("coa0202",err.message); reject(err); });
+    }).catch(err =>{console.error("coa0202",err); reject(err); });
   })
 };
 
@@ -61,7 +61,7 @@ function getCoaPayment(x, req) {
       result[0] = oo;
       result[1] = pp;
       resolve (result);
-    }).catch(err =>{console.error("coa0301",err.message); reject(err); });
+    }).catch(err =>{console.error("coa0301",err); reject(err); });
   })
 };
 
@@ -84,7 +84,7 @@ function getCoaPayout(x, req) {
       result[0] = oo;
       result[1] = pp;
       resolve (result);
-    }).catch(err =>{console.error("coa0302",err.message); reject(err); });
+    }).catch(err =>{console.error("coa0302",err); reject(err); });
   })
 };
 
@@ -98,7 +98,7 @@ function getCoaPos() {
       result[1] = data[p]._id;
       result[2] = data[q]._id;
       resolve (result);
-    }).catch(err =>{console.error("coa0401",err.message); reject(err); });
+    }).catch(err =>{console.error("coa0401",err); reject(err); });
   })
 };
 

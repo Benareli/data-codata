@@ -10,6 +10,7 @@ const Uom = db.uoms;
 const Log = db.logs;
 const User = db.users;
 const Tax = db.taxs;
+const { Op } = require('sequelize');
 const duplicate = [], skipped = [];
 var Pcateg = '', Pbrand = '', Ptaxin = '', Ptaxout = '', Psuom = 'Pcs', Ppuom = 'Pcs';
 
@@ -27,11 +28,12 @@ exports.create = (req, res) => {
     else{
       const product = ({
         sku: req.body.sku, name: req.body.name, description: req.body.description, barcode: req.body.barcode,
-        fg: req.body.fg ? req.body.fg : false, rm: req.body.rm ? req.body.rm : false, listprice: req.body.listprice,
+        bund: req.body.bund ? req.body.bund : false, prod: req.body.prod ? req.body.prod : false, listprice: req.body.listprice,
         botprice: req.body.botprice, uom_id: req.body.uom_id, puom_id: req.body.puom_id, 
         image: req.body.image, isStock: req.body.isStock ? req.body.isStock : false,
         productcat_id: req.body.productcat_id, tax_id: req.body.tax_id, taxout_id: req.body.taxout_id, brand_id: req.body.brand_id,
-        supplier: req.body.supplier, active: req.body.active ? req.body.active : false
+        supplier: req.body.supplier, active: req.body.active ? req.body.active : false,
+        nosell: req.body.nosell
       });
       Product.create(product).then(dataa => {
         const log = ({message: "dibuat", product: dataa.id, user: req.body.user,});
@@ -47,11 +49,11 @@ exports.create = (req, res) => {
           ProductCostComp.create(pcc).then(datab => {
             updateCache(req.body.company);
             res.send(datab);
-          }).catch(err => {console.error("prod0107",err.message); res.status(500).send({message:err.message}); });
-        }).catch(err => {console.error("prod0108",err.message); res.status(500).send({message:err.message}); });
-      }).catch(err => {console.error("prod0109",err.message); res.status(500).send({message:err.message}); });      
+          }).catch(err => {console.error("prod0107",err); res.status(500).send({message:err}); });
+        }).catch(err => {console.error("prod0108",err); res.status(500).send({message:err}); });
+      }).catch(err => {console.error("prod0109",err); res.status(500).send({message:err}); });      
     }
-  }).catch(err =>{console.error("prod01010",err.message);res.status(500).send({message:err.message}); });
+  }).catch(err =>{console.error("prod01010",err);res.status(500).send({message:err}); });
 };
 
 exports.createMany = (req, res) => {
@@ -107,15 +109,15 @@ function startSequence(x, reqs, users, res){
                           product_id: datae.id, company_id: req.body.company, qoh: 0, 
                           cost: reqs[x].hpp ? cost:0, min: reqs[x].min, max: reqs[x].max}).then(datag => {
                           sequencing(x, reqs, users, res);
-                        }).catch(err =>{console.error("prod0201",err.message);res.status(500).send({message:err.message}); });
-                      }).catch(err =>{console.error("prod0202",err.message);res.status(500).send({message:err.message}); });
-                    }).catch(err =>{console.error("prod0203",err.message);res.status(500).send({message:err.message}); });
-                  }).catch(err =>{console.error("prod0204",err.message);res.status(500).send({message:err.message}); });
-                }).catch(err =>{console.error("prod0205",err.message);res.status(500).send({message:err.message}); });
-              }).catch(err =>{console.error("prod0206",err.message);res.status(500).send({message:err.message}); });
-            }).catch(err =>{console.error("prod0207",err.message);res.status(500).send({message:err.message}); });
-          }).catch(err =>{console.error("prod0208",err.message);res.status(500).send({message:err.message}); });
-        }).catch(err =>{console.error("prod0209",err.message);res.status(500).send({message:err.message}); });
+                        }).catch(err =>{console.error("prod0201",err);res.status(500).send({message:err}); });
+                      }).catch(err =>{console.error("prod0202",err);res.status(500).send({message:err}); });
+                    }).catch(err =>{console.error("prod0203",err);res.status(500).send({message:err}); });
+                  }).catch(err =>{console.error("prod0204",err);res.status(500).send({message:err}); });
+                }).catch(err =>{console.error("prod0205",err);res.status(500).send({message:err}); });
+              }).catch(err =>{console.error("prod0206",err);res.status(500).send({message:err}); });
+            }).catch(err =>{console.error("prod0207",err);res.status(500).send({message:err}); });
+          }).catch(err =>{console.error("prod0208",err);res.status(500).send({message:err}); });
+        }).catch(err =>{console.error("prod0209",err);res.status(500).send({message:err}); });
       }
     });
   }else{
@@ -148,7 +150,7 @@ function updateCache(company) {
     ], raw: true, nest: true})
     .then(data => {
       productCache.set('productsAll', data);
-    }).catch(err =>{console.error("prod0302",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("prod0302",err);res.status(500).send({message:err}); });
 }
 
 exports.findAll = (req, res) => {
@@ -174,7 +176,7 @@ exports.findAll = (req, res) => {
     .then(product => {
       productCache.set('productsAll', product);
       res.send(product);
-    }).catch(err =>{console.error("prod0301",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("prod0301",err);res.status(500).send({message:err}); });
   }
 };
 
@@ -196,7 +198,7 @@ exports.findOne = (req, res) => {
       if (!data)
         res.status(404).send({ message: "Not found Data with id " + id });
       else res.send(data);
-    }).catch(err =>{console.error("prod0401",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("prod0401",err);res.status(500).send({message:err}); });
 };
 
 exports.findByDesc = (req, res) => {
@@ -209,7 +211,7 @@ exports.findByDesc = (req, res) => {
   Product.findAll({where:condition})
     .then(data => {
       res.send(data);
-    }).catch(err =>{console.error("prod0501",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("prod0501",err);res.status(500).send({message:err}); });
 };
 
 exports.update = (req, res) => {
@@ -240,13 +242,13 @@ exports.update = (req, res) => {
               }).then(() => {
                 updateCache(1);
                 res.send({ message: 'Updated successfully.' });
-              }).catch(err =>{console.error("prod0609",err.message);res.status(500).send({message:err.message}); });
-            }).catch(err =>{console.error("prod0610",err.message);res.status(500).send({message:err.message}); });
+              }).catch(err =>{console.error("prod0609",err);res.status(500).send({message:err}); });
+            }).catch(err =>{console.error("prod0610",err);res.status(500).send({message:err}); });
           }
-        }).catch(err =>{console.error("prod0611",err.message);res.status(500).send({message:err.message}); });
+        }).catch(err =>{console.error("prod0611",err);res.status(500).send({message:err}); });
       
     }
-  }).catch(err =>{console.error("prod0609",err.message);res.status(500).send({message:err.message}); });
+  }).catch(err =>{console.error("prod0609",err);res.status(500).send({message:err}); });
 };
 
 exports.findAllActive = (req, res) => {
@@ -266,7 +268,7 @@ exports.findAllActive = (req, res) => {
     ] })
     .then(data => {
       res.send(data);
-    }).catch(err =>{console.error("prod0701",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("prod0701",err);res.status(500).send({message:err}); });
 };
 
 exports.findAllStock = (req, res) => {
@@ -286,7 +288,7 @@ exports.findAllStock = (req, res) => {
     ] })
     .then(data => {
       res.send(data);
-    }).catch(err =>{console.error("prod0801",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("prod0801",err);res.status(500).send({message:err}); });
 };
 
 exports.findAllActiveStock = (req, res) => {
@@ -306,7 +308,7 @@ exports.findAllActiveStock = (req, res) => {
     ] })
     .then(data => {
       res.send(data);
-    }).catch(err =>{console.error("prod0901",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("prod0901",err);res.status(500).send({message:err}); });
 };
 
 exports.findAllReady = (req, res) => {
@@ -314,7 +316,7 @@ exports.findAllReady = (req, res) => {
     res.status(401).send({ message: "Unauthorized!" });
     return;
   }
-  Product.findAll({where:{ active: true, qoh: {$gt: 0} },
+  Product.findAll({where:{ nosell: false, active: true},
     include: [
       {model: Productcat, as: "productcats"},
       {model: Brand, as: "brands"},
@@ -322,11 +324,17 @@ exports.findAllReady = (req, res) => {
       {model: Uom, as: "puoms"},
       {model: Tax, as: "taxs"},
       {model: Tax, as: "taxouts"},
-      {model: ProductCostComp, as: "productcostcomps", where: { company_id: req.params.comp }},
+      {
+        model: ProductCostComp,
+        as: "productcostcomps",
+        where: {
+          company_id: req.params.comp
+        },
+      },
     ] })
     .then(data => {
       res.send(data);
-    }).catch(err =>{console.error("prod1001",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("prod1001",err);res.status(500).send({message:err}); });
 };
 
 exports.findAllFGStock = (req, res) => {
@@ -334,7 +342,7 @@ exports.findAllFGStock = (req, res) => {
     res.status(401).send({ message: "Unauthorized!" });
     return;
   }
-  Product.findAll({where:{ fg: false, isStock: true },
+  Product.findAll({where:{ bund: false, isStock: true },
     include: [
       {model: Productcat, as: "productcats"},
       {model: Brand, as: "brands"},
@@ -346,7 +354,7 @@ exports.findAllFGStock = (req, res) => {
     ] })
     .then(data => {
       res.send(data);
-    }).catch(err =>{console.error("prod1101",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("prod1101",err);res.status(500).send({message:err}); });
 };
 
 exports.findAllRMStock = (req, res) => {
@@ -354,7 +362,7 @@ exports.findAllRMStock = (req, res) => {
     res.status(401).send({ message: "Unauthorized!" });
     return;
   }
-  Product.findAll({where:{ rm: false, isStock: true },
+  Product.findAll({where:{ prod: false, isStock: true },
     include: [
       {model: Productcat, as: "productcats"},
       {model: Brand, as: "brands"},
@@ -366,7 +374,7 @@ exports.findAllRMStock = (req, res) => {
     ] })
     .then(data => {
       res.send(data);
-    }).catch(err =>{console.error("prod1101",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("prod1201",err);res.status(500).send({message:err}); });
 };
 
 exports.findAllRM = (req, res) => {
@@ -386,7 +394,7 @@ exports.findAllRM = (req, res) => {
     ] })
     .then(data => {
       res.send(data);
-    }).catch(err =>{console.error("prod1101",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("prod1301",err);res.status(500).send({message:err}); });
 };
 
 exports.findAllRMTrue = (req, res) => {
@@ -394,7 +402,7 @@ exports.findAllRMTrue = (req, res) => {
     res.status(401).send({ message: "Unauthorized!" });
     return;
   }
-  Product.findAll({where:{ rm: true, isStock: true },
+  Product.findAll({where:{ prod: true, isStock: true },
     include: [
       {model: Productcat, as: "productcats"},
       {model: Brand, as: "brands"},
@@ -406,7 +414,7 @@ exports.findAllRMTrue = (req, res) => {
     ] })
     .then(data => {
       res.send(data);
-    }).catch(err =>{console.error("prod1101",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("prod1401",err);res.status(500).send({message:err}); });
 };
 
 exports.findAllPOReady = (req, res) => {
@@ -414,7 +422,7 @@ exports.findAllPOReady = (req, res) => {
     res.status(401).send({ message: "Unauthorized!" });
     return;
   }
-  Product.findAll({where:{ fg: false, isStock: true },
+  Product.findAll({where:{ bund: false, prod: false, isStock: true },
     include: [
       {model: Productcat, as: "productcats"},
       {model: Brand, as: "brands"},
@@ -426,7 +434,7 @@ exports.findAllPOReady = (req, res) => {
     ] })
     .then(data => {
       res.send(data);
-    }).catch(err =>{console.error("prod1201",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("prod1501",err);res.status(500).send({message:err}); });
 };
 
 exports.findAllSOReady = (req, res) => {
@@ -434,7 +442,7 @@ exports.findAllSOReady = (req, res) => {
     res.status(401).send({ message: "Unauthorized!" });
     return;
   }
-  Product.findAll({where:{ fg: true, isStock: true },
+  Product.findAll({where:{ isStock: true },
     include: [
       {model: Productcat, as: "productcats"},
       {model: Brand, as: "brands"},
@@ -446,7 +454,7 @@ exports.findAllSOReady = (req, res) => {
     ] })
     .then(data => {
       res.send(data);
-    }).catch(err =>{console.error("prod1301",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("prod1601",err);res.status(500).send({message:err}); });
 };
 
 exports.getCostComp = (req, res) => {
@@ -457,5 +465,5 @@ exports.getCostComp = (req, res) => {
   ProductCostComp.findOne({where:{product_id: req.params.prod, company_id: req.params.comp}})
     .then(data => {
       res.send(data);
-    }).catch(err =>{console.error("prod1401",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("prod1701",err);res.status(500).send({message:err}); });
 };

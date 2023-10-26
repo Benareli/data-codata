@@ -25,10 +25,10 @@ exports.create = (req, res) => {
         const log = ({message: "dibuat", category: dataa.id, user: req.body.user,});
         Log.create(log).then(datab => {
           res.send(datab);
-        }).catch(err =>{console.error("pcat0101",err.message);res.status(500).send({message:err.message}); });
-      }).catch(err =>{console.error("pcat0102",err.message);res.status(500).send({message:err.message}); });
+        }).catch(err =>{console.error("pcat0101",err);res.status(500).send({message:err}); });
+      }).catch(err =>{console.error("pcat0102",err);res.status(500).send({message:err}); });
     }
-  }).catch(err =>{console.error("pcat0103",err.message);res.status(500).send({message:err.message}); });
+  }).catch(err =>{console.error("pcat0103",err);res.status(500).send({message:err}); });
 };
 
 exports.createMany = (req, res) => {
@@ -56,8 +56,8 @@ function startSequence(x, reqs, users, res){
           const log = ({message: "upload", category: dataa.id, user: users,});
           Log.create(log).then(datab => {
             sequencing(x, reqs, users, res);
-          }).catch(err =>{console.error("pcat0201",err.message);res.status(500).send({message:err.message}); });
-        }).catch(err =>{console.error("pcat0202",err.message);res.status(500).send({message:err.message}); });
+          }).catch(err =>{console.error("pcat0201",err);res.status(500).send({message:err}); });
+        }).catch(err =>{console.error("pcat0202",err);res.status(500).send({message:err}); });
       }
     });
   }else{
@@ -79,7 +79,7 @@ exports.findAll = (req, res) => {
   ProductCat.findAll()
     .then(data => {
       res.send(data);
-    }).catch(err =>{console.error("pcat0301",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("pcat0301",err);res.status(500).send({message:err}); });
 };
 
 exports.findOne = (req, res) => {
@@ -92,7 +92,7 @@ exports.findOne = (req, res) => {
       if (!data)
         res.status(404).send({ message: "Not found Data with id " + id });
       else res.send(data);
-    }).catch(err =>{console.error("pcat0401",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("pcat0401",err);res.status(500).send({message:err}); });
 };
 
 exports.findOneAcc = (req, res) => {
@@ -119,8 +119,8 @@ exports.findOneAcc = (req, res) => {
           if (!dataa)
             res.status(404).send({ message: "Not found Data with id " + id });
           else res.send(dataa);
-      }).catch(err =>{console.error("pcat0402",err.message);res.status(500).send({message:err.message}); });
-    }).catch(err =>{console.error("pcat0403",err.message);res.status(500).send({message:err.message}); });
+      }).catch(err =>{console.error("pcat0402",err);res.status(500).send({message:err}); });
+    }).catch(err =>{console.error("pcat0403",err);res.status(500).send({message:err}); });
 };
 
 exports.findByDesc = (req, res) => {
@@ -133,7 +133,7 @@ exports.findByDesc = (req, res) => {
   ProductCat.findAll({where:condition})
     .then(data => {
       res.send(data);
-    }).catch(err =>{console.error("pcat0501",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("pcat0501",err);res.status(500).send({message:err}); });
 };
 
 exports.findByCatId = (req, res) => {
@@ -146,7 +146,7 @@ exports.findByCatId = (req, res) => {
   ProductCat.findAll({where:condition})
     .then(data => {
       res.send(data);
-    }).catch(err =>{console.error("pcat0601",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("pcat0601",err);res.status(500).send({message:err}); });
 };
 
 exports.update = (req, res) => {
@@ -167,14 +167,24 @@ exports.update = (req, res) => {
           if (!data) {
             res.status(404).send({message: `Cannot update. Maybe Data was not found!`});
           } else {
-            const log = ({message: req.body.message, category: req.params.id, user: req.body.user,});
-            Log.create(log).then(datab => {
-              res.send({ message: "Updated successfully." });
-            }).catch(err =>{console.error("pcat0701",err.message);res.status(500).send({message:err.message}); });
+            ProductCatAcc.update(
+              {
+                revenue_id: req.body.revenue_id,
+                cost_id: req.body.cost_id,
+                incoming_id: req.body.incoming_id,
+                outgoing_id: req.body.outgoing_id,
+                inventory_id: req.body.inventory_id,
+              },
+              {where:{category_id: req.params.id, company_id: req.body.company}}).then(pdcc => {
+              const log = ({message: req.body.message, category: req.params.id, user: req.body.user,});
+              Log.create(log).then(datab => {
+                res.send({ message: "Updated successfully." });
+              }).catch(err =>{console.error("pcat0700",err);res.status(500).send({message:err}); });
+            }).catch(err =>{console.error("pcat0701",err);res.status(500).send({message:err}); });
           };
-        }).catch(err =>{console.error("pcat0702",err.message);res.status(500).send({message:err.message}); });
+        }).catch(err =>{console.error("pcat0702",err);res.status(500).send({message:err}); });
       }
-    }).catch(err =>{console.error("pcat0703",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("pcat0703",err);res.status(500).send({message:err}); });
 };
 
 exports.delete = (req, res) => {
@@ -191,7 +201,7 @@ exports.delete = (req, res) => {
       } else {
         res.send({message: "Deleted successfully!"});
       }
-    }).catch(err =>{console.error("pcat0801",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("pcat0801",err);res.status(500).send({message:err}); });
 };
 
 exports.findAllActive = (req, res) => {
@@ -202,5 +212,5 @@ exports.findAllActive = (req, res) => {
   ProductCat.findAll({where:{ active: true }})
     .then(data => {
       res.send(data);
-    }).catch(err =>{console.error("pcat0901",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("pcat0901",err);res.status(500).send({message:err}); });
 };

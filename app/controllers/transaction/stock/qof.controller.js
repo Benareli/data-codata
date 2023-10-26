@@ -22,8 +22,8 @@ exports.create = (req, res) => {
       uom: req.body.uom
     });
     qof.save(qof).then(data => {res.send(data);}).catch(err => {res.status(500).send({message:
-          err.message || "Some error occurred while creating the Data."});
-    }).catch(err =>{console.error("qof0101",err.message);res.status(500).send({message:err.message}); });
+          err || "Some error occurred while creating the Data."});
+    }).catch(err =>{console.error("qof0101",err);res.status(500).send({message:err}); });
   }
   if(req.body.partner == "null"){
     const qof = new Qof({
@@ -33,8 +33,8 @@ exports.create = (req, res) => {
       uom: req.body.uom
     });
     qof.save(qof).then(data => {res.send(data);}).catch(err => {res.status(500).send({message:
-          err.message || "Some error occurred while creating the Data."});
-    }).catch(err =>{console.error("qof0102",err.message);res.status(500).send({message:err.message}); });
+          err || "Some error occurred while creating the Data."});
+    }).catch(err =>{console.error("qof0102",err);res.status(500).send({message:err}); });
   }
 };
 
@@ -52,7 +52,7 @@ exports.findAll = (req, res) => {
     .populate({ path: 'uom', model: Uom })
     .then(data => {
       res.send(data);
-    }).catch(err =>{console.error("qof0201",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("qof0201",err);res.status(500).send({message:err}); });
 };
 
 // Find a single with an id
@@ -69,7 +69,7 @@ exports.findOne = (req, res) => {
       if (!data)
         res.status(404).send({ message: "Not found Data with id " + id });
       else res.send(data);
-    }).catch(err =>{console.error("qof0301",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("qof0301",err);res.status(500).send({message:err}); });
 };
 
 // Find a single with an desc
@@ -86,5 +86,5 @@ exports.findByDesc = (req, res) => {
     .populate({ path: 'uom', model: Uom })
     .then(data => {
       res.send(data);
-    }).catch(err =>{console.error("qof0401",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("qof0401",err);res.status(500).send({message:err}); });
 };

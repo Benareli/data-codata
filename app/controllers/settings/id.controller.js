@@ -10,7 +10,7 @@ exports.findAll = (req, res) => {
   Id.findAll()
     .then(data => {
       res.send(data);
-    }).catch(err =>{console.error("id0101",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("id0101",err);res.status(500).send({message:err}); });
 };
 
 exports.findPOSessId = (req, res) => {
@@ -32,8 +32,8 @@ exports.findPOSessId = (req, res) => {
         .then(data => {
           res.send({message: posid});
           //console.log(data, posid);
-        }).catch(err =>{console.error("id0201",err.message);res.status(500).send({message:err.message}); });
-    }).catch(err =>{console.error("id0202",err.message);res.status(500).send({message:err.message}); });
+        }).catch(err =>{console.error("id0201",err);res.status(500).send({message:err}); });
+    }).catch(err =>{console.error("id0202",err);res.status(500).send({message:err}); });
 };
 
 exports.findPOSId = (req, res) => {
@@ -54,8 +54,8 @@ exports.findPOSId = (req, res) => {
       Id.update({pos_id: Number(ids[0].pos_id) + 1}, {where: {id: ids[0].id}})
         .then(data => {
           res.send({message: posid});
-        }).catch(err =>{console.error("id0301",err.message);res.status(500).send({message:err.message}); });
-    }).catch(err =>{console.error("id0302",err.message);res.status(500).send({message:err.message}); });
+        }).catch(err =>{console.error("id0301",err);res.status(500).send({message:err}); });
+    }).catch(err =>{console.error("id0302",err);res.status(500).send({message:err}); });
 };
 
 exports.findPaymentId = (req, res) => {
@@ -76,8 +76,8 @@ exports.findPaymentId = (req, res) => {
       Id.update({pay_id: Number(ids[0].pay_id) + 1}, {where: {id: ids[0].id}})
         .then(data => {
           res.send({message: payid});
-        }).catch(err =>{console.error("id0401",err.message);res.status(500).send({message:err.message}); });
-    }).catch(err =>{console.error("id0402",err.message);res.status(500).send({message:err.message}); });
+        }).catch(err =>{console.error("id0401",err);res.status(500).send({message:err}); });
+    }).catch(err =>{console.error("id0402",err);res.status(500).send({message:err}); });
 };
 
 exports.findTransferId = (req, res) => {
@@ -99,8 +99,8 @@ exports.findTransferId = (req, res) => {
         .then(data => {
           res.send({message: transferid});
           //console.log(data, posid);
-        }).catch(err =>{console.error("id0501",err.message);res.status(500).send({message:err.message}); });
-      }).catch(err =>{console.error("id0502",err.message);res.status(500).send({message:err.message}); });
+        }).catch(err =>{console.error("id0501",err);res.status(500).send({message:err}); });
+      }).catch(err =>{console.error("id0502",err);res.status(500).send({message:err}); });
 };
 
 exports.findPurchaseId = (req, res) => {
@@ -120,8 +120,8 @@ exports.findPurchaseId = (req, res) => {
       Id.update({purchase_id: ids[0].purchase_id+1}, {where: {id: ids[0].id}})
         .then(data => {
           res.send({message: purchid});
-        }).catch(err =>{console.error("id0601",err.message);res.status(500).send({message:err.message}); });
-      }).catch(err =>{console.error("id0602",err.message);res.status(500).send({message:err.message}); });
+        }).catch(err =>{console.error("id0601",err);res.status(500).send({message:err}); });
+      }).catch(err =>{console.error("id0602",err);res.status(500).send({message:err}); });
 };
 
 exports.findSaleId = (req, res) => {
@@ -141,8 +141,8 @@ exports.findSaleId = (req, res) => {
       Id.update({sale_id: ids[0].sale_id+1}, {where: {id: ids[0].id}})
         .then(data => {
           res.send({message: saleid});
-        }).catch(err =>{console.error("id0701",err.message);res.status(500).send({message:err.message}); });
-      }).catch(err =>{console.error("id0702",err.message);res.status(500).send({message:err.message}); });
+        }).catch(err =>{console.error("id0701",err);res.status(500).send({message:err}); });
+      }).catch(err =>{console.error("id0702",err);res.status(500).send({message:err}); });
 };
 
 exports.update = (req, res) => {
@@ -166,7 +166,7 @@ exports.update = (req, res) => {
        
       }
     })
-    .catch(err => {console.error("id0801",err.message);
+    .catch(err => {console.error("id0801",err);
       res.status(500).send({
         message: "Error updating with id=" + id
       });

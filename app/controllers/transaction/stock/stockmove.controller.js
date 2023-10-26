@@ -14,24 +14,7 @@ const User = db.users;
 const Coa = db.coas;
 const Id = db.ids;
 const Log = db.logs;
-var journid, journalid, journalcount;
-var xx, yy, qt;
 var qty, oriqty, uom_id, oriuom_id, cost, oricost, entries, type;
-
-async function getUpdateJournalId() {
-  const res1 = await id.getUpdateJournalId();
-  return res1;
-}
-
-async function updateJournalId1() {
-  const res2 = await id.updateJournalId1();
-  return res2;
-}
-
-async function getCoa2(coa1, coa2) {
-  const res3 = await coa.getCoa2(coa1, coa2);
-  return res3;
-}
 
 async function updateProductCache() {
   const res4 = await cache.updateProductCache();
@@ -74,14 +57,14 @@ exports.quickAdd = (req, res) => {
         oriuom_id = req.body.uom_id;
         oricost = req.body.cost;
         createSM(req, res, qty);
-      }).catch(err => {console.error("sm0002",err.message);res.status(500).send({message:err.message}); });
+      }).catch(err => {console.error("sm0002",err);res.status(500).send({message:err}); });
     }else{
       qty = req.body.qin;
       uom_id = req.body.uom_id;
       cost = req.body.cost;
       createSM(req, res, qty);
     }
-  }).catch(err => {console.error("sm0001",err.message);res.status(500).send({message:err.message}); });
+  }).catch(err => {console.error("sm0001",err);res.status(500).send({message:err}); });
 };
 
 function createSM(req, res, qty) {
@@ -111,10 +94,10 @@ function createSM(req, res, qty) {
       insertUpdateStock("in", req.body.product_id, req.body.partner_id, req.body.warehouse_id, req.body).then(qop => {
         updateProductCache().then(upc => {
           insertAcc(req.body, res, cost);
-        }).catch(err => {console.error("sm0101",err.message);res.status(500).send({message:err.message}); });
-      }).catch(err => {console.error("sm0102",err.message);res.status(500).send({message:err.message}); });
+        }).catch(err => {console.error("sm0101",err);res.status(500).send({message:err}); });
+      }).catch(err => {console.error("sm0102",err);res.status(500).send({message:err}); });
     }
-  }).catch(err => {console.error("sm0103",err.message);res.status(500).send({message:err.message}); });
+  }).catch(err => {console.error("sm0103",err);res.status(500).send({message:err}); });
 };
 
 function insertAcc(req, res, cost) {
@@ -132,7 +115,7 @@ function insertAcc(req, res, cost) {
         var incomingAccount = p2.incomings;
         var ncost = cost * req.qin;
       } else {
-        var inventoryAccount = p2.incomings;
+        var inventoryAccount = p2.outgoings;
         var incomingAccount = p2.inventorys;
         var ncost = cost * req.quot;
       }
@@ -152,12 +135,12 @@ function insertAcc(req, res, cost) {
       if(entries.length >= 2){
         inputJournal(inJournal).then(inputJour => {
           res.send({message:"done"});
-        }).catch(err =>{console.error("sm0103",err.message);res.status(500).send({message:err.message}); });
+        }).catch(err =>{console.error("sm0103",err);res.status(500).send({message:err}); });
       }else{
         insertAcc(req, res, cost)
       }
-    }).catch(err =>{console.error("sm0101",err.message);res.status(500).send({message:err.message}); });
-  }).catch(err =>{console.error("sm0102",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("sm0101",err);res.status(500).send({message:err}); });
+  }).catch(err =>{console.error("sm0102",err);res.status(500).send({message:err}); });
   }
 
 exports.findAll = (req, res) => {
@@ -174,7 +157,7 @@ exports.findAll = (req, res) => {
     ] })
     .then(data => {
       res.send(data);
-    }).catch(err =>{console.error("sm0201",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("sm0201",err);res.status(500).send({message:err}); });
 };
 
 exports.findAllByComp = (req, res) => {
@@ -191,7 +174,7 @@ exports.findAllByComp = (req, res) => {
     ] })
     .then(data => {
       res.send(data);
-    }).catch(err =>{console.error("sm0201",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("sm0201",err);res.status(500).send({message:err}); });
 };
 
 exports.findOne = (req, res) => {
@@ -210,7 +193,7 @@ exports.findOne = (req, res) => {
       if (!data)
         res.status(404).send({ message: "Not found Data with id " + id });
       else res.send(data);
-    }).catch(err =>{console.error("sm0301",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("sm0301",err);res.status(500).send({message:err}); });
 };
 
 exports.findByDesc = (req, res) => {
@@ -230,7 +213,7 @@ exports.findByDesc = (req, res) => {
     ] })
     .then(data => {
       res.send(data);
-    }).catch(err =>{console.error("sm0401",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("sm0401",err);res.status(500).send({message:err}); });
 };
 
 exports.findTransId = (req, res) => {
@@ -248,7 +231,7 @@ exports.findTransId = (req, res) => {
     ] })
     .then(data => {
       res.send(data);
-    }).catch(err =>{console.error("sm0501",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("sm0501",err);res.status(500).send({message:err}); });
 };
 
 exports.findOrigin = (req, res) => {
@@ -266,7 +249,7 @@ exports.findOrigin = (req, res) => {
     ] })
     .then(data => {
       res.send(data);
-    }).catch(err =>{console.error("sm0601",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("sm0601",err);res.status(500).send({message:err}); });
 };
 
 exports.findTransIn = (req, res) => {
@@ -281,7 +264,7 @@ exports.findTransIn = (req, res) => {
       'AND public.stockmoves.qin > 0',{raw: true, nest: true})
     .then(result => {
       res.send(result);
-    }).catch(err =>{console.error("sm0701",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("sm0701",err);res.status(500).send({message:err}); });
 };
 
 // Retrieve all from the database.
@@ -297,7 +280,7 @@ exports.findTransOut = (req, res) => {
       'AND public.stockmoves.qout > 0',{raw: true, nest: true})
     .then(result => {
       res.send(result);
-    }).catch(err =>{console.error("sm0801",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("sm0801",err);res.status(500).send({message:err}); });
 };
 
 // Retrieve all from the database.
@@ -316,5 +299,5 @@ exports.findByWh = (req, res) => {
     ] })
     .then(data => {
       res.send(data);
-    }).catch(err =>{console.error("sm0901",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("sm0901",err);res.status(500).send({message:err}); });
 };

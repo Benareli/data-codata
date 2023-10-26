@@ -24,7 +24,7 @@ exports.create = (req, res) => {
     .save(lot)
     .then(data => {
       res.send(data);
-    }).catch(err =>{console.error("lot0101",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("lot0101",err);res.status(500).send({message:err}); });
 };
 
 exports.createUpdate = (req, res) => {
@@ -49,10 +49,10 @@ exports.createUpdate = (req, res) => {
                     const prod3 = Product.updateOne({_id:req.body.product},{qoh:x,cost:y})
                       .then(datad => {
                         res.send(datad);
-                      }).catch(err =>{console.error("lot0201",err.message);res.status(500).send({message:err.message}); });
-                  }).catch(err =>{console.error("lot0202",err.message);res.status(500).send({message:err.message}); });
-              }).catch(err =>{console.error("lot0203",err.message);res.status(500).send({message:err.message}); });
-          }).catch(err =>{console.error("lot0204",err.message);res.status(500).send({message:err.message}); });
+                      }).catch(err =>{console.error("lot0201",err);res.status(500).send({message:err}); });
+                  }).catch(err =>{console.error("lot0202",err);res.status(500).send({message:err}); });
+              }).catch(err =>{console.error("lot0203",err);res.status(500).send({message:err}); });
+          }).catch(err =>{console.error("lot0204",err);res.status(500).send({message:err}); });
         }else{
           lot.find({_id: data[0]._id}).then(datax =>{
             if(req.body.lot>0){
@@ -68,12 +68,12 @@ exports.createUpdate = (req, res) => {
                   const prod3 = Product.updateOne({_id:req.body.product},{qoh:x,cost:y})
                     .then(datac => {
                       res.send(datac);
-                    }).catch(err =>{console.error("lot0205",err.message);res.status(500).send({message:err.message}); });
-                }).catch(err =>{console.error("lot0206",err.message);res.status(500).send({message:err.message}); });
-            }).catch(err =>{console.error("lot0207",err.message);res.status(500).send({message:err.message}); });
+                    }).catch(err =>{console.error("lot0205",err);res.status(500).send({message:err}); });
+                }).catch(err =>{console.error("lot0206",err);res.status(500).send({message:err}); });
+            }).catch(err =>{console.error("lot0207",err);res.status(500).send({message:err}); });
           });
         }
-      }).catch(err =>{console.error("lot0208",err.message);res.status(500).send({message:err.message}); });
+      }).catch(err =>{console.error("lot0208",err);res.status(500).send({message:err}); });
   }else{
     lot.find({product: req.body.product, partner: { $exists : false }, warehouse: req.body.warehouse})
       .then(data => {
@@ -91,10 +91,10 @@ exports.createUpdate = (req, res) => {
                     const prod3 = Product.updateOne({_id:req.body.product},{qoh:x,cost:y})
                       .then(datad => {
                         res.send(datad);
-                      }).catch(err =>{console.error("lot0209",err.message);res.status(500).send({message:err.message}); });
-                  }).catch(err =>{console.error("lot0210",err.message);res.status(500).send({message:err.message}); });
-              }).catch(err =>{console.error("lot0211",err.message);res.status(500).send({message:err.message}); });
-          }).catch(err =>{console.error("lot0212",err.message);res.status(500).send({message:err.message}); });
+                      }).catch(err =>{console.error("lot0209",err);res.status(500).send({message:err}); });
+                  }).catch(err =>{console.error("lot0210",err);res.status(500).send({message:err}); });
+              }).catch(err =>{console.error("lot0211",err);res.status(500).send({message:err}); });
+          }).catch(err =>{console.error("lot0212",err);res.status(500).send({message:err}); });
         }else{
           lot.find({_id: data[0]._id}).then(datax =>{
             if(req.body.lot>0){
@@ -110,12 +110,12 @@ exports.createUpdate = (req, res) => {
                   const prod3 = Product.updateOne({_id:req.body.product},{qoh:x,cost:y})
                     .then(datac => {
                       res.send(datac);
-                    }).catch(err =>{console.error("lot0213",err.message);res.status(500).send({message:err.message}); });
-                }).catch(err =>{console.error("lot0214",err.message);res.status(500).send({message:err.message}); });
-            }).catch(err =>{console.error("lot0215",err.message);res.status(500).send({message:err.message}); });
+                    }).catch(err =>{console.error("lot0213",err);res.status(500).send({message:err}); });
+                }).catch(err =>{console.error("lot0214",err);res.status(500).send({message:err}); });
+            }).catch(err =>{console.error("lot0215",err);res.status(500).send({message:err}); });
           })
         }
-      }).catch(err =>{console.error("lot0216",err.message);res.status(500).send({message:err.message}); });
+      }).catch(err =>{console.error("lot0216",err);res.status(500).send({message:err}); });
   }*/
 };
 
@@ -132,7 +132,7 @@ exports.findAll = (req, res) => {
     ] })
     .then(data => {
       res.send(data);
-    }).catch(err =>{console.error("lot0301",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("lot0301",err);res.status(500).send({message:err}); });
 };
 
 exports.findOne = (req, res) => {
@@ -150,7 +150,7 @@ exports.findOne = (req, res) => {
       if (!data)
         res.status(404).send({ message: "Not found Data with id " + id });
       else res.send(data);
-    }).catch(err =>{console.error("lot0401",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("lot0401",err);res.status(500).send({message:err}); });
 };
 
 exports.findByProduct = (req, res) => {
@@ -165,7 +165,7 @@ exports.findByProduct = (req, res) => {
       ] })
       .then(data => {
         res.send(data);
-      }).catch(err =>{console.error("lot0501",err.message);res.status(500).send({message:err.message}); });
+      }).catch(err =>{console.error("lot0501",err);res.status(500).send({message:err}); });
   }
 };
 
@@ -181,7 +181,7 @@ exports.findByProduct2 = (req, res) => {
       ] })
       .then(data => {
         res.send(data);
-      }).catch(err =>{console.error("lot0502",err.message);res.status(500).send({message:err.message}); });
+      }).catch(err =>{console.error("lot0502",err);res.status(500).send({message:err}); });
   }
 };
 
@@ -197,7 +197,7 @@ exports.findByProduct3 = (req, res) => {
       ] })
       .then(data => {
         res.send(data);
-      }).catch(err =>{console.error("lot0503",err.message);res.status(500).send({message:err.message}); });
+      }).catch(err =>{console.error("lot0503",err);res.status(500).send({message:err}); });
   }
 };
 
@@ -218,7 +218,7 @@ exports.update = (req, res) => {
           message: `Cannot update with id=${id}. Maybe Data was not found!`
         });
       } else res.send({ message: "Updated successfully." });
-    }).catch(err =>{console.error("lot0601",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("lot0601",err);res.status(500).send({message:err}); });
 };
 
 exports.findByProd = (req, res) => {
@@ -231,7 +231,7 @@ exports.findByProd = (req, res) => {
       'GROUP BY public.warehouses.name')
     .then(result => {
       res.send(result);
-    }).catch(err =>{console.error("lot0701",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("lot0701",err);res.status(500).send({message:err}); });
   }
 };
 
@@ -247,6 +247,6 @@ exports.findByWh = (req, res) => {
     ] })
     .then(data => {
       res.send(data);
-    }).catch(err =>{console.error("lot0801",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("lot0801",err);res.status(500).send({message:err}); });
   }
 };

@@ -37,22 +37,37 @@ exports.create = (req, res) => {
     res.status(401).send({ message: "Unauthorized!" });
     return;
   }
-  // Validate request
-  if (!req.body.order_id) {
+  if (!req.body) {
     res.status(400).send({ message: "Content can not be empty!" });
     return;
   }
-  if(req.body.fg){
+  /*if(req.body.fg){
     insertPOSDetail(req.body, res);
-  }
-  if(req.body.isStock=="true"&&!req.body.fg){
+  }*/
+  console.log(req.body);
+
+  const posdetail = ({
+    order_id: req.body.order_id, qty: req.body.qty, price_unit: req.body.price_unit,
+    discount: req.body.discount, tax: req.body.tax, include: req.body.include,
+    subtotal: req.body.subtotal, date: req.body.date, pos_id: req.body.pos_id,
+    partner_id: req.body.partner, warehouse_id: req.body.warehouse, product_id: req.body.product,
+    uom_id: req.body.uom, oriuom_id: req.body.oriuom, store_id: req.body.store,
+    company_id: req.body.company
+  });
+  Posdetail.create(posdetail).then(dataa => {
+    console.log(dataa);
+  }).catch(err =>{console.error("posdet0109",err);res.status(500).send({message:err}); });
+  /*if(req.body.isStock=="true"){
     const posdetail = ({
-      order_id: req.body.order_id, qty: req.body.qty, uom: req.body.uom, include: req.body.include,
-      price_unit: req.body.price_unit, discount: req.body.discount, tax: req.body.tax, subtotal: req.body.subtotal,
-      product: req.body.product, warehouse: req.body.warehouse, date: req.body.date,
-      store: req.body.store,
+      order_id: req.body.order_id, qty: req.body.qty, price_unit: req.body.price_unit,
+      discount: req.body.discount, tax: req.body.tax, include: req.body.include,
+      subtotal: req.body.subtotal, date: req.body.date, pos_id: req.body.pos_id,
+      partner_id: req.body.partner, warehouse_id: req.body.warehouse, product_id: req.body.product,
+      uom_id: req.body.uom, oriuom_id: req.body.oriuom, store_id: req.body.store,
+      company_id: req.body.company
     });
     Posdetail.create(posdetail).then(dataa => {
+      console.log(dataa);
       Pos.findOneAndUpdate({order_id: req.body.order_id}, {$push: {pos_detail: dataa._id}}, { useFindAndModify: false })
         .then(datab => { 
           if(req.body.partner=="null" || !req.body.partner){
@@ -73,7 +88,7 @@ exports.create = (req, res) => {
                   });
                   Stockmove.create(stockmove).then(datad => {
                     findCost(req.body, res);
-                    }).catch(err => {console.error("posdet0101",err.message);res.status(500).send({message:err.message}); });
+                    }).catch(err => {console.error("posdet0101",err);res.status(500).send({message:err}); });
                 }else{
                   getUpdateTransId().then(restransid => {
                     transid = restransid;
@@ -89,11 +104,11 @@ exports.create = (req, res) => {
                     });
                     Stockmove.create(stockmove).then(datad => {
                       findCost(req.body, res);
-                      }).catch(err => {console.error("posdet0102",err.message);res.status(500).send({message:err.message}); });
-                    }).catch(err =>{console.error("posdet0103",err.message);res.status(500).send({message:err.message}); });
+                      }).catch(err => {console.error("posdet0102",err);res.status(500).send({message:err}); });
+                    }).catch(err =>{console.error("posdet0103",err);res.status(500).send({message:err}); });
                 }
-              }).catch(err =>{console.error("posdet0104",err.message);res.status(500).send({message:err.message}); });
-            }).catch(err =>{console.error("posdet0105",err.message);res.status(500).send({message:err.message}); });
+              }).catch(err =>{console.error("posdet0104",err);res.status(500).send({message:err}); });
+            }).catch(err =>{console.error("posdet0105",err);res.status(500).send({message:err}); });
           }else if(req.body.partner!="null"){
             const qof1 = ({qof: 0-Number(req.body.qty), product: req.body.product, 
               partner: req.body.partner, warehouse: req.body.warehouse, uom: req.body.uom});
@@ -113,7 +128,7 @@ exports.create = (req, res) => {
                   });
                   Stockmove.create(stockmove).then(datad => {
                     findCost(req.body, res);
-                    }).catch(err => {console.error("posdet0101",err.message);res.status(500).send({message:err.message}); });
+                    }).catch(err => {console.error("posdet0101",err);res.status(500).send({message:err}); });
                 }else{
                   getUpdateTransId().then(restransid => {
                     transid = restransid;
@@ -130,15 +145,15 @@ exports.create = (req, res) => {
                     });
                     Stockmove.create(stockmove).then(datad => {
                       findCost(req.body, res);
-                      }).catch(err => {console.error("posdet0102",err.message);res.status(500).send({message:err.message}); });
-                    }).catch(err =>{console.error("posdet0103",err.message);res.status(500).send({message:err.message}); });
+                      }).catch(err => {console.error("posdet0102",err);res.status(500).send({message:err}); });
+                    }).catch(err =>{console.error("posdet0103",err);res.status(500).send({message:err}); });
                 }
-              }).catch(err =>{console.error("posdet0104",err.message);res.status(500).send({message:err.message}); });
-            }).catch(err =>{console.error("posdet0105",err.message);res.status(500).send({message:err.message}); });
+              }).catch(err =>{console.error("posdet0104",err);res.status(500).send({message:err}); });
+            }).catch(err =>{console.error("posdet0105",err);res.status(500).send({message:err}); });
           }   
       });
     });
-  }else if(req.body.isStock=="false"&&!req.body.fg){
+  }else if(req.body.isStock=="false"){
     const posdetail = ({
       order_id: req.body.order_id,
       qty: req.body.qty,
@@ -157,9 +172,9 @@ exports.create = (req, res) => {
       Pos.findOneAndUpdate({order_id: req.body.order_id}, {$push: {pos_detail: dataa._id}}, { useFindAndModify: false })
         .then(datab => { 
           res.send(datab);
-        }).catch(err =>{console.error("posdet0109",err.message);res.status(500).send({message:err.message}); });
-    }).catch(err =>{console.error("posdet0110",err.message);res.status(500).send({message:err.message}); });
-  }
+        }).catch(err =>{console.error("posdet0109",err);res.status(500).send({message:err}); });
+    }).catch(err =>{console.error("posdet0110",err);res.status(500).send({message:err}); });
+  }*/
 };
 
 function insertPOSDetail(reqs,res){
@@ -173,15 +188,15 @@ function insertPOSDetail(reqs,res){
     Pos.findOneAndUpdate({order_id: reqs.order_id}, {$push: {pos_detail: dataz._id}}, { useFindAndModify: false })
       .then(datay => { 
         startSequence(reqs, res);
-    }).catch(err => {console.error("posdet0201",err.message);res.status(500).send({message:err.message}); });
-  }).catch(err => {console.error("posdet0202",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err => {console.error("posdet0201",err);res.status(500).send({message:err}); });
+  }).catch(err => {console.error("posdet0202",err);res.status(500).send({message:err}); });
 }
 
 function startSequence(reqs, res){
   Bundle.find({bundle: reqs.product})
     .then(dat => {
       playSequencing(0, reqs, dat, res);
-  }).catch(err => {console.error("posdet0301",err.message);res.status(500).send({message:err.message}); });
+  }).catch(err => {console.error("posdet0301",err);res.status(500).send({message:err}); });
 }
 
 function playSequencing(x, reqs, dat, res){
@@ -204,10 +219,10 @@ function playSequencing(x, reqs, dat, res){
           });
           Stockmove.create(stockmove).then(datad => {
             findCostBundle(x, reqs, dat, res);
-            }).catch(err => {console.error("posdet0401",err.message);res.status(500).send({message:err.message});
-          }).catch(err =>{console.error("posdet0402",err.message);res.status(500).send({message:err.message}); });
-        }).catch(err =>{console.error("posdet0403",err.message);res.status(500).send({message:err.message}); });
-      }).catch(err =>{console.error("posdet0404",err.message);res.status(500).send({message:err.message}); });
+            }).catch(err => {console.error("posdet0401",err);res.status(500).send({message:err});
+          }).catch(err =>{console.error("posdet0402",err);res.status(500).send({message:err}); });
+        }).catch(err =>{console.error("posdet0403",err);res.status(500).send({message:err}); });
+      }).catch(err =>{console.error("posdet0404",err);res.status(500).send({message:err}); });
     }else if(reqs.partner!="null"){
       const qof1 = ({qof: 0-(Number(reqs.qty) * Number(dat[x].qty)), product: dat[x].product, 
         partner: reqs.partner, warehouse: reqs.warehouse, uom: reqs.uom});
@@ -227,10 +242,10 @@ function playSequencing(x, reqs, dat, res){
           });
           Stockmove.create(stockmove).then(datad => {
               findCostBundle(x, reqs, dat, res);
-            }).catch(err => {console.error("posdet0405",err.message);res.status(500).send({message:err.message});
-          }).catch(err =>{console.error("posdet0406",err.message);res.status(500).send({message:err.message}); });
-        }).catch(err =>{console.error("posdet0407",err.message);res.status(500).send({message:err.message}); });
-      }).catch(err =>{console.error("posdet0408",err.message);res.status(500).send({message:err.message}); });
+            }).catch(err => {console.error("posdet0405",err);res.status(500).send({message:err});
+          }).catch(err =>{console.error("posdet0406",err);res.status(500).send({message:err}); });
+        }).catch(err =>{console.error("posdet0407",err);res.status(500).send({message:err}); });
+      }).catch(err =>{console.error("posdet0408",err);res.status(500).send({message:err}); });
     }
   }else{
     res.status(200).send({message:"All bundle data in!"});
@@ -264,12 +279,12 @@ function findCostBundle(x, reqs, dat, res){
               .then(dataj => {
                 o=null,p=null,oo=null,pp=null;
                 sequencing(x, reqs, dat, res);
-              }).catch(err =>{console.error("posdet0501",err.message);res.status(500).send({message:err.message}); });
-            }).catch(err =>{console.error("posdet0502",err.message);res.status(500).send({message:err.message}); });
-          }).catch(err =>{console.error("posdet0503",err.message);res.status(500).send({message:err.message}); });
-        }).catch(err =>{console.error("posdet0504",err.message);res.status(500).send({message:err.message}); });
-      }).catch(err =>{console.error("posdet0505",err.message);res.status(500).send({message:err.message}); });
-    }).catch(err =>{console.error("posdet0506",err.message);res.status(500).send({message:err.message}); });
+              }).catch(err =>{console.error("posdet0501",err);res.status(500).send({message:err}); });
+            }).catch(err =>{console.error("posdet0502",err);res.status(500).send({message:err}); });
+          }).catch(err =>{console.error("posdet0503",err);res.status(500).send({message:err}); });
+        }).catch(err =>{console.error("posdet0504",err);res.status(500).send({message:err}); });
+      }).catch(err =>{console.error("posdet0505",err);res.status(500).send({message:err}); });
+    }).catch(err =>{console.error("posdet0506",err);res.status(500).send({message:err}); });
 }
 
 function findCost(req, res) {
@@ -307,12 +322,12 @@ function insertAcc(req, res) {
               .then(datac => {
                 o=null,p=null,oo=null,pp=null;
                 res.send(datac);
-              }).catch(err =>{console.error("posdet0601",err.message);res.status(500).send({message:err.message}); });
-            }).catch(err =>{console.error("posdet0602",err.message);res.status(500).send({message:err.message}); });
-          }).catch(err =>{console.error("posdet0603",err.message);res.status(500).send({message:err.message}); });
-        }).catch(err =>{console.error("posdet0604",err.message);res.status(500).send({message:err.message}); });
-      }).catch(err =>{console.error("posdet0605",err.message);res.status(500).send({message:err.message}); });
-    }).catch(err =>{console.error("posdet0606",err.message);res.status(500).send({message:err.message}); });
+              }).catch(err =>{console.error("posdet0601",err);res.status(500).send({message:err}); });
+            }).catch(err =>{console.error("posdet0602",err);res.status(500).send({message:err}); });
+          }).catch(err =>{console.error("posdet0603",err);res.status(500).send({message:err}); });
+        }).catch(err =>{console.error("posdet0604",err);res.status(500).send({message:err}); });
+      }).catch(err =>{console.error("posdet0605",err);res.status(500).send({message:err}); });
+    }).catch(err =>{console.error("posdet0606",err);res.status(500).send({message:err}); });
 }
 
 // Retrieve all from the database.
@@ -329,7 +344,7 @@ exports.findAll = (req, res) => {
     .populate({ path: 'uom', model: Uom })
     .then(data => {
       res.send(data);
-    }).catch(err =>{console.error("posdet0701",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("posdet0701",err);res.status(500).send({message:err}); });
 };
 
 // Find a single with an id
@@ -346,7 +361,7 @@ exports.findOne = (req, res) => {
       if (!data)
         res.status(404).send({ message: "Not found Data with id " + id });
       else res.send(data);
-    }).catch(err =>{console.error("posdet0801",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("posdet0801",err);res.status(500).send({message:err}); });
 };
 
 // Find a single with an desc
@@ -371,7 +386,7 @@ exports.findByProduct = (req, res) => {
     ])
     .then(result => {
         res.send(result)
-    }).catch(err =>{console.error("posdet0901",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("posdet0901",err);res.status(500).send({message:err}); });
 };
 
 // Update by the id in the request
@@ -394,7 +409,7 @@ exports.update = (req, res) => {
       } else {
         res.send({ message: "Updated successfully." });
       }
-    }).catch(err =>{console.error("posdet1001",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("posdet1001",err);res.status(500).send({message:err}); });
 };
 
 
@@ -453,5 +468,5 @@ exports.report = (req, res) => {
     .then(result => {
       //console.log(result);
       res.send(result);
-    }).catch(err =>{console.error("posdet1101",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("posdet1101",err);res.status(500).send({message:err}); });
 };

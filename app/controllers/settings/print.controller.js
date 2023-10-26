@@ -21,7 +21,7 @@ exports.create = (req, res) => {
   Print.create(print)
     .then(data => {
       res.send(data);
-    }).catch(err => {console.error("print0101",err.message);res.status(500).send({message:err.message});})
+    }).catch(err => {console.error("print0101",err);res.status(500).send({message:err});})
 };
 
 exports.findAll = (req, res) => {
@@ -32,7 +32,7 @@ exports.findAll = (req, res) => {
   Print.findAll()
     .then(data => {
       res.send(data);
-    }).catch(err =>{console.error("print0201",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("print0201",err);res.status(500).send({message:err}); });
 };
 
 exports.findOne = (req, res) => {
@@ -45,7 +45,7 @@ exports.findOne = (req, res) => {
       if (!data)
         res.status(404).send({ message: "Not found Data with id " + id });
       else res.send(data);
-    }).catch(err =>{console.error("print0301",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("print0301",err);res.status(500).send({message:err}); });
 };
 
 exports.findByDet = (req, res) => {
@@ -56,7 +56,7 @@ exports.findByDet = (req, res) => {
   Print.findOne({where:{module:req.params.mod, company_id: req.params.comp}})
     .then(data => {
       res.send(data);
-    }).catch(err =>{console.error("print0401",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("print0401",err);res.status(500).send({message:err}); });
 };
 
 exports.update = (req, res) => {
@@ -77,5 +77,5 @@ exports.update = (req, res) => {
           message: `Cannot update with id=${id}. Maybe Data was not found!`
         });
       } else res.send({ message: "Updated successfully." });
-    }).catch(err =>{console.error("print0501",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("print0501",err);res.status(500).send({message:err}); });
 };

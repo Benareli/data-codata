@@ -54,7 +54,7 @@ function getTransId(req, res) {
   getUpdateTransId().then(restransid => {
       transid = restransid;
       startSequence(0, req, res);
-    }).catch(err =>{console.error("str0101",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("str0101",err);res.status(500).send({message:err}); });
 }
 
 function startSequence(x, req, res){
@@ -76,7 +76,7 @@ function startSequence(x, req, res){
       });
       Stockrequest.create(stockmove).then(data => {
         sequencing(x, req, res);
-      }).catch(err => {console.error("str0201",err.message);res.status(500).send({message:err.message}); });
+      }).catch(err => {console.error("str0201",err);res.status(500).send({message:err}); });
     }else if(req.body[x].type == "Out"){
       const stockmove = ({
         trans_id: transid,
@@ -94,7 +94,7 @@ function startSequence(x, req, res){
       });
       Stockrequest.create(stockmove).then(data => {
           sequencing(x, req, res);
-        }).catch(err => {console.error("str0301",err.message);res.status(500).send({message:err.message}); });
+        }).catch(err => {console.error("str0301",err);res.status(500).send({message:err}); });
     }
     else if(req.body[x].type == "Internal"){
       const stockmove = ({
@@ -128,8 +128,8 @@ function startSequence(x, req, res){
         });
         Stockrequest.create(stockmove).then(data => {
           sequencing(x, req, res);
-        }).catch(err => {console.error("str0302",err.message);res.status(500).send({message:err.message}); })
-      }).catch(err => {console.error("str0303",err.message);res.status(500).send({message:err.message}); })
+        }).catch(err => {console.error("str0302",err);res.status(500).send({message:err}); })
+      }).catch(err => {console.error("str0303",err);res.status(500).send({message:err}); })
     }
   }else{
     res.send({message: "Stock Request done"})
@@ -154,7 +154,7 @@ exports.findAll = (req, res) => {
     ] })
     .then(data => {
       res.send(data);
-    }).catch(err =>{console.error("str0401",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("str0401",err);res.status(500).send({message:err}); });
 };
 
 exports.findAllByComp = (req, res) => {
@@ -170,7 +170,7 @@ exports.findAllByComp = (req, res) => {
     ] })
     .then(data => {
       res.send(data);
-    }).catch(err =>{console.error("str0401",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("str0401",err);res.status(500).send({message:err}); });
 };
 
 exports.findOne = (req, res) => {
@@ -188,7 +188,7 @@ exports.findOne = (req, res) => {
       if (!data)
         res.status(404).send({ message: "Not found Data with id " + id });
       else res.send(data);
-    }).catch(err =>{console.error("str0501",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("str0501",err);res.status(500).send({message:err}); });
 };
 
 exports.findByDesc = (req, res) => {
@@ -207,7 +207,7 @@ exports.findByDesc = (req, res) => {
     ] })
     .then(data => {
       res.send(data);
-    }).catch(err =>{console.error("str0601",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("str0601",err);res.status(500).send({message:err}); });
 };
 
 exports.findTransId = (req, res) => {
@@ -224,7 +224,7 @@ exports.findTransId = (req, res) => {
     ] })
     .then(data => {
       res.send(data);
-    }).catch(err =>{console.error("str0701",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("str0701",err);res.status(500).send({message:err}); });
 };
 
 exports.findOrigin = (req, res) => {
@@ -241,7 +241,7 @@ exports.findOrigin = (req, res) => {
     ] })
     .then(data => {
       res.send(data);
-    }).catch(err =>{console.error("str0801",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("str0801",err);res.status(500).send({message:err}); });
 };
 
 exports.findTransIn = (req, res) => {
@@ -264,7 +264,7 @@ exports.findTransIn = (req, res) => {
     ])
     .then(result => {
         res.send(result)
-    }).catch(err =>{console.error("str0901",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("str0901",err);res.status(500).send({message:err}); });
 };
 
 exports.findTransOut = (req, res) => {
@@ -287,7 +287,7 @@ exports.findTransOut = (req, res) => {
     ])
     .then(result => {
         res.send(result)
-    }).catch(err =>{console.error("str1001",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("str1001",err);res.status(500).send({message:err}); });
 };
 
 exports.validateByTransid = (req, res) => {
@@ -298,14 +298,14 @@ exports.validateByTransid = (req, res) => {
   Stockrequest.findAll({where:{trans_id: req.params.transid}})
     .then(data => {
       startValidate(0, data, res);
-    }).catch(err =>{console.error("str1101",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("str1101",err);res.status(500).send({message:err}); });
 };
 
 function startValidate(x, data, res){
   if(x > data.length-1){
     updateProductCache().then(upc => {
       res.send({message: "DONE"});
-    }).catch(err => {console.error("str1201",err.message);res.status(500).send({message:err.message}); })
+    }).catch(err => {console.error("str1201",err);res.status(500).send({message:err}); })
   }else{
     checkUom(data[x]).then(checker => {
       let stockmoves = ({
@@ -348,7 +348,7 @@ function startValidate(x, data, res){
           processValidate(x, data, res, stockmoves);
         }
       }
-    }).catch(err => {console.error("str1207",err.message);res.status(500).send({message:err.message}); })
+    }).catch(err => {console.error("str1207",err);res.status(500).send({message:err}); })
   }
 }
 
@@ -357,9 +357,9 @@ function processValidate(x, data, res, stockmoves) {
     insertUpdateStock(data[x].type, data[x].product_id, data[x].partner_id, data[x].warehouse_id, data[x]).then(qop => {
       Stockrequest.destroy({where:{id:data[x].id}}).then(datab => {
         insertAcc(x, data, res, data[x].type, data[x], scost)          
-      }).catch(err => {console.error("str1202",err.message);res.status(500).send({message:err.message}); })
-    }).catch(err => {console.error("str1203",err.message);res.status(500).send({message:err.message}); })
-  }).catch(err => {console.error("str1204",err.message);res.status(500).send({message:err.message}); })
+      }).catch(err => {console.error("str1202",err);res.status(500).send({message:err}); })
+    }).catch(err => {console.error("str1203",err);res.status(500).send({message:err}); })
+  }).catch(err => {console.error("str1204",err);res.status(500).send({message:err}); })
 }
 
 function sequencingValidate(x, data, res){
@@ -399,12 +399,12 @@ function insertAcc(x, alldata, res, type, data, cost) {
       if(entries.length >= 2){
         inputJournal(insJournal).then(inputJour => {
           sequencingValidate(x, alldata, res)
-        }).catch(err =>{console.error("sracc0103",err.message);res.status(500).send({message:err.message}); });
+        }).catch(err =>{console.error("sracc0103",err);res.status(500).send({message:err}); });
       }else{
         insertAcc(x, alldata, res, type, data, cost);
       }
-    }).catch(err =>{console.error("sracc0101",err.message); });
-  }).catch(err =>{console.error("sracc0102",err.message); });
+    }).catch(err =>{console.error("sracc0101",err); });
+  }).catch(err =>{console.error("sracc0102",err); });
 }
 
 function checkUom(data) {
@@ -429,6 +429,6 @@ function checkUom(data) {
         let cost = data.cost;
         resolve ([qty, uom_id, cost]);
       }
-    }).catch(err =>{console.error("stockf0116",err.message);reject(err); });
+    }).catch(err =>{console.error("stockf0116",err);reject(err); });
   })
 }

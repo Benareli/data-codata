@@ -8,11 +8,7 @@ module.exports = (sequelize, Sequelize) => {
     amount_untaxed: {type: Sequelize.FLOAT},
     amount_tax: {type: Sequelize.FLOAT},
     amount_total: {type: Sequelize.FLOAT},
-    store: {type: Sequelize.INTEGER},
-    partner: {type: Sequelize.INTEGER},
-    user: {type: Sequelize.INTEGER},
     open: {type: Sequelize.BOOLEAN},
-    company: {type: Sequelize.INTEGER},
   }, {underscored: true});
 
   return Pos;

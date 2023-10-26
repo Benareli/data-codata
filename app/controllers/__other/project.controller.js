@@ -24,7 +24,7 @@ exports.create = (req, res) => {
   });
   Bundle.create(bundle).then(dataa => {
       res.send(dataa);
-  }).catch(err =>{console.error("bun0101",err.message);res.status(500).send({message:err.message}); });
+  }).catch(err =>{console.error("bun0101",err);res.status(500).send({message:err}); });
 };
 
 // Retrieve all from the database.
@@ -41,7 +41,7 @@ exports.findAll = (req, res) => {
     .populate({ path: 'product', model: Product })
     .then(data => {
       res.send(data);
-    }).catch(err =>{console.error("bun0201",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("bun0201",err);res.status(500).send({message:err}); });
 };
 
 // Find a single with an id
@@ -58,7 +58,7 @@ exports.findOne = (req, res) => {
       if (!data)
         res.status(404).send({ message: "Not found Data with id " + id });
       else res.send(data);
-    }).catch(err =>{console.error("bun0301",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("bun0301",err);res.status(500).send({message:err}); });
 };
 
 // Find a single with an desc
@@ -73,7 +73,7 @@ exports.findByJournal = (req, res) => {
     .populate({ path: 'product', model: Product })
     .then(data => {
       res.send(data);
-    }).catch(err =>{console.error("bun0501",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("bun0501",err);res.status(500).send({message:err}); });
 };
 
 // Update by the id in the request
@@ -103,9 +103,9 @@ exports.update = (req, res) => {
         const log = ({message: req.body.message, brand: req.params.id, user: req.body.user,});
         Log.create(log).then(datab => {
           res.send({ message: "Updated successfully." });
-        }).catch(err =>{console.error("bun0601",err.message);res.status(500).send({message:err.message}); });
+        }).catch(err =>{console.error("bun0601",err);res.status(500).send({message:err}); });
       } 
-    }).catch(err =>{console.error("bun0602",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("bun0602",err);res.status(500).send({message:err}); });
 };
 
 // Delete with the specified id in the request
@@ -125,5 +125,5 @@ exports.delete = (req, res) => {
           message: "Deleted successfully!"
         });
       }
-    }).catch(err =>{console.error("bun0701",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("bun0701",err);res.status(500).send({message:err}); });
 };

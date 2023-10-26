@@ -78,7 +78,7 @@ exports.create = (req, res) => {
   });
   Purchasedetail.create(purchasedet).then(dataa => { 
     res.send(dataa);
-  }).catch(err =>{console.error("purd0102",err.message);res.status(500).send({message:err.message}); });
+  }).catch(err =>{console.error("purd0102",err);res.status(500).send({message:err}); });
 };
 
 exports.findAll = (req, res) => {
@@ -98,7 +98,7 @@ exports.findAll = (req, res) => {
     ] })
     .then(data => {
       res.send(data);
-    }).catch(err =>{console.error("purd0201",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("purd0201",err);res.status(500).send({message:err}); });
 };
 
 exports.findOne = (req, res) => {
@@ -118,7 +118,7 @@ exports.findOne = (req, res) => {
       if (!data)
         res.status(404).send({ message: "Not found Data with id " + id });
       else res.send(data);
-    }).catch(err =>{console.error("purd0301",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("purd0301",err);res.status(500).send({message:err}); });
 };
 
 exports.findByPOId = (req, res) => {
@@ -137,7 +137,7 @@ exports.findByPOId = (req, res) => {
     ] })
     .then(data => {
       res.send(data);
-    }).catch(err =>{console.error("purd0401",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("purd0401",err);res.status(500).send({message:err}); });
 };
 
 exports.update = (req, res) => {
@@ -157,7 +157,7 @@ exports.update = (req, res) => {
       } else {
         res.send({ message: "Updated successfully." });
       }
-    }).catch(err =>{console.error("purd0501",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("purd0501",err);res.status(500).send({message:err}); });
 };
 
 // Update Receive
@@ -184,14 +184,14 @@ function checkUom(req, res){
         oriuom_id = req.body[x].uom_id;
         oricost = req.body[x].subtotal / req.body[x].qty * req.body[x].qty_rec;
         startProcess(req, res);
-      }).catch(err => {console.error("sm0002",err.message);res.status(500).send({message:err.message}); });
+      }).catch(err => {console.error("sm0002",err);res.status(500).send({message:err}); });
     }else{
       qty = req.body[x].qty_rec;
       uom_id = req.body[x].uom_id;
       cost = req.body[x].subtotal / req.body[x].qty * req.body[x].qty_rec;
       startProcess(req, res);
     }
-  }).catch(err => {console.error("sm0001",err.message);res.status(500).send({message:err.message}); });
+  }).catch(err => {console.error("sm0001",err);res.status(500).send({message:err}); });
 }
 
 function startProcess(req, res){
@@ -222,12 +222,12 @@ function startProcess(req, res){
             Purchasedetail.update({qty_done: pd.qty_done + qty}, {where:{id:req.body[x].id}}).then(pdu => {
               updateProductCache().then(upc => {
                 insertAcc(req, res, transid);
-              }).catch(err =>{console.error("purd0601",err.message);res.status(500).send({message:err.message}); });
-            }).catch(err =>{console.error("purd0602",err.message);res.status(500).send({message:err.message}); });
-          }).catch(err =>{console.error("purd0603",err.message);res.status(500).send({message:err.message}); });
-        }).catch(err =>{console.error("purd0604",err.message);res.status(500).send({message:err.message}); });
-      }).catch(err =>{console.error("purd0605",err.message);res.status(500).send({message:err.message}); });
-    }).catch(err =>{console.error("purd0606",err.message);res.status(500).send({message:err.message}); }); 
+              }).catch(err =>{console.error("purd0601",err);res.status(500).send({message:err}); });
+            }).catch(err =>{console.error("purd0602",err);res.status(500).send({message:err}); });
+          }).catch(err =>{console.error("purd0603",err);res.status(500).send({message:err}); });
+        }).catch(err =>{console.error("purd0604",err);res.status(500).send({message:err}); });
+      }).catch(err =>{console.error("purd0605",err);res.status(500).send({message:err}); });
+    }).catch(err =>{console.error("purd0606",err);res.status(500).send({message:err}); }); 
   }else {
     sequencing(req,res);
   }
@@ -257,7 +257,7 @@ function insertAcc(req, res, transid) {
       if(entries.length >= 2){
         inputJournal(inJournal).then(inputJour => {
           sequencing(req, res);
-        }).catch(err =>{console.error("purd0801",err.message);res.status(500).send({message:err.message}); });
+        }).catch(err =>{console.error("purd0801",err);res.status(500).send({message:err}); });
       }else{
         insertAcc(req, res)
       }
@@ -270,7 +270,7 @@ function sequencing(req, res){
     Id.update({transfer_id: transfercount+1}, {where:{id:transferid}})
       .then(datae => {
           res.send({message: "DONE!"});
-        }).catch(err =>{console.error("purd0690",err.message);res.status(500).send({message:err.message}); });
+        }).catch(err =>{console.error("purd0690",err);res.status(500).send({message:err}); });
   }else{
     x=x+1;
     checkUom(req, res);
@@ -290,7 +290,7 @@ exports.delete = (req, res) => {
       else {
         res.send({message:'failed'})
       }
-    }).catch(err =>{console.error("purd0901",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("purd0901",err);res.status(500).send({message:err}); });
 };
 
 exports.deleteAll = (req, res) => {
@@ -301,7 +301,7 @@ exports.deleteAll = (req, res) => {
   Purchasedetail.destroy({})
     .then(data => {
       res.send({message: `${data.deletedCount} Data were deleted successfully!`});
-    }).catch(err =>{console.error("purd1001",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("purd1001",err);res.status(500).send({message:err}); });
 };
 
 // Find a single with an desc
@@ -318,5 +318,5 @@ exports.findByProduct = (req, res) => {
       'AND public.purchasedetails.qty_done > 0',{raw: true, nest: true})
     .then(result => {
         res.send(result)
-    }).catch(err =>{console.error("purd1101",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("purd1101",err);res.status(500).send({message:err}); });
 };

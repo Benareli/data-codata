@@ -12,7 +12,7 @@ function getJournalId() {
       result[1] = ids[0].id;
       result[2] = ids[0].journal_id;
       resolve (result);
-    }).catch(err =>{console.error("id0101",err.message); reject(err); });
+    }).catch(err =>{console.error("id0101",err); reject(err); });
   })
 };
 
@@ -23,7 +23,7 @@ function getJournalId1() {
       const prefix = '0'.repeat(prefixLength);
       const journid = `${ids[0].pre_journal_id}-${new Date().getFullYear().toString().substr(-2)}0${(new Date().getMonth() + 1).toString().slice(-2)}${prefix}${ids[0].journal_id}`;
       resolve (journid);
-    }).catch(err =>{console.error("id0201",err.message); reject(err); });
+    }).catch(err =>{console.error("id0201",err); reject(err); });
   })
 };
 
@@ -32,7 +32,7 @@ function updateJournalId1(journalid, journalcount) {
     Id.update({journal_id: journalcount+1}, {where:{id: journalid}})
       .then(res => {
         resolve (journid);
-    }).catch(err =>{console.error("id0301",err.message);reject(err); });
+    }).catch(err =>{console.error("id0301",err);reject(err); });
   })
 };
 
@@ -41,7 +41,7 @@ function updateJournalId2(journalid, journalcount) {
     Id.update({journal_id: journalcount+2}, {where:{id: journalid}})
       .then(res => {
         resolve (journid);
-    }).catch(err =>{console.error("id0401",err.message); reject(err); });
+    }).catch(err =>{console.error("id0401",err); reject(err); });
   })
 };
 
@@ -62,8 +62,8 @@ function getUpdateJournalId() {
       Id.update({journal_id: ids[0].journal_id+1}, {where:{id: ids[0].id}})
       .then(res => {
         resolve (journid);
-      }).catch(err =>{console.error("id0501",err.message); reject(err); });
-    }).catch(err =>{console.error("id0502",err.message); reject(err); });
+      }).catch(err =>{console.error("id0501",err); reject(err); });
+    }).catch(err =>{console.error("id0502",err); reject(err); });
   })
 };
 
@@ -76,8 +76,8 @@ function getUpdateBillId() {
       Id.update({bill_id: ids[0].bill_id+1}, {where:{id: ids[0].id}})
       .then(res => {
         resolve (billid);
-      }).catch(err =>{console.error("id0601",err.message); reject(err); });
-    }).catch(err =>{console.error("id0602",err.message); reject(err); });
+      }).catch(err =>{console.error("id0601",err); reject(err); });
+    }).catch(err =>{console.error("id0602",err); reject(err); });
   })
 };
 
@@ -90,8 +90,8 @@ function getUpdateTransId() {
       Id.update({transfer_id: ids[0].transfer_id+1}, {where:{id: ids[0].id}})
         .then(datae => {
           resolve (transid);
-      }).catch(err =>{console.error("id2001",err.message); reject(err); });
-    }).catch(err =>{console.error("id2002",err.message); reject(err); });
+      }).catch(err =>{console.error("id2001",err); reject(err); });
+    }).catch(err =>{console.error("id2002",err); reject(err); });
   })
 }
 
@@ -105,16 +105,16 @@ function getTransId() {
       result[1] = ids[0].id;
       result[2] = ids[0].transfer_id;
       resolve (result);
-    }).catch(err =>{console.error("id2101",err.message); reject(err); });
+    }).catch(err =>{console.error("id2101",err); reject(err); });
   })
 }
 
-function updateTransId() {
+function updateTransId(transferid, transfercount) {
   return new Promise((resolve, reject) => {
-    Id.update({transfer_id: ids[0].transfer_id+1}, {where:{id: ids}})
+    Id.update({transfer_id: transfercount+1}, {where:{id: transferid}})
       .then(datae => {
         resolve ("DONE");
-      }).catch(err =>{console.error("id2201",err.message); reject(err); });
+      }).catch(err =>{console.error("id2201",err); reject(err); });
   })
 }
 
@@ -132,8 +132,8 @@ function getUpdateTicketId() {
       Id.update({ticket_id: ids[0].ticket_id+1}, {where:{id: ids[0].id}})
       .then(res => {
         resolve (ticketid);
-      }).catch(err =>{console.error("id0501",err.message); reject(err); });
-    }).catch(err =>{console.error("id0502",err.message); reject(err); });
+      }).catch(err =>{console.error("id0501",err); reject(err); });
+    }).catch(err =>{console.error("id0502",err); reject(err); });
   })
 };
 
@@ -146,8 +146,8 @@ function getUpdateInvId() {
       Id.update({invoice_id: ids[0].invoice_id+1}, {where:{id: ids[0].id}})
       .then(res => {
         resolve (invid);
-      }).catch(err =>{console.error("id0701",err.message); reject(err); });
-    }).catch(err =>{console.error("id0702",err.message); reject(err); });
+      }).catch(err =>{console.error("id0701",err); reject(err); });
+    }).catch(err =>{console.error("id0702",err); reject(err); });
   })
 };
 

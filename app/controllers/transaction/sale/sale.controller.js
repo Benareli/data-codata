@@ -39,8 +39,8 @@ exports.create = (req, res) => {
     const log = ({message: "add", sale: dataa.id, user: req.body.user,});
       Log.create(log).then(datab => {
         res.send(dataa);
-      }).catch(err =>{console.error("sale0101",err.message);res.status(500).send({message:err.message}); });
-    }).catch(err =>{console.error("sale0102",err.message);res.status(500).send({message:err.message}); });
+      }).catch(err =>{console.error("sale0101",err);res.status(500).send({message:err}); });
+    }).catch(err =>{console.error("sale0102",err);res.status(500).send({message:err}); });
 };
 
 exports.findAll = (req, res) => {
@@ -58,7 +58,7 @@ exports.findAll = (req, res) => {
     ] })
     .then(data => {
       res.send(data);
-    }).catch(err =>{console.error("sale0201",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("sale0201",err);res.status(500).send({message:err}); });
 };
 
 exports.findAllByComp = (req, res) => {
@@ -74,7 +74,7 @@ exports.findAllByComp = (req, res) => {
     ] })
     .then(data => {
       res.send(data);
-    }).catch(err =>{console.error("sale0201",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("sale0201",err);res.status(500).send({message:err}); });
 };
 
 exports.findOne = (req, res) => {
@@ -92,7 +92,7 @@ exports.findOne = (req, res) => {
       if (!data)
         res.status(404).send({ message: "Not found Data with id " + id });
       else res.send(data);
-    }).catch(err =>{console.error("sale0301",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("sale0301",err);res.status(500).send({message:err}); });
 };
 
 exports.update = (req, res) => {
@@ -111,9 +111,9 @@ exports.update = (req, res) => {
         const log = ({message: "update", sale: data.id, user: req.body.user,});
         Log.create(log).then(datab => {
           res.send(datab);
-        }).catch(err =>{console.error("sale0401",err.message);res.status(500).send({message:err.message}); });
+        }).catch(err =>{console.error("sale0401",err);res.status(500).send({message:err}); });
       }
-    }).catch(err =>{console.error("sale0402",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("sale0402",err);res.status(500).send({message:err}); });
 };
 
 exports.delete = (req, res) => {
@@ -128,7 +128,7 @@ exports.delete = (req, res) => {
       } else {
         res.send({message: "Deleted successfully!"});
       }
-    }).catch(err =>{console.error("sale0501",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("sale0501",err);res.status(500).send({message:err}); });
 };
 
 exports.deleteAll = (req, res) => {
@@ -139,7 +139,7 @@ exports.deleteAll = (req, res) => {
   Sale.destroy({})
     .then(data => {
       res.send({message: `${data.deletedCount} Data were deleted successfully!`});
-    }).catch(err =>{console.error("sale0601",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("sale0601",err);res.status(500).send({message:err}); });
 };
 
 exports.updateState = (req, res) => {
@@ -155,7 +155,7 @@ exports.updateState = (req, res) => {
         const log = ({message: "update state", sale: data._id, user: req.body.user,});
         Log.create(log).then(datab => {
           res.send(datab);
-        }).catch(err =>{console.error("sale0701",err.message);res.status(500).send({message:err.message}); });
+        }).catch(err =>{console.error("sale0701",err);res.status(500).send({message:err}); });
       }
-    }).catch(err =>{console.error("sale0702",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("sale0702",err);res.status(500).send({message:err}); });
 };

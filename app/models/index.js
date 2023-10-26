@@ -107,7 +107,24 @@ db.prints.belongsTo(db.companys, {
 db.companys.hasMany(db.coas);
 db.coas.belongsTo(db.companys, {
   foreignKey: "company_id",
-  as: "companys",
+  as: "company_ids",
+});
+
+//Tax
+db.companys.hasMany(db.taxs);
+db.taxs.belongsTo(db.companys, {
+  foreignKey: "company_id",
+  as: "company_ids",
+});
+db.coas.hasMany(db.taxs);
+db.taxs.belongsTo(db.coas, {
+  foreignKey: "coa_out_id",
+  as: "coaouts",
+});
+db.coas.hasMany(db.taxs);
+db.taxs.belongsTo(db.coas, {
+  foreignKey: "coa_in_id",
+  as: "coains",
 });
 
 //Entry
@@ -180,6 +197,18 @@ db.paymentmethods.belongsTo(db.coas, {
   as: "coas",
 });
 
+//Partner Method
+db.coas.hasMany(db.partners);
+db.partners.belongsTo(db.coas, {
+  foreignKey: "receivable_id",
+  as: "receivables",
+});
+db.coas.hasMany(db.partners);
+db.partners.belongsTo(db.coas, {
+  foreignKey: "payable_id",
+  as: "payables",
+});
+
 //Warehouse
 db.companys.hasMany(db.warehouses);
 db.warehouses.belongsTo(db.companys, {
@@ -197,6 +226,18 @@ db.warehouses.hasMany(db.stores);
 db.stores.belongsTo(db.warehouses, {
   foreignKey: "warehouse_id",
   as: "warehouses",
+});
+
+//Setting
+db.coas.hasMany(db.stores);
+db.stores.belongsTo(db.coas, {
+  foreignKey: "receivable_id",
+  as: "receivables",
+});
+db.coas.hasMany(db.stores);
+db.stores.belongsTo(db.coas, {
+  foreignKey: "payable_id",
+  as: "payables",
 });
 
 //Uom Uomcat
@@ -553,6 +594,70 @@ db.saledetails.belongsTo(db.uoms, {
 })
 db.companys.hasMany(db.saledetails);
 db.saledetails.belongsTo(db.companys, {
+  foreignKey: "company_id",
+  as: "companys",
+})
+
+//Pos
+db.partners.hasMany(db.poss);
+db.poss.belongsTo(db.partners, {
+  foreignKey: "partner_id",
+  as: "partners",
+})
+db.warehouses.hasMany(db.poss);
+db.poss.belongsTo(db.warehouses, {
+  foreignKey: "warehouse_id",
+  as: "warehouses",
+})
+db.users.hasMany(db.poss);
+db.poss.belongsTo(db.users, {
+  foreignKey: "user_id",
+  as: "users",
+})
+db.companys.hasMany(db.poss);
+db.poss.belongsTo(db.companys, {
+  foreignKey: "company_id",
+  as: "companys",
+})
+
+//Pos Detail
+db.poss.hasMany(db.posdetails);
+db.posdetails.belongsTo(db.poss, {
+  foreignKey: "pos_id",
+  as: "poss",
+})
+db.partners.hasMany(db.posdetails);
+db.posdetails.belongsTo(db.partners, {
+  foreignKey: "partner_id",
+  as: "partners",
+})
+db.warehouses.hasMany(db.posdetails);
+db.posdetails.belongsTo(db.warehouses, {
+  foreignKey: "warehouse_id",
+  as: "warehouses",
+})
+db.products.hasMany(db.posdetails);
+db.posdetails.belongsTo(db.products, {
+  foreignKey: "product_id",
+  as: "products",
+})
+db.uoms.hasMany(db.posdetails);
+db.posdetails.belongsTo(db.uoms, {
+  foreignKey: "uom_id",
+  as: "uoms",
+})
+db.uoms.hasMany(db.posdetails);
+db.posdetails.belongsTo(db.uoms, {
+  foreignKey: "oriuom_id",
+  as: "oriuoms",
+})
+db.stores.hasMany(db.posdetails);
+db.posdetails.belongsTo(db.stores, {
+  foreignKey: "store_id",
+  as: "stores",
+})
+db.companys.hasMany(db.posdetails);
+db.posdetails.belongsTo(db.companys, {
   foreignKey: "company_id",
   as: "companys",
 })

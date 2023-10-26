@@ -37,12 +37,12 @@ function patchRole(){
 			Role.create(pos_disc_add).then(dataa => {
 				console.log("POS Disc Add Role added");
 				patchRole1();
-			}).catch(err =>{console.error("patch0101",err.message);});
+			}).catch(err =>{console.error("patch0101",err);});
 		}else{
 			console.log("POS Disc Acc Ready!");
 			patchRole1();
 		}
-	}).catch(err =>{console.error("patch0102",err.message);});
+	}).catch(err =>{console.error("patch0102",err);});
 }
 function patchRole1(){
 	console.log("Patching Role 2 ...");
@@ -52,12 +52,12 @@ function patchRole1(){
 			Role.create(prod_user).then(datac => {
 				console.log("POS Disc Add Role added");
 				patchRole2();
-			}).catch(err =>{console.error("patch0201",err.message);});
+			}).catch(err =>{console.error("patch0201",err);});
 		}else{
 			console.log("Production User Ready!");
 			patchRole2();
 		}
-	}).catch(err =>{console.error("patch0202",err.message);});
+	}).catch(err =>{console.error("patch0202",err);});
 }
 function patchRole2(){
 	console.log("Patching Role 3 ...");
@@ -67,12 +67,12 @@ function patchRole2(){
 			Role.create(prod_manager).then(datae => {
 				console.log("Production Manager Role added");
 				patchRole3();
-			}).catch(err =>{console.error("patch0301",err.message);});
+			}).catch(err =>{console.error("patch0301",err);});
 		}else{
 			console.log("Production Manager Ready!");
 			patchRole3();
 		}
-	}).catch(err =>{console.error("patch0302",err.message);});
+	}).catch(err =>{console.error("patch0302",err);});
 }
 function patchRole3(){
 	console.log("Patching Role 4 ...");
@@ -82,12 +82,12 @@ function patchRole3(){
 			Role.create(ticket_user).then(datae => {
 				console.log("Ticket User Role added");
 				patchRole4();
-			}).catch(err =>{console.error("patch0401",err.message);});
+			}).catch(err =>{console.error("patch0401",err);});
 		}else{
 			console.log("Ticket User Ready!");
 			patchRole4();
 		}
-	}).catch(err =>{console.error("patch0402",err.message);});
+	}).catch(err =>{console.error("patch0402",err);});
 }
 function patchRole4(){
 	console.log("Patching Role 5 ...");
@@ -97,12 +97,12 @@ function patchRole4(){
 			Role.create(ticket_manager).then(datae => {
 				console.log("Ticket Manager Role added");
 				patchRole5();
-			}).catch(err =>{console.error("patch0501",err.message);});
+			}).catch(err =>{console.error("patch0501",err);});
 		}else{
 			console.log("Ticket Manager Ready!");
 			patchRole5();
 		}
-	}).catch(err =>{console.error("patch0502",err.message);});
+	}).catch(err =>{console.error("patch0502",err);});
 }
 function patchRole5(){
 	console.log("Patching Role 6 ...");
@@ -112,12 +112,12 @@ function patchRole5(){
 			Role.create(project_user).then(datae => {
 				console.log("Project User Role added");
 				patchRole6();
-			}).catch(err =>{console.error("patch0601",err.message);});
+			}).catch(err =>{console.error("patch0601",err);});
 		}else{
 			console.log("Project User Ready!");
 			patchRole6();
 		}
-	}).catch(err =>{console.error("patch0602",err.message);});
+	}).catch(err =>{console.error("patch0602",err);});
 }
 function patchRole6(){
 	console.log("Patching Role 7 ...");
@@ -127,12 +127,12 @@ function patchRole6(){
 			Role.create(project_manager).then(datae => {
 				console.log("Project Manager Role added");
 				patchRole7();
-			}).catch(err =>{console.error("patch0701",err.message);});
+			}).catch(err =>{console.error("patch0701",err);});
 		}else{
 			console.log("Project Manager Ready!");
 			patchRole7();
 		}
-	}).catch(err =>{console.error("patch0702",err.message);});
+	}).catch(err =>{console.error("patch0702",err);});
 }
 function patchRole7(){
 	console.log("Patching Role 8 ...");
@@ -142,12 +142,12 @@ function patchRole7(){
 			Role.create(sale_user).then(datae => {
 				console.log("Sale User Role added");
 				patchRole8();
-			}).catch(err =>{console.error("patch0801",err.message);});
+			}).catch(err =>{console.error("patch0801",err);});
 		}else{
 			console.log("Sale User Ready!");
 			patchRole8();
 		}
-	}).catch(err =>{console.error("patch0802",err.message);});
+	}).catch(err =>{console.error("patch0802",err);});
 }
 function patchRole8(){
 	console.log("Patching Role 9 ...");
@@ -157,12 +157,12 @@ function patchRole8(){
 			Role.create(sale_manager).then(datae => {
 				console.log("Sale Manager Role added");
 				findUser();
-			}).catch(err =>{console.error("patch0901",err.message);});
+			}).catch(err =>{console.error("patch0901",err);});
 		}else{
 			console.log("Sale Manager Ready!");
 			findUser();
 		}
-	}).catch(err =>{console.error("patch0902",err.message);});
+	}).catch(err =>{console.error("patch0902",err);});
 }
 
 function findUser() {
@@ -178,7 +178,7 @@ function rolling(dataz){
 			var pref = new Pref({user_id: dataz[x]._id, pos_qty: false, pos_image: false})
 				pref.save(function(err){
 					if (err) {
-						return console.error("patch1001",err.message)
+						return console.error("patch1001",err)
 					}else{
 						if(x == dataz.length - 1) {
 							console.log("All Prefs Added")
@@ -189,7 +189,7 @@ function rolling(dataz){
 							rolling(dataz);
 						}
 					}
-				}).catch(err =>{console.error("patch1002",err.message);});
+				}).catch(err =>{console.error("patch1002",err);});
 		}else{
 			console.log(dataz[x].username + " already has pref");
 			if(x == dataz.length - 1) {
@@ -201,7 +201,7 @@ function rolling(dataz){
 				rolling(dataz);
 			}
 		}
-	}).catch(err =>{console.error("patch1003",err.message);});
+	}).catch(err =>{console.error("patch1003",err);});
 }
 
 function patchId() {
@@ -214,7 +214,7 @@ function patchId() {
 			Id.findByIdAndUpdate(dataz[0]._id, {$set: {ticket_id: 1, pre_ticket_id: "TICK"}}, {useFindAndModify: false}).then(datatick => {
 				console.log("Ticket ID Added");
 				patchId1();
-			}).catch(err =>{console.error("patch2001",err.message);});
+			}).catch(err =>{console.error("patch2001",err);});
 		}
 	})
 }
@@ -228,7 +228,7 @@ function patchId1() {
 			Id.findByIdAndUpdate(dataz[0]._id, {$set: {sale_id: 1, pre_sale_id: "SAL"}}, {useFindAndModify: false}).then(datatick => {
 				console.log("Sale ID Added");
 				rollingJournal();
-			}).catch(err =>{console.error("patch2101",err.message);});
+			}).catch(err =>{console.error("patch2101",err);});
 		}
 	})
 }

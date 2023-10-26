@@ -8,6 +8,7 @@ const User = db.users;
 const Coa = db.coas;
 const Id = db.ids;
 const Company = db.companys;
+const Tax = db.taxs;
 const Log = db.logs;
 const Payment = db.payments;
 const Partner = db.partners;
@@ -56,7 +57,7 @@ exports.create = (req, res) => {
   inputJournal(req.body)
     .then(data => {
       if(data == 'done') res.send({message:data});
-    }).catch(err =>{console.error("jour0001",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("jour0001",err);res.status(500).send({message:err}); });
 };
 
 exports.findAll = (req, res) => {
@@ -73,7 +74,7 @@ exports.findAll = (req, res) => {
     ] })
     .then(data => {
       res.send(data);
-    }).catch(err =>{console.error("jour0101",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("jour0101",err);res.status(500).send({message:err}); });
 };
 
 exports.findOne = (req, res) => {
@@ -94,7 +95,7 @@ exports.findOne = (req, res) => {
       if (!data)
         res.status(404).send({ message: "Not found Data with id " + id });
       else res.send(data);
-    }).catch(err =>{console.error("jour0201",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("jour0201",err);res.status(500).send({message:err}); });
 };
 
 exports.findJourType = (req, res) => {
@@ -122,7 +123,7 @@ exports.findJournal = (req, res) => {
       if (!data)
         res.status(404).send({ message: "Not found Data with id " + id });
       else res.send(data);
-    }).catch(err =>{console.error("jour2101",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("jour2101",err);res.status(500).send({message:err}); });
 };
 
 exports.findJourn = (req, res) => {
@@ -142,7 +143,7 @@ exports.findJourn = (req, res) => {
       if (!data)
         res.status(404).send({ message: "Not found Data with id " + id });
       else res.send(data);
-    }).catch(err =>{console.error("jour2201",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("jour2201",err);res.status(500).send({message:err}); });
 };
 
 exports.findOrigin = (req, res) => {
@@ -161,7 +162,7 @@ exports.findOrigin = (req, res) => {
       if (!data)
         res.status(404).send({ message: "Not found Data with id " + id });
       else res.send(data);
-    }).catch(err =>{console.error("jour2301",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("jour2301",err);res.status(500).send({message:err}); });
 };
 
 exports.findBill = (req, res) => {
@@ -180,7 +181,7 @@ exports.findBill = (req, res) => {
       if (!data)
         res.status(404).send({ message: "Not found Data with id " + id });
       else res.send(data);
-    }).catch(err =>{console.error("jour2401",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("jour2401",err);res.status(500).send({message:err}); });
 };
 
 // Create and Save new
@@ -199,10 +200,14 @@ exports.createBill = (req, res) => {
   if(req.body.productbill.length > 1){
     playSequencing(0, req, res);
   }else{
-    getCoa2("2-1001", "1-2901").then(datacoa => {
-      let oo = datacoa[0];
-      let pp = datacoa[1];
-      Product.findByPk(req.body.productbill[0]).then(p1 => {
+    Partner.findByPk(req.body.partner, {include: [
+      {model: Coa, as: "payables"},
+    ], raw: true, nest: true}).then(p => {
+      Product.findByPk(req.body.productbill[0], {include: [
+        {model: Tax, as: "taxs", include: [
+          {model: Coa, as: "coains"},
+        ],},
+      ], raw: true, nest: true}).then(p1 => {
         ProductCatAcc.findOne({where:{category_id: p1.productcat_id, company_id: req.body.company}, include: [
           {model: Coa, as: "incomings"},
           {model: Coa, as: "inventorys"},
@@ -210,7 +215,7 @@ exports.createBill = (req, res) => {
           if(req.body.tax[0] > 0){
             entries.push({
               label: "Tax " + req.body.tax[0] + "%",
-              debits: pp.dataValues, 
+              debits: p1.taxs.coains, 
               debit: (req.body.tax[0]/100 * (req.body.qrec[0] * req.body.priceunit[0]) - (req.body.discount[0]/100 * (req.body.qrec[0] * req.body.priceunit[0]))), 
               date: req.body.date
             });
@@ -230,7 +235,7 @@ exports.createBill = (req, res) => {
           });
           entries.push({
             label: "Payable",
-            credits: oo.dataValues, 
+            credits: p.payables, 
             credit: (req.body.tax[0]/100 * (req.body.qrec[0] * req.body.priceunit[0]) - (req.body.discount[0]/100 * (req.body.qrec[0] * req.body.priceunit[0]))) +
               ((req.body.qrec[0] * req.body.priceunit[0]) - (req.body.discount[0]/100 * (req.body.qrec[0] * req.body.priceunit[0]))), 
             date: req.body.date
@@ -254,23 +259,27 @@ exports.createBill = (req, res) => {
                   res.send({message: "done"});
                 })
               })
-            }).catch(err =>{console.error("sracc0103",err.message);res.status(500).send({message:err.message}); });
+            }).catch(err =>{console.error("sracc0103",err);res.status(500).send({message:err}); });
           }else{
             //insertAcc(x, alldata, res, type, data, cost);
           }
-        }).catch(err =>{console.error("sracc0101",err.message); });
-      }).catch(err =>{console.error("sracc0102",err.message); });
-    }).catch(err =>{console.error("sracc0103",err.message); });
+        }).catch(err =>{console.error("sracc0101",err); });
+      }).catch(err =>{console.error("sracc0102",err); });
+    }).catch(err =>{console.error("sracc0103",err); });
   }
 };
 
 function playSequencing(x, req, res){
   if(req.body.productbill[x]){
     if(x == 0){
-      getCoa2("2-1001", "1-2901").then(datacoa => {
-        let oo = datacoa[0];
-        let pp = datacoa[1];
-        Product.findByPk(req.body.productbill[x]).then(p1 => {
+      Partner.findByPk(req.body.partner, {include: [
+        {model: Coa, as: "payables"},
+      ], raw: true, nest: true}).then(p => {
+        Product.findByPk(req.body.productbill[0], {include: [
+          {model: Tax, as: "taxs", include: [
+            {model: Coa, as: "coains"},
+          ],},
+        ], raw: true, nest: true}).then(p1 => {
           ProductCatAcc.findOne({where:{category_id: p1.productcat_id, company_id: req.body.company}, include: [
             {model: Coa, as: "incomings"},
             {model: Coa, as: "inventorys"},
@@ -278,7 +287,7 @@ function playSequencing(x, req, res){
             if(req.body.tax[x] > 0){
               entries.push({
                 label: "Tax " + req.body.tax[x] + "%",
-                debits: pp.dataValues, 
+                debits: p1.taxs.coains, 
                 debit: (req.body.tax[x]/100 * (req.body.qrec[x] * req.body.priceunit[x]) - (req.body.discount[x]/100 * (req.body.qrec[x] * req.body.priceunit[x]))), 
                 date: req.body.date
               });
@@ -298,15 +307,15 @@ function playSequencing(x, req, res){
             });
             entries.push({
               label: "Payable",
-              credits: oo.dataValues, 
+              credits: p.payables, 
               credit: (req.body.tax[x]/100 * (req.body.qrec[x] * req.body.priceunit[x]) - (req.body.discount[x]/100 * (req.body.qrec[x] * req.body.priceunit[x]))) +
                 ((req.body.qrec[x] * req.body.priceunit[x]) - (req.body.discount[x]/100 * (req.body.qrec[x] * req.body.priceunit[x]))), 
               date: req.body.date
             })
             sequencing(x, req, res);
-          }).catch(err =>{console.error("sracc0201",err.message); });
-        }).catch(err =>{console.error("sracc0202",err.message); });
-      }).catch(err =>{console.error("sracc0203",err.message); });
+          }).catch(err =>{console.error("sracc0201",err); });
+        }).catch(err =>{console.error("sracc0202",err); });
+      }).catch(err =>{console.error("sracc0203",err); });
     }else{
       Product.findByPk(req.body.productbill[x]).then(p1 => {
           ProductCatAcc.findOne({where:{category_id: p1.productcat_id, company_id: req.body.company}, include: [
@@ -327,8 +336,8 @@ function playSequencing(x, req, res){
               subtotal: req.body.subtotal[x]
             });
             sequencing(x, req, res);
-        }).catch(err =>{console.error("sracc0203",err.message); });
-      }).catch(err =>{console.error("sracc0204",err.message); });
+        }).catch(err =>{console.error("sracc0203",err); });
+      }).catch(err =>{console.error("sracc0204",err); });
     }
   }else{
     const insJournal = {
@@ -350,7 +359,7 @@ function playSequencing(x, req, res){
             res.send({message: "done"});
           })
         })
-      }).catch(err =>{console.error("sracc0103",err.message);res.status(500).send({message:err.message}); });
+      }).catch(err =>{console.error("sracc0103",err);res.status(500).send({message:err}); });
     }else{
       //insertAcc(x, alldata, res, type, data, cost);
     }
@@ -380,9 +389,9 @@ exports.updateLock = (req, res) => {
         const log = ({message: "updated", journal: data.id, user: req.body.user,});
         Log.create(log).then(datab => {
           res.send({ message: "Updated successfully." });
-        }).catch(err =>{console.error("jour2501",err.message);res.status(500).send({message:err.message}); });
+        }).catch(err =>{console.error("jour2501",err);res.status(500).send({message:err}); });
       } 
-    }).catch(err =>{console.error("jour2601",err.message);res.status(500).send({message:err.message}); });   
+    }).catch(err =>{console.error("jour2601",err);res.status(500).send({message:err}); });   
 };
 
 // Find a single with an id
@@ -402,7 +411,7 @@ exports.findInv = (req, res) => {
       if (!data)
         res.status(404).send({ message: "Not found Data with id " + id });
       else res.send(data);
-    }).catch(err =>{console.error("jour2701",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("jour2701",err);res.status(500).send({message:err}); });
 };
 
 // Create and Save new
@@ -415,16 +424,19 @@ exports.createInv = (req, res) => {
     res.status(400).send({ message: "Content can not be empty!" });
     return;
   }
-
   taxes = 0;
   entries = [];
   if(req.body.productbill.length > 1){
     playSequencingInv(0, req, res);
   }else{
-    getCoa2("1-2001", "2-4001").then(datacoa => {
-      let oo = datacoa[0];
-      let pp = datacoa[1];
-      Product.findByPk(req.body.productbill[0]).then(p1 => {
+    Partner.findByPk(req.body.partner, {include: [
+      {model: Coa, as: "receivables"},
+    ], raw: true, nest: true}).then(p => {
+      Product.findByPk(req.body.productbill[0], {include: [
+        {model: Tax, as: "taxs", include: [
+          {model: Coa, as: "coaouts"},
+        ],},
+      ], raw: true, nest: true}).then(p1 => {
         ProductCatAcc.findOne({where:{category_id: p1.productcat_id, company_id: req.body.company}, include: [
           {model: Coa, as: "inventorys"},
           {model: Coa, as: "outgoings"},
@@ -433,7 +445,7 @@ exports.createInv = (req, res) => {
           if(req.body.tax[0] > 0){
             entries.push({
               label: "Tax " + req.body.tax[0] + "%",
-              credits: pp.dataValues, 
+              credits: p1.taxs.coaouts, 
               credit: (req.body.tax[0]/100 * (req.body.qrec[0] * req.body.priceunit[0]) - (req.body.discount[0]/100 * (req.body.qrec[0] * req.body.priceunit[0]))), 
               date: req.body.date
             });
@@ -453,7 +465,7 @@ exports.createInv = (req, res) => {
           });
           entries.push({
             label: "Receivable",
-            debits: oo.dataValues, 
+            debits: p.receivables, 
             debit: (req.body.tax[0]/100 * (req.body.qrec[0] * req.body.priceunit[0]) - (req.body.discount[0]/100 * (req.body.qrec[0] * req.body.priceunit[0]))) +
               ((req.body.qrec[0] * req.body.priceunit[0]) - (req.body.discount[0]/100 * (req.body.qrec[0] * req.body.priceunit[0]))), 
             date: req.body.date
@@ -477,23 +489,27 @@ exports.createInv = (req, res) => {
                   res.send({message: "done"});
                 })
               })
-            }).catch(err =>{console.error("inv0101",err.message);res.status(500).send({message:err.message}); });
+            }).catch(err =>{console.error("inv0101",err);res.status(500).send({message:err}); });
           }else{
             //insertAcc(x, alldata, res, type, data, cost);
           }
-        }).catch(err =>{console.error("inv0102",err.message); });
-      }).catch(err =>{console.error("inv0103",err.message); });
-    }).catch(err =>{console.error("inv0104",err.message); });
+        }).catch(err =>{console.error("inv0102",err); });
+      }).catch(err =>{console.error("inv0103",err); });
+    }).catch(err =>{console.error("inv0104",err); });
   }
 };
 
 function playSequencingInv(x, req, res){
   if(req.body.productbill[x]){
     if(x == 0){
-      getCoa2("1-2001", "2-4001").then(datacoa => {
-        let oo = datacoa[0];
-        let pp = datacoa[1];
-        Product.findByPk(req.body.productbill[x]).then(p1 => {
+      Partner.findByPk(req.body.partner, {include: [
+        {model: Coa, as: "receivables"},
+      ], raw: true, nest: true}).then(p => {
+        Product.findByPk(req.body.productbill[0], {include: [
+          {model: Tax, as: "taxs", include: [
+            {model: Coa, as: "coaouts"},
+          ],},
+        ], raw: true, nest: true}).then(p1 => {
           ProductCatAcc.findOne({where:{category_id: p1.productcat_id, company_id: req.body.company}, include: [
             {model: Coa, as: "inventorys"},
             {model: Coa, as: "outgoings"},
@@ -502,7 +518,7 @@ function playSequencingInv(x, req, res){
             if(req.body.tax[x] > 0){
               entries.push({
                 label: "Tax " + req.body.tax[x] + "%",
-                credits: pp.dataValues, 
+                credits: p1.taxs.coaouts, 
                 credit: (req.body.tax[x]/100 * (req.body.qrec[x] * req.body.priceunit[x]) - (req.body.discount[x]/100 * (req.body.qrec[x] * req.body.priceunit[x]))), 
                 date: req.body.date
               });
@@ -522,15 +538,15 @@ function playSequencingInv(x, req, res){
             });
             entries.push({
               label: "Receivable",
-              debits: oo.dataValues, 
+              debits: p.receivables, 
               debit: (req.body.tax[x]/100 * (req.body.qrec[x] * req.body.priceunit[x]) - (req.body.discount[x]/100 * (req.body.qrec[x] * req.body.priceunit[x]))) +
                 ((req.body.qrec[x] * req.body.priceunit[x]) - (req.body.discount[x]/100 * (req.body.qrec[x] * req.body.priceunit[x]))), 
               date: req.body.date
             })
             sequencing(x, req, res);
-          }).catch(err =>{console.error("inv0105",err.message); });
-        }).catch(err =>{console.error("inv0106",err.message); });
-      }).catch(err =>{console.error("inv0107",err.message); });
+          }).catch(err =>{console.error("inv0105",err); });
+        }).catch(err =>{console.error("inv0106",err); });
+      }).catch(err =>{console.error("inv0107",err); });
     }else{
       Product.findByPk(req.body.productbill[x]).then(p1 => {
           ProductCatAcc.findOne({where:{category_id: p1.productcat_id, company_id: req.body.company}, include: [
@@ -552,8 +568,8 @@ function playSequencingInv(x, req, res){
               subtotal: req.body.subtotal[x]
             });
             sequencing(x, req, res);
-        }).catch(err =>{console.error("inv0108",err.message); });
-      }).catch(err =>{console.error("inv0109",err.message); });
+        }).catch(err =>{console.error("inv0108",err); });
+      }).catch(err =>{console.error("inv0109",err); });
     }
   }else{
     const insJournal = {
@@ -575,7 +591,7 @@ function playSequencingInv(x, req, res){
             res.send({message: "done"});
           })
         })
-      }).catch(err =>{console.error("inv0110",err.message);res.status(500).send({message:err.message}); });
+      }).catch(err =>{console.error("inv0110",err);res.status(500).send({message:err}); });
     }else{
       //insertAcc(x, alldata, res, type, data, cost);
     }

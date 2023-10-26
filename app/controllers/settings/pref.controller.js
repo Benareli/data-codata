@@ -12,7 +12,7 @@ exports.findAll = (req, res) => {
   Pref.find()
     .then(data => {
       res.send(data);
-    }).catch(err =>{console.error("pref0101",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("pref0101",err);res.status(500).send({message:err}); });
 };
 
 // Update by the id in the request
@@ -35,5 +35,5 @@ exports.update = (req, res) => {
       } else {res.send(data);
        
       }
-    }).catch(err =>{console.error("pref0201",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("pref0201",err);res.status(500).send({message:err}); });
 };

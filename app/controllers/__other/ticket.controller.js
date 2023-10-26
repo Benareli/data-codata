@@ -40,9 +40,9 @@ exports.create = (req, res) => {
       const log = ({message: "created", ticket: dataa._id, user: req.body.user,});
         Log.create(log).then(datab => {
           res.send(dataa);
-      }).catch(err =>{console.error("tick0101",err.message);res.status(500).send({message:err.message}); });
-    }).catch(err =>{console.error("tick0102",err.message);res.status(500).send({message:err.message}); });
-  }).catch(err =>{console.error("tick0103",err.message);res.status(500).send({message:err.message}); });
+      }).catch(err =>{console.error("tick0101",err);res.status(500).send({message:err}); });
+    }).catch(err =>{console.error("tick0102",err);res.status(500).send({message:err}); });
+  }).catch(err =>{console.error("tick0103",err);res.status(500).send({message:err}); });
 };
 
 // Retrieve all from the database.
@@ -55,7 +55,7 @@ exports.findAll = (req, res) => {
     .populate({ path: 'asignee', model: User })
     .then(data => {
       res.send(data);
-    }).catch(err =>{console.error("tick0201",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("tick0201",err);res.status(500).send({message:err}); });
 };
 
 // Find a single with an id
@@ -70,7 +70,7 @@ exports.findOne = (req, res) => {
       if (!data)
         res.status(404).send({ message: "Not found Data with id " + id });
       else res.send(data);
-    }).catch(err =>{console.error("tick0301",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("tick0301",err);res.status(500).send({message:err}); });
 };
 
 // Update by the id in the request
@@ -104,9 +104,9 @@ exports.update = (req, res) => {
         const log = ({message: req.body.logmess, ticket: req.params.id, user: req.body.user,});
         Log.create(log).then(datab => {
           res.send({ message: "Updated successfully." });
-        }).catch(err =>{console.error("tick0401",err.message);res.status(500).send({message:err.message}); });
+        }).catch(err =>{console.error("tick0401",err);res.status(500).send({message:err}); });
       } 
-    }).catch(err =>{console.error("tick0402",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("tick0402",err);res.status(500).send({message:err}); });
 };
 
 // Delete with the specified id in the request
@@ -126,5 +126,5 @@ exports.delete = (req, res) => {
           message: "Deleted successfully!"
         });
       }
-    }).catch(err =>{console.error("tick0501",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("tick0501",err);res.status(500).send({message:err}); });
 };

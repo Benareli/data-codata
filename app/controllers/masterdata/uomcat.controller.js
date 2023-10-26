@@ -18,8 +18,8 @@ exports.create = (req, res) => {
     const log = ({message: "add", uomcat: dataa._id, user: req.body.user,});
     Log.create(log).then(datab => {
       res.send(datab);
-    }).catch(err =>{console.error("uomcat0101",err.message);res.status(500).send({message:err.message}); });
-  }).catch(err =>{console.error("uomcat0102",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("uomcat0101",err);res.status(500).send({message:err}); });
+  }).catch(err =>{console.error("uomcat0102",err);res.status(500).send({message:err}); });
 };
 
 exports.findAll = (req, res) => {
@@ -32,7 +32,7 @@ exports.findAll = (req, res) => {
   Uomcat.findAll()
     .then(data => {
       res.send(data);
-    }).catch(err =>{console.error("uomcat0201",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("uomcat0201",err);res.status(500).send({message:err}); });
 };
 
 exports.findOne = (req, res) => {
@@ -45,7 +45,7 @@ exports.findOne = (req, res) => {
       if (!data)
         res.status(404).send({ message: "Not found Data with id " + id });
       else res.send(data);
-    }).catch(err =>{console.error("uomcat0301",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("uomcat0301",err);res.status(500).send({message:err}); });
 };
 
 exports.findByDesc = (req, res) => {
@@ -58,7 +58,7 @@ exports.findByDesc = (req, res) => {
   Uomcat.findAll({where:condition})
     .then(data => {
       res.send(data);
-    }).catch(err =>{console.error("uomcat0401",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("uomcat0401",err);res.status(500).send({message:err}); });
 };
 
 // Update by the id in the request
@@ -82,7 +82,7 @@ exports.update = (req, res) => {
         const log = ({message: req.body.message, uom_cat: req.params.id, user: req.body.user,});
         Log.create(log).then(datab => {
           res.send({ message: "Updated successfully." });
-        }).catch(err =>{console.error("uomcat0501",err.message);res.status(500).send({message:err.message}); });
+        }).catch(err =>{console.error("uomcat0501",err);res.status(500).send({message:err}); });
       }
-    }).catch(err =>{console.error("uomcat0502",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("uomcat0502",err);res.status(500).send({message:err}); });
 };

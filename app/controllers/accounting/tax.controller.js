@@ -20,7 +20,7 @@ exports.create = (req, res) => {
   });
   Tax.create(tax).then(dataa => {
     res.send(dataa);
-  }).catch(err =>{console.error("tax0101",err.message);res.status(500).send({message:err.message}); });
+  }).catch(err =>{console.error("tax0101",err);res.status(500).send({message:err}); });
 };
 
 exports.findAll = (req, res) => {
@@ -33,7 +33,7 @@ exports.findAll = (req, res) => {
   Tax.findAll({where:condition})
     .then(data => {
       res.send(data);
-    }).catch(err =>{console.error("tax0201",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("tax0201",err);res.status(500).send({message:err}); });
 };
 
 exports.findOne = (req, res) => {
@@ -46,7 +46,7 @@ exports.findOne = (req, res) => {
     .then(data => {
       if (!data) res.status(404).send({ message: "Not found Data with id " + id });
       else res.send(data);
-    }).catch(err =>{console.error("tax0301",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("tax0301",err);res.status(500).send({message:err}); });
 };
 
 exports.findByDesc = (req, res) => {
@@ -59,7 +59,7 @@ exports.findByDesc = (req, res) => {
   Tax.findAll({where:condition})
     .then(data => {
       res.send(data);
-    }).catch(err =>{console.error("tax0401",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("tax0401",err);res.status(500).send({message:err}); });
 };
 
 exports.update = (req, res) => {
@@ -82,9 +82,9 @@ exports.update = (req, res) => {
         const log = ({message: req.body.message, tax: data.id, user: req.body.user,});
         Log.create(log).then(datab => {
           res.send({ message: "Updated successfully." });
-        }).catch(err =>{console.error("tax0501",err.message);res.status(500).send({message:err.message}); });
+        }).catch(err =>{console.error("tax0501",err);res.status(500).send({message:err}); });
       }
-    }).catch(err =>{console.error("tax0502",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("tax0502",err);res.status(500).send({message:err}); });
 };
 
 exports.findAllActive = (req, res) => {
@@ -95,5 +95,5 @@ exports.findAllActive = (req, res) => {
   Tax.find({where: { active: true }})
     .then(data => {
       res.send(data);
-    }).catch(err =>{console.error("tax0601",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("tax0601",err);res.status(500).send({message:err}); });
 };

@@ -1,6 +1,7 @@
 const db = require("../../models");
 const { compare } = require('../../function/key.function');
 const Company = db.companys;
+const Coa = db.coas;
 
 exports.create = (req, res) => {
   if(!req.headers.apikey || compare(req, res)==0) {
@@ -29,9 +30,9 @@ exports.create = (req, res) => {
       });
       Company.create(setting).then(dataa => {
         res.send(datab);
-      }).catch(err =>{console.error("br0102",err.message);res.status(500).send({message:err.message}); });
+      }).catch(err =>{console.error("br0102",err);res.status(500).send({message:err}); });
     }
-  }).catch(err =>{console.error("br0103",err.message);res.status(500).send({message:err.message}); });
+  }).catch(err =>{console.error("br0103",err);res.status(500).send({message:err}); });
 };
 
 exports.findAll = (req, res) => {
@@ -42,7 +43,18 @@ exports.findAll = (req, res) => {
   Company.findAll()
     .then(data => {
       res.send(data);
-    }).catch(err =>{console.error("sett0101",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("sett0101",err);res.status(500).send({message:err}); });
+};
+
+exports.findOne = (req, res) => {
+  if(!req.headers.apikey || compare(req, res)==0) {
+    res.status(401).send({ message: "Unauthorized!" });
+    return;
+  }
+  Company.findByPk(req.params.id)
+    .then(data => {
+      res.send(data);
+    }).catch(err =>{console.error("sett0101",err);res.status(500).send({message:err}); });
 };
 
 exports.update = (req, res) => {
@@ -60,5 +72,5 @@ exports.update = (req, res) => {
       if (!data) {
         res.status(404).send({message: `Cannot update with id=${id}. Maybe Data was not found!`});
       } else res.send(data);
-    }).catch(err =>{console.error("sett0201",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("sett0201",err);res.status(500).send({message:err}); });
 };

@@ -18,7 +18,7 @@ exports.create = (req, res) => {
     uom_id: req.body.uom, qty: req.body.qty, company_id: req.body.company});
   Bom.create(bom).then(dataa => {
       res.send(dataa);
-    }).catch(err =>{console.error("bom0101",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("bom0101",err);res.status(500).send({message:err}); });
 };
 
 exports.findAll = (req, res) => {
@@ -36,7 +36,7 @@ exports.findAll = (req, res) => {
     ] })
     .then(data => {
       res.send(data);
-    }).catch(err =>{console.error("bom0201",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("bom0201",err);res.status(500).send({message:err}); });
 };
 
 exports.findOne = (req, res) => {
@@ -49,7 +49,7 @@ exports.findOne = (req, res) => {
       if (!data)
         res.status(404).send({ message: "Not found Data with id " + id });
       else res.send(data);
-    }).catch(err =>{console.error("bom0301",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("bom0301",err);res.status(500).send({message:err}); });
 };
 
 exports.update = (req, res) => {
@@ -71,7 +71,7 @@ exports.update = (req, res) => {
       } else {
         res.send({ message: "Updated successfully." });
       }
-    }).catch(err =>{console.error("bom0401",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("bom0401",err);res.status(500).send({message:err}); });
 };
 
 exports.delete = (req, res) => {
@@ -88,7 +88,7 @@ exports.delete = (req, res) => {
       } else {
         res.send({message: "Done"});
       }
-    }).catch(err =>{console.error("bom0501",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("bom0501",err);res.status(500).send({message:err}); });
 };
 
 exports.findByProduct = (req, res) => {
@@ -105,7 +105,7 @@ exports.findByProduct = (req, res) => {
     ] })
     .then(data => {
       res.send(data);
-    }).catch(err =>{console.error("bom0601",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("bom0601",err);res.status(500).send({message:err}); });
 };
 
 exports.findByProductAggr = (req, res) => {
@@ -119,5 +119,5 @@ exports.findByProductAggr = (req, res) => {
       'GROUP BY public.boms.product_id, public.products.name',{raw: true, nest: true})
     .then(result => {
       res.send(result);
-    }).catch(err =>{console.error("bom0701",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("bom0701",err);res.status(500).send({message:err}); });
 };

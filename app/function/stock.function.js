@@ -20,16 +20,16 @@ function insertUpdateStock(type, productid, partnerid, whid, data) {
             var y1 = (((pcc.qoh * pcc.cost) + (Number(checker[0]) * (Number(checker[2]) ? checker[2]: 0))) / x1).toFixed(2);
             ProductCostComp.update({ qoh:x1, cost: y1 }, { where: { id: pcc.id }}).then(pccu => {
               resolve(1);
-            }).catch(err =>{console.error("qopf0111",err.message);reject(err); });
+            }).catch(err =>{console.error("qopf0111",err);reject(err); });
           }else{
             var x1 = checker[0];
             var y1 = ((Number(checker[0]) * (Number(checker[2]) ? checker[2]: 0)) / x1).toFixed(2);
             ProductCostComp.create({ qoh:x1, cost: y1, product_id: productid, company_id: data.company_id }).then(pccc => {
               resolve(1);
-            }).catch(err =>{console.error("qopf0112",err.message);reject(err); });
+            }).catch(err =>{console.error("qopf0112",err);reject(err); });
           }
-        }).catch(err =>{console.error("qopf0112",err.message);reject(err); });
-      }).catch(err =>{console.error("qopf0113",err.message);reject(err); });
+        }).catch(err =>{console.error("qopf0112",err);reject(err); });
+      }).catch(err =>{console.error("qopf0113",err);reject(err); });
     }else if(type == "out"){
       checkUom(type, productid, partnerid, whid, data).then(checker =>{
         ProductCostComp.findOne({where:{product_id: productid, company_id: data.company_id}}).then(pcc => {
@@ -37,15 +37,15 @@ function insertUpdateStock(type, productid, partnerid, whid, data) {
             var x1 = pcc.qoh - checker[0];
             ProductCostComp.update({ qoh:x1 }, { where: { id: pcc.id }}).then(pccu => {
               resolve(1);
-            }).catch(err =>{console.error("qopf0115",err.message);reject(err); });
+            }).catch(err =>{console.error("qopf0115",err);reject(err); });
           }else{
             var x1 = 0 - checker[0];
             ProductCostComp.create({qoh: x1, cost: checker[2], product_id: productid, company_id: data.company_id}).then(pccc => {
               resolve(1);
-            }).catch(err =>{console.error("qopf0116",err.message);reject(err); });
+            }).catch(err =>{console.error("qopf0116",err);reject(err); });
           }
-        }).catch(err =>{console.error("qopf0117",err.message);reject(err); });
-      }).catch(err =>{console.error("qopf0118",err.message);reject(err); });
+        }).catch(err =>{console.error("qopf0117",err);reject(err); });
+      }).catch(err =>{console.error("qopf0118",err);reject(err); });
     }
   	/*Lot.findOne({where:{product_id: productid, partner_id: partnerid, warehouse_id: whid}})
       .then(datas => {
@@ -62,17 +62,17 @@ function insertUpdateStock(type, productid, partnerid, whid, data) {
                     var y1 = (((pcc.qoh * pcc.cost) + (Number(checker[0]) * (Number(checker[2]) ? checker[2]: 0))) / x1).toFixed(2);
                     ProductCostComp.update({ qoh:x1, cost: y1 }, { where: { id: pcc.id }}).then(pccu => {
                       resolve(1);
-                    }).catch(err =>{console.error("qopf0101",err.message);reject(err); });
+                    }).catch(err =>{console.error("qopf0101",err);reject(err); });
                   }else{
                     var x1 = checker[0];
                     var y1 = ((Number(checker[0]) * (Number(checker[2]) ? checker[2]: 0)) / x1).toFixed(2);
                     ProductCostComp.create({ qoh:x1, cost: y1, product_id: productid, company_id: data.company_id }).then(pccc => {
                       resolve(1);
-                    }).catch(err =>{console.error("qopf0102",err.message);reject(err); });
+                    }).catch(err =>{console.error("qopf0102",err);reject(err); });
                   }
-              	}).catch(err =>{console.error("qopf0103",err.message);reject(err); });
-              }).catch(err =>{console.error("qopf0104",err.message);reject(err); });
-            }).catch(err =>{console.error("qopf0105",err.message);reject(err); });
+              	}).catch(err =>{console.error("qopf0103",err);reject(err); });
+              }).catch(err =>{console.error("qopf0104",err);reject(err); });
+            }).catch(err =>{console.error("qopf0105",err);reject(err); });
           }else if(type == "out"){
             //console.log("New Qty Out");
             checkUom(type, productid, partnerid, whid, data).then(checker =>{
@@ -84,16 +84,16 @@ function insertUpdateStock(type, productid, partnerid, whid, data) {
                     var x1 = pcc.qoh - checker[0];
                     ProductCostComp.update({ qoh:x1, cost: y1 }, { where: { id: pcc.id }}).then(pccu => {
                       resolve(1);
-                    }).catch(err =>{console.error("qopf0106",err.message);reject(err); });
+                    }).catch(err =>{console.error("qopf0106",err);reject(err); });
                   }else{
                     var x1 = 0 - checker[0];
                     ProductCostComp.create({qoh: x1, cost: checker[2], product_id: productid, company_id: data.company_id}).then(pccc => {
                       resolve(1);
-                    }).catch(err =>{console.error("qopf0107",err.message);reject(err); });
+                    }).catch(err =>{console.error("qopf0107",err);reject(err); });
                   }
-                }).catch(err =>{console.error("qopf0108",err.message);reject(err); });
-              }).catch(err =>{console.error("qopf0109",err.message);reject(err); });
-            }).catch(err =>{console.error("qopf0110",err.message);reject(err); });
+                }).catch(err =>{console.error("qopf0108",err);reject(err); });
+              }).catch(err =>{console.error("qopf0109",err);reject(err); });
+            }).catch(err =>{console.error("qopf0110",err);reject(err); });
           }
         }else{
           Qop.findByPk(datas.id).then(datax =>{
@@ -109,17 +109,17 @@ function insertUpdateStock(type, productid, partnerid, whid, data) {
                       var y1 = (((pcc.qoh * pcc.cost) + (Number(checker[0]) * (Number(checker[2]) ? checker[2]: 0))) / x1).toFixed(2);
                       ProductCostComp.update({ qoh:x1, cost: y1 }, { where: { id: pcc.id }}).then(pccu => {
                         resolve(1);
-                      }).catch(err =>{console.error("qopf0111",err.message);reject(err); });
+                      }).catch(err =>{console.error("qopf0111",err);reject(err); });
                     }else{
                       var x1 = checker[0];
                       var y1 = ((Number(checker[0]) * (Number(checker[2]) ? checker[2]: 0)) / x1).toFixed(2);
                       ProductCostComp.create({ qoh:x1, cost: y1, product_id: productid, company_id: data.company_id }).then(pccc => {
                         resolve(1);
-                      }).catch(err =>{console.error("qopf0112",err.message);reject(err); });
+                      }).catch(err =>{console.error("qopf0112",err);reject(err); });
                     }
-                  }).catch(err =>{console.error("qopf0112",err.message);reject(err); });
-                }).catch(err =>{console.error("qopf0113",err.message);reject(err); });
-              }).catch(err =>{console.error("qopf0114",err.message);reject(err); });
+                  }).catch(err =>{console.error("qopf0112",err);reject(err); });
+                }).catch(err =>{console.error("qopf0113",err);reject(err); });
+              }).catch(err =>{console.error("qopf0114",err);reject(err); });
             }else if(type == "out"){
               //console.log("QOP update Out");
               checkUom(type, productid, partnerid, whid, data).then(checker =>{
@@ -130,20 +130,20 @@ function insertUpdateStock(type, productid, partnerid, whid, data) {
                       var x1 = pcc.qoh - checker[0];
                       ProductCostComp.update({ qoh:x1 }, { where: { id: pcc.id }}).then(pccu => {
                         resolve(1);
-                      }).catch(err =>{console.error("qopf0115",err.message);reject(err); });
+                      }).catch(err =>{console.error("qopf0115",err);reject(err); });
                     }else{
                       var x1 = 0 - checker[0];
                       ProductCostComp.create({qoh: x1, cost: checker[2], product_id: productid, company_id: data.company_id}).then(pccc => {
                         resolve(1);
-                      }).catch(err =>{console.error("qopf0116",err.message);reject(err); });
+                      }).catch(err =>{console.error("qopf0116",err);reject(err); });
                     }
-                  }).catch(err =>{console.error("qopf0117",err.message);reject(err); });
-                }).catch(err =>{console.error("qopf0118",err.message);reject(err); });
-              }).catch(err =>{console.error("qopf0119",err.message);reject(err); });
+                  }).catch(err =>{console.error("qopf0117",err);reject(err); });
+                }).catch(err =>{console.error("qopf0118",err);reject(err); });
+              }).catch(err =>{console.error("qopf0119",err);reject(err); });
             }
-          }).catch(err =>{console.error("qopf0120",err.message);reject(err); });
+          }).catch(err =>{console.error("qopf0120",err);reject(err); });
         }      
-      }).catch(err =>{console.error("qopf0121",err.message);reject(err); });*/
+      }).catch(err =>{console.error("qopf0121",err);reject(err); });*/
   })
 }
 
@@ -178,7 +178,7 @@ function checkUom(type, productid, partnerid, whid, data) {
         }
         resolve ([qty, uom_id, cost]);
       }
-    }).catch(err =>{console.error("qopf0201",err.message);reject(err); });
+    }).catch(err =>{console.error("qopf0201",err);reject(err); });
   })
 }
 

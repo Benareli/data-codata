@@ -6,6 +6,9 @@ module.exports = app => {
   // Retrieve all
   routerCompany.get("/", companys.findAll);
 
+  // Retrieve all
+  routerCompany.get("/get/:id", companys.findOne);
+
   // Update with id
   routerCompany.put("/:id", companys.update);
 

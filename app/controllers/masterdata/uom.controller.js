@@ -20,8 +20,8 @@ exports.create = (req, res) => {
     const log = ({message: "add", uom: dataa.id, user: req.body.user,});
     Log.create(log).then(datab => {
       res.send(datab);
-    }).catch(err =>{console.error("uom0101",err.message);res.status(500).send({message:err.message}); });
-  }).catch(err =>{console.error("uom0102",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("uom0101",err);res.status(500).send({message:err}); });
+  }).catch(err =>{console.error("uom0102",err);res.status(500).send({message:err}); });
 };
 
 exports.findAll = (req, res) => {
@@ -34,7 +34,7 @@ exports.findAll = (req, res) => {
   Uom.findAll({ include: [{ model: Uomcat, as: "uomcats" }] })
     .then(data => {
       res.send(data);
-    }).catch(err =>{console.error("uom0201",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("uom0201",err);res.status(500).send({message:err}); });
 };
 
 exports.findOne = (req, res) => {
@@ -47,7 +47,7 @@ exports.findOne = (req, res) => {
       if (!data)
         res.status(404).send({ message: "Not found Data with id " + id });
       else res.send(data);
-    }).catch(err =>{console.error("uom0301",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("uom0301",err);res.status(500).send({message:err}); });
 };
 
 exports.findByCat = (req, res) => {
@@ -58,7 +58,7 @@ exports.findByCat = (req, res) => {
   Uom.findAll({where: {uomcatId: req.params.uomcat}})
     .then(data => {
       res.send(data);
-    }).catch(err =>{console.error("uom0401",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("uom0401",err);res.status(500).send({message:err}); });
 };
 
 exports.update = (req, res) => {
@@ -81,7 +81,7 @@ exports.update = (req, res) => {
         const log = ({message: req.body.message, uom: req.params.id, user: req.body.user,});
         Log.create(log).then(datab => {
           res.send({ message: "Updated successfully." });
-        }).catch(err =>{console.error("uom0501",err.message);res.status(500).send({message:err.message}); });
+        }).catch(err =>{console.error("uom0501",err);res.status(500).send({message:err}); });
       }
-    }).catch(err =>{console.error("uom0502",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("uom0502",err);res.status(500).send({message:err}); });
 };

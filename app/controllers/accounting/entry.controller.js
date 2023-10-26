@@ -18,7 +18,7 @@ exports.findAll = (req, res) => {
     ] })
     .then(data => {
       res.send(data);
-    }).catch(err =>{console.error("ent0101",err.message);res.status(500).send({message:err.message}); });  
+    }).catch(err =>{console.error("ent0101",err);res.status(500).send({message:err}); });  
 };
 
 exports.findOne = (req, res) => {
@@ -34,7 +34,7 @@ exports.findOne = (req, res) => {
       if (!data)
         res.status(404).send({ message: "Not found Data with id " + id });
       else res.send(data);
-    }).catch(err =>{console.error("ent0201",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("ent0201",err);res.status(500).send({message:err}); });
 };
 
 exports.findByJournal = (req, res) => {
@@ -54,5 +54,5 @@ exports.findByJournal = (req, res) => {
       ,{raw: true, nest: true})
     .then(data => {
       res.send(data);
-    }).catch(err =>{console.error("ent0301",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("ent0301",err);res.status(500).send({message:err}); });
 };

@@ -21,7 +21,7 @@ exports.create = (req, res) => {
   });
   Paymentmethod.create(payM).then(dataa => {
     res.send(dataa);
-  }).catch(err =>{console.error("paym0101",err.message);res.status(500).send({message:err.message}); });
+  }).catch(err =>{console.error("paym0101",err);res.status(500).send({message:err}); });
 };
 
 exports.findAll = (req, res) => {
@@ -34,7 +34,7 @@ exports.findAll = (req, res) => {
   ] })
     .then(data => {
       res.send(data);
-    }).catch(err =>{console.error("paym0201",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("paym0201",err);res.status(500).send({message:err}); });
 };
 
 exports.findOne = (req, res) => {
@@ -47,7 +47,7 @@ exports.findOne = (req, res) => {
       if (!data)
         res.status(404).send({ message: "Not found Data with id " + id });
       else res.send(data);
-    }).catch(err =>{console.error("paym0301",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("paym0301",err);res.status(500).send({message:err}); });
 };
 
 exports.findByDesc = (req, res) => {
@@ -58,7 +58,7 @@ exports.findByDesc = (req, res) => {
   Paymentmethod.findOne({where:{name:req.params.name}})
     .then(data => {
       res.send(data);
-    }).catch(err =>{console.error("paym0401",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("paym0401",err);res.status(500).send({message:err}); });
 };
 
 exports.update = (req, res) => {
@@ -80,5 +80,5 @@ exports.update = (req, res) => {
       } else {
         res.send({ message: "Updated successfully." });
       }
-    }).catch(err =>{console.error("paym0501",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("paym0501",err);res.status(500).send({message:err}); });
 };

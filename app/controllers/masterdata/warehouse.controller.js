@@ -20,8 +20,8 @@ exports.create = (req, res) => {
     const log = ({message: "dibuat", warehouse: dataa._id, user: req.body.user,});
     Log.create(log).then(datab => {
       res.send(datab);
-    }).catch(err =>{console.error("wh0101",err.message);res.status(500).send({message:err.message}); });
-  }).catch(err =>{console.error("wh0102",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("wh0101",err);res.status(500).send({message:err}); });
+  }).catch(err =>{console.error("wh0102",err);res.status(500).send({message:err}); });
 };
 
 exports.createMany = (req, res) => {
@@ -49,8 +49,8 @@ function startSequence(x, reqs, users, res){
           const log = ({message: "upload", warehouse: dataa.id, user: users,});
           Log.create(log).then(datab => {
             sequencing(x, reqs, users, res);
-          }).catch(err =>{console.error("wh0201",err.message);res.status(500).send({message:err.message}); });
-        }).catch(err =>{console.error("wh0202",err.message);res.status(500).send({message:err.message}); });
+          }).catch(err =>{console.error("wh0201",err);res.status(500).send({message:err}); });
+        }).catch(err =>{console.error("wh0202",err);res.status(500).send({message:err}); });
       }
     });
   }else{
@@ -74,7 +74,7 @@ exports.findAll = (req, res) => {
     ] })
     .then(data => {
       res.send(data);
-    }).catch(err =>{console.error("wh0301",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("wh0301",err);res.status(500).send({message:err}); });
 };
 
 exports.findOne = (req, res) => {
@@ -87,7 +87,7 @@ exports.findOne = (req, res) => {
       if (!data)
         res.status(404).send({ message: "Not found Data with id " + id });
       else res.send(data);
-    }).catch(err =>{console.error("wh0401",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("wh0401",err);res.status(500).send({message:err}); });
 };
 
 exports.findByDesc = (req, res) => {
@@ -104,7 +104,7 @@ exports.findByDesc = (req, res) => {
     ] })
     .then(data => {
       res.send(data);
-    }).catch(err =>{console.error("wh0501",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("wh0501",err);res.status(500).send({message:err}); });
 };
 
 exports.update = (req, res) => {
@@ -127,9 +127,9 @@ exports.update = (req, res) => {
         const log = ({message: req.body.message, warehouse: req.params.id, user: req.body.user,});
         Log.create(log).then(datab => {
           res.send({ message: "Updated successfully." });
-        }).catch(err =>{console.error("wh0601",err.message);res.status(500).send({message:err.message}); });
+        }).catch(err =>{console.error("wh0601",err);res.status(500).send({message:err}); });
       }
-    }).catch(err =>{console.error("wh0602",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("wh0602",err);res.status(500).send({message:err}); });
 };
 
 exports.findAllActive = (req, res) => {
@@ -143,7 +143,7 @@ exports.findAllActive = (req, res) => {
     ] })
     .then(data => {
       res.send(data);
-    }).catch(err =>{console.error("wh0701",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("wh0701",err);res.status(500).send({message:err}); });
 };
 
 exports.findMain = (req, res) => {
@@ -157,5 +157,5 @@ exports.findMain = (req, res) => {
     ] })
       .then(data => {
         res.send(data);
-      }).catch(err =>{console.error("wh0801",err.message);res.status(500).send({message:err.message}); });
+      }).catch(err =>{console.error("wh0801",err);res.status(500).send({message:err}); });
 };

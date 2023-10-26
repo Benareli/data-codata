@@ -28,7 +28,7 @@ exports.create = (req, res) => {
       user: req.body.user,
     });
     Log.create(log).then(data => {res.send(data);
-      }).catch(err => {console.error("log0101",err.message);res.status(500).send({message:err.message});
+      }).catch(err => {console.error("log0101",err);res.status(500).send({message:err});
     });
   }
   else if(req.body.category != "null"){
@@ -38,7 +38,7 @@ exports.create = (req, res) => {
       user: req.body.user,
     });
     Log.create(log).then(data => {res.send(data);
-      }).catch(err => {console.error("log0102",err.message);res.status(500).send({message:err.message});
+      }).catch(err => {console.error("log0102",err);res.status(500).send({message:err});
     });
   }
   else if(req.body.product != "null"){
@@ -48,7 +48,7 @@ exports.create = (req, res) => {
       user: req.body.user,
     });
     Log.create(log).then(data => {res.send(data);
-      }).catch(err => {console.error("log0103",err.message);res.status(500).send({message:err.message});
+      }).catch(err => {console.error("log0103",err);res.status(500).send({message:err});
     });
   }
   else if(req.body.uom_cat != "null"){
@@ -58,7 +58,7 @@ exports.create = (req, res) => {
       user: req.body.user,
     });
     Log.create(log).then(data => {res.send(data);
-      }).catch(err => {console.error("log0104",err.message);res.status(500).send({message:err.message});
+      }).catch(err => {console.error("log0104",err);res.status(500).send({message:err});
     });
   }
   else if(req.body.uom != "null"){
@@ -68,7 +68,7 @@ exports.create = (req, res) => {
       user: req.body.user,
     });
     Log.create(log).then(data => {res.send(data);
-      }).catch(err => {console.error("log0105",err.message);res.status(500).send({message:err.message});
+      }).catch(err => {console.error("log0105",err);res.status(500).send({message:err});
     });
   }
   else if(req.body.partner != "null"){
@@ -78,7 +78,7 @@ exports.create = (req, res) => {
       user: req.body.user,
     });
     Log.create(log).then(data => {res.send(data);
-      }).catch(err => {console.error("log0106",err.message);res.status(500).send({message:err.message});
+      }).catch(err => {console.error("log0106",err);res.status(500).send({message:err});
     });
   }
   else if(req.body.warehouse != "null"){
@@ -88,7 +88,7 @@ exports.create = (req, res) => {
       user: req.body.user,
     });
     Log.create(log).then(data => {res.send(data);
-      }).catch(err => {console.error("log0107",err.message);res.status(500).send({message:err.message});
+      }).catch(err => {console.error("log0107",err);res.status(500).send({message:err});
     });
   }
   else if(req.body.store != "null"){
@@ -98,7 +98,7 @@ exports.create = (req, res) => {
       user: req.body.user,
     });
     Log.create(log).then(data => {res.send(data);
-      }).catch(err => {console.error("log0108",err.message);res.status(500).send({message:err.message});
+      }).catch(err => {console.error("log0108",err);res.status(500).send({message:err});
     });
   }
 };
@@ -114,7 +114,7 @@ exports.findAll = (req, res) => {
   Log.findAll()
     .then(data => {
       res.send(data);
-    }).catch(err =>{console.error("log0201",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("log0201",err);res.status(500).send({message:err}); });
 };
 
 // Find a single with an id
@@ -128,7 +128,7 @@ exports.findOne = (req, res) => {
       if (!data)
         res.status(404).send({ message: "Not found Data with id " + id });
       else res.send(data);
-    }).catch(err =>{console.error("log0301",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("log0301",err);res.status(500).send({message:err}); });
 };
 
 // Find a single with an desc
@@ -142,7 +142,7 @@ exports.findByDesc = (req, res) => {
   Log.findAll({where:condition})
     .then(data => {
       res.send(data);
-    }).catch(err =>{console.error("log0401",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("log0401",err);res.status(500).send({message:err}); });
 };
 
 // Update by the id in the request
@@ -164,5 +164,5 @@ exports.update = (req, res) => {
           message: `Cannot update with id=${id}. Maybe Data was not found!`
         });
       } else res.send({ message: "Updated successfully." });
-    }).catch(err =>{console.error("log0501",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("log0501",err);res.status(500).send({message:err}); });
 };

@@ -22,7 +22,7 @@ function updateProductCache() {
     .then(data => {
         productCache.set('productsAll', data);
         resolve(1);
-      }).catch(err =>{console.error("prod0302",err.message);reject(0); });
+      }).catch(err =>{console.error("prod0302",err);reject(0); });
   })
 }
 

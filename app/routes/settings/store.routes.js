@@ -10,7 +10,7 @@ module.exports = app => {
   routerStore.get("/", stores.findAll);
 
   // Retrieve all active
-  routerStore.get("/active", stores.findAllActive);
+  routerStore.get("/active/:comp", stores.findAllActive);
 
   // Retrieve a single
   routerStore.get("/:id", stores.findOne);

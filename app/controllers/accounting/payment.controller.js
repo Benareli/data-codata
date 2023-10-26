@@ -66,7 +66,7 @@ exports.create = (req, res) => {
   });
   Payment.create(payment).then(dataa => {
     payments = dataa;
-    if(req.body.type == 1){
+    if(!req.body.pos){
       Journal.findOne({where:{name:req.body.order_id}}).then(fj => {
         fj.addPayment(dataa);
         var stateNew = fj.amountdue-req.body.payment == 0 ? 2 : 1;
@@ -74,21 +74,23 @@ exports.create = (req, res) => {
           insertJournal(req, res); 
         })
       })
+    }else{
+      insertJournal(req, res);
     }
-  }).catch(err => {res.status(500).send({message:err.message}); })
+  }).catch(err => {res.status(500).send({message:err}); })
 };
 
 function insertJournal(req, res){
   entries = [];
   entries.push({
     label: req.body.order_id,
-    debits: req.body.cross, 
+    debits: req.body.type === 1 ? req.body.cross : req.body.pay_method.coas, 
     debit: Number(req.body.payment), 
     date: req.body.date,
   })
   entries.push({
     label: req.body.pay_method.name,
-    credits: req.body.pay_method.coas, 
+    credits: req.body.type === 1 ? req.body.pay_method.coas : req.body.cross, 
     credit: Number(req.body.payment), 
     date: req.body.date,
   })
@@ -104,8 +106,8 @@ function insertJournal(req, res){
   };
   if(entries.length >= 2){
     inputJournal(insJournal).then(inputJour => {
-      res.send(inputJour);
-    }).catch(err =>{console.error("pay0201",err.message);res.status(500).send({message:err.message}); });
+      res.send({message: "done"});
+    }).catch(err =>{console.error("pay0201",err);res.status(500).send({message:err}); });
   }
 }
 
@@ -127,10 +129,10 @@ function secondAcc(req, res) {
             }else{
               res.send(payments);
             }
-          }).catch(err =>{console.error("pay0401",err.message);res.status(500).send({message:err.message}); });
-        }).catch(err =>{console.error("pay0402",err.message);res.status(500).send({message:err.message}); });
-      }).catch(err =>{console.error("pay0403",err.message);res.status(500).send({message:err.message}); });
-    }).catch(err =>{console.error("pay0404",err.message);res.status(500).send({message:err.message}); });
+          }).catch(err =>{console.error("pay0401",err);res.status(500).send({message:err}); });
+        }).catch(err =>{console.error("pay0402",err);res.status(500).send({message:err}); });
+      }).catch(err =>{console.error("pay0403",err);res.status(500).send({message:err}); });
+    }).catch(err =>{console.error("pay0404",err);res.status(500).send({message:err}); });
 }
 
 function changeAcc(req, res) {
@@ -147,10 +149,10 @@ function changeAcc(req, res) {
             {$push: {entries: [dataa._id,datab._id]}})
           .then(datac => {
             res.send(payments);
-          }).catch(err =>{console.error("pay0401",err.message);res.status(500).send({message:err.message}); });
-        }).catch(err =>{console.error("pay0402",err.message);res.status(500).send({message:err.message}); });
-      }).catch(err =>{console.error("pay0403",err.message);res.status(500).send({message:err.message}); });
-    }).catch(err =>{console.error("pay0404",err.message);res.status(500).send({message:err.message}); });
+          }).catch(err =>{console.error("pay0401",err);res.status(500).send({message:err}); });
+        }).catch(err =>{console.error("pay0402",err);res.status(500).send({message:err}); });
+      }).catch(err =>{console.error("pay0403",err);res.status(500).send({message:err}); });
+    }).catch(err =>{console.error("pay0404",err);res.status(500).send({message:err}); });
 }
 
 // Retrieve all from the database.
@@ -164,7 +166,7 @@ exports.findAll = (req, res) => {
   Payment.find(condition)
     .then(data => {
       res.send(data);
-    }).catch(err =>{console.error("pay0501",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("pay0501",err);res.status(500).send({message:err}); });
 };
 
 // Find a single with an id
@@ -178,7 +180,7 @@ exports.findOne = (req, res) => {
       if (!data)
         res.status(404).send({ message: "Not found Data with id " + id });
       else res.send(data);
-    }).catch(err =>{console.error("pay0601",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("pay0601",err);res.status(500).send({message:err}); });
 };
 
 // Find a single with an desc
@@ -192,7 +194,7 @@ exports.findByDesc = (req, res) => {
   Payment.find(condition)
     .then(data => {
       res.send(data);
-    }).catch(err =>{console.error("pay0701",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("pay0701",err);res.status(500).send({message:err}); });
 };
 
 // Update by the id in the request
@@ -215,7 +217,7 @@ exports.update = (req, res) => {
       } else {
         res.send({ message: "Updated successfully." });
       }
-    }).catch(err =>{console.error("pay0801",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("pay0801",err);res.status(500).send({message:err}); });
 };
 
 function titleCase(str) {

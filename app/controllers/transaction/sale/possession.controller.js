@@ -52,7 +52,7 @@ exports.findAll = (req, res) => {
     .then(data => {
       res.send(data);
     })
-    .catch(err => {console.error("pose0101",err.message);res.status(500).send({message:err.message});
+    .catch(err => {console.error("pose0101",err);res.status(500).send({message:err});
     });
 };
 
@@ -70,7 +70,7 @@ exports.findOne = (req, res) => {
       if (!data)
         res.status(404).send({ message: "Not found Data with id " + id });
       else res.send(data);
-    }).catch(err =>{console.error("pose0201",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("pose0201",err);res.status(500).send({message:err}); });
 };
 
 // Find a single with an user
@@ -82,7 +82,7 @@ exports.findByAllOpen = (req, res) => {
   Possession.find({open: true})
     .then(data => {
       res.send(data);
-    }).catch(err =>{console.error("pose0301",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("pose0301",err);res.status(500).send({message:err}); });
 };
 
 // Find a single with an user
@@ -98,7 +98,7 @@ exports.findByUser = (req, res) => {
     .populate({ path: 'user', model: User })
     .then(data => {
       res.send(data);
-    }).catch(err =>{console.error("pose0401",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("pose0401",err);res.status(500).send({message:err}); });
 };
 
 // Find a single with an user open
@@ -114,7 +114,7 @@ exports.findByUserOpen = (req, res) => {
     .populate({ path: 'user', model: User })
     .then(data => {
       res.send(data);
-    }).catch(err =>{console.error("pose0501",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("pose0501",err);res.status(500).send({message:err}); });
 };
 
 // Find a single with an user open
@@ -130,7 +130,7 @@ exports.findByUserClose = (req, res) => {
     .populate({ path: 'user', model: User })
     .then(data => {
       res.send(data);
-    }).catch(err =>{console.error("pose0601",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("pose0601",err);res.status(500).send({message:err}); });
 };
 
 // Update by the id in the request
@@ -151,5 +151,5 @@ exports.update = (req, res) => {
       } else {
         res.send({ message: "Updated successfully." });
       }
-    }).catch(err =>{console.error("pose0701",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("pose0701",err);res.status(500).send({message:err}); });
 };

@@ -12,7 +12,7 @@ exports.findAll = (req, res) => {
   Role.findAll({where: condition})
     .then(data => {
       res.send(data);
-    }).catch(err =>{console.error("role0101",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("role0101",err);res.status(500).send({message:err}); });
 };
 
 exports.findOne = (req, res) => {
@@ -25,5 +25,5 @@ exports.findOne = (req, res) => {
       if (!data)
         res.status(404).send({ message: "Not found Data with id " + id });
       else res.send(data);
-    }).catch(err =>{console.error("role0201",err.message);res.status(500).send({message:err.message}); });
+    }).catch(err =>{console.error("role0201",err);res.status(500).send({message:err}); });
 };
